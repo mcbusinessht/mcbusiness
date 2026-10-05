@@ -1,0 +1,356 @@
+@page
+@model MCBusiness.Pages.Users.Admin.Plans.EditModel
+
+@{
+    ViewData["Title"] = "Modifier le Plan";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-pencil-square me-2"></i>Modifier le Plan: @Model.Plan.Name
+                        </h4>
+                        <a asp-page="./Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row justify-content-center">
+                        <div class="col-md-8 col-lg-6">
+                            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                                <input type="hidden" asp-for="Plan.Id" />
+                                <input type="hidden" asp-for="Plan.Version" />
+                                <input type="hidden" asp-for="Plan.CategoryId" />
+                                <input type="hidden" asp-for="Plan.CurrencyBase" />
+                                <input type="hidden" asp-for="Plan.PathPicture" />
+
+                                <div class="mb-4">
+                                    <!-- Section Image -->
+                                    <div class="text-center mb-4">
+                                        <img src="@Model.Plan.PathPicture" alt="Image actuelle" class="img-thumbnail mb-2" style="max-width: 200px; height: auto;">
+                                        <p class="small text-muted">Image actuelle</p>
+                                    </div>
+
+                                    <!-- Section Informations de base -->
+                                    <div class="card mb-4 border-primary">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Informations de base</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label asp-for="Plan.Name" class="form-label fw-bold"></label>
+                                                <input asp-for="Plan.Name" class="form-control" required />
+                                                <span asp-validation-for="Plan.Name" class="text-danger small"></span>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Catégorie</label>
+                                                <input value="@Model.Plan.Category?.Name" class="form-control" readonly />
+                                            </div>
+                                            <div class="mb-3">
+                                                <label asp-for="Plan.Description" class="form-label fw-bold"></label>
+                                                <textarea asp-for="Plan.Description" class="form-control" rows="3"></textarea>
+                                                <span asp-validation-for="Plan.Description" class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Section Tarification et Durée -->
+                                    <div class="card mb-4 border-primary">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0"><i class="bi bi-currency-exchange me-2"></i>Tarification et Durée</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label asp-for="Plan.Price" class="form-label fw-bold"></label>
+                                                    <div class="input-group">
+                                                        <input asp-for="Plan.Price" class="form-control" type="number" min="0" step="0.01" required />
+                                                        <span class="input-group-text">HTG</span>
+                                                    </div>
+                                                    <span asp-validation-for="Plan.Price" class="text-danger small"></span>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label asp-for="Plan.DurationInDays" class="form-label fw-bold"></label>
+                                                    <div class="input-group">
+                                                        <input asp-for="Plan.DurationInDays" class="form-control" type="number" min="1" max="3650" required />
+                                                        <span class="input-group-text">jours</span>
+                                                    </div>
+                                                    <span asp-validation-for="Plan.DurationInDays" class="text-danger small"></span>
+                                                </div>
+                                                <div class="col-12">
+                                                    <label asp-for="Plan.Ceiling" class="form-label fw-bold">Plafond des gains</label>
+                                                    <div class="input-group">
+                                                        <input asp-for="Plan.Ceiling" class="form-control" type="number" min="0" step="0.01" required />
+                                                        <span class="input-group-text">HTG</span>
+                                                    </div>
+                                                    <span asp-validation-for="Plan.Ceiling" class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Section Gains -->
+                                    <div class="card mb-4 border-primary">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Commission Ambassadeur</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-3">
+                                                <div class="col-12">
+                                                    <label asp-for="Plan.AmbassadorCommissionPercentage" class="form-label fw-bold">Taux de commission</label>
+                                                    <div class="input-group">
+                                                        <input asp-for="Plan.AmbassadorCommissionPercentage" class="form-control" type="number" min="0" max="1" step="0.01" required />
+                                                        <span class="input-group-text">0 à 1</span>
+                                                    </div>
+                                                    <div class="form-text">Exemple : 0.10 = 10%, 0.25 = 25%, 1 = 100%.</div>
+                                                    <span asp-validation-for="Plan.AmbassadorCommissionPercentage" class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- NOUVEAU: Section Système de Points de Fidélité -->
+                                    <div class="card mb-4 border-success">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0"><i class="bi bi-star-fill text-success me-2"></i>?? Système de Points de Fidélité</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="alert alert-info mb-3">
+                                                <i class="bi bi-info-circle me-2"></i>
+                                                <small><strong>Séparation argent/fidélité :</strong> Les points sont attribués aux ambassadeurs pour les parrainages, séparés des commissions en argent.</small>
+                                            </div>
+
+                                            <div class="row g-3">
+                                                <!-- Points Generation 1 -->
+                                                <div class="col-md-4">
+                                                    <label asp-for="Plan.PointsGeneration1" class="form-label fw-bold">
+                                                        <i class="bi bi-star-fill text-success"></i> Points G1
+                                                    </label>
+                                                    <div class="input-group">
+                                                        <input asp-for="Plan.PointsGeneration1" class="form-control" type="number" min="0" />
+                                                        <span class="input-group-text">pts</span>
+                                                    </div>
+                                                    <span asp-validation-for="Plan.PointsGeneration1" class="text-danger small"></span>
+                                                    <small class="text-muted d-block mt-1">Parrainage direct</small>
+                                                </div>
+
+                                                <!-- Points Generation 2 -->
+                                                <div class="col-md-4">
+                                                    <label asp-for="Plan.PointsGeneration2" class="form-label fw-bold">
+                                                        <i class="bi bi-star-fill text-info"></i> Points G2
+                                                    </label>
+                                                    <div class="input-group">
+                                                        <input asp-for="Plan.PointsGeneration2" class="form-control" type="number" min="0" />
+                                                        <span class="input-group-text">pts</span>
+                                                    </div>
+                                                    <span asp-validation-for="Plan.PointsGeneration2" class="text-danger small"></span>
+                                                    <small class="text-muted d-block mt-1">Niveau 2</small>
+                                                </div>
+
+                                                <!-- Points Generation 3 -->
+                                                <div class="col-md-4">
+                                                    <label asp-for="Plan.PointsGeneration3" class="form-label fw-bold">
+                                                        <i class="bi bi-star-fill text-warning"></i> Points G3
+                                                    </label>
+                                                    <div class="input-group">
+                                                        <input asp-for="Plan.PointsGeneration3" class="form-control" type="number" min="0" />
+                                                        <span class="input-group-text">pts</span>
+                                                    </div>
+                                                    <span asp-validation-for="Plan.PointsGeneration3" class="text-danger small"></span>
+                                                    <small class="text-muted d-block mt-1">Niveau 3</small>
+                                                </div>
+
+                                                <!-- Welcome Bonus Points -->
+                                                <div class="col-md-6">
+                                                    <label asp-for="Plan.WelcomeBonusPoints" class="form-label fw-bold">
+                                                        <i class="bi bi-gift-fill text-primary"></i> Points de Bienvenue
+                                                    </label>
+                                                    <div class="input-group">
+                                                        <input asp-for="Plan.WelcomeBonusPoints" class="form-control" type="number" min="0" />
+                                                        <span class="input-group-text">pts</span>
+                                                    </div>
+                                                    <span asp-validation-for="Plan.WelcomeBonusPoints" class="text-danger small"></span>
+                                                    <small class="text-muted d-block mt-1">Bonus nouveaux parrainés</small>
+                                                </div>
+
+                                                <!-- Monthly Points Limit -->
+                                                <div class="col-md-6">
+                                                    <label asp-for="Plan.MonthlyPointsLimit" class="form-label fw-bold">
+                                                        <i class="bi bi-exclamation-circle text-danger"></i> Plafond Mensuel
+                                                    </label>
+                                                    <div class="input-group">
+                                                        <input asp-for="Plan.MonthlyPointsLimit" class="form-control" type="number" min="0" />
+                                                        <span class="input-group-text">pts/mois</span>
+                                                    </div>
+                                                    <span asp-validation-for="Plan.MonthlyPointsLimit" class="text-danger small"></span>
+                                                    <small class="text-muted d-block mt-1">0 = illimité</small>
+                                                </div>
+
+                                                <!-- IsFreeplan -->
+                                                <div class="col-12">
+                                                    <div class="form-check form-switch">
+                                                        <input asp-for="Plan.IsFreeplan" class="form-check-input" type="checkbox" />
+                                                        <label asp-for="Plan.IsFreeplan" class="form-check-label">
+                                                            <i class="bi bi-unlock-fill"></i> <strong>Plan Gratuit</strong> (créé manuellement par admin)
+                                                        </label>
+                                                    </div>
+                                                    <span asp-validation-for="Plan.IsFreeplan" class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Section Options -->
+                                    <div class="card mb-4 border-primary">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Options</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="IsActive" asp-for="Plan.IsActive" style="width: 3em; height: 1.5em;">
+                                                    <label class="form-check-label fw-bold" for="IsActive">Plan Actif</label>
+                                                </div>
+                                                <div class="form-text">Désactivez ce switch pour masquer le plan aux utilisateurs</div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="UploadedImage" class="form-label fw-bold">Modifier l'image</label>
+                                                <input type="file" class="form-control" id="UploadedImage" name="UploadedImage" accept="image/*">
+                                                <div class="form-text">Format recommandé: 500x500 px (JPEG, PNG)</div>
+                                                <span class="text-danger small">
+                                                    @if (ViewData.ModelState.ContainsKey("UploadedImage"))
+                                                    {
+                                                        @foreach (var error in ViewData.ModelState["UploadedImage"].Errors)
+                                                        {
+                                                            <p>@error.ErrorMessage</p>
+                                                        }
+                                                    }
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Boutons d'action -->
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                        <button type="submit" class="btn btn-primary me-md-2 px-4">
+                                            <i class="bi bi-save-fill me-1"></i> Enregistrer
+                                        </button>
+                                        <a asp-page="./Index" class="btn btn-outline-secondary px-4">
+                                            <i class="bi bi-x-circle me-1"></i> Annuler
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 0.75rem 1.25rem;
+        }
+        
+        .form-control {
+            border-radius: 0.375rem;
+        }
+        
+        .img-thumbnail {
+            border: 2px dashed #dee2e6;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .img-thumbnail:hover {
+            border-color: #0d6efd;
+            transform: scale(1.03);
+        }
+        
+        .input-group-text {
+            background-color: #f8f9fa;
+            font-weight: 500;
+        }
+        
+        .form-switch .form-check-input {
+            cursor: pointer;
+        }
+        
+        .btn {
+            transition: all 0.3s ease;
+            border-radius: 0.375rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+        
+        .needs-validation .form-control:invalid, 
+        .needs-validation .form-control.is-invalid {
+            border-color: #dc3545;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+    </style>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Validation des champs du formulaire
+        (function () {
+            'use strict'
+            
+            var forms = document.querySelectorAll('.needs-validation')
+            
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+        
+        // Prévisualisation de l'image uploadée
+        document.getElementById('UploadedImage').addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                var reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    document.querySelector('.img-thumbnail').src = event.target.result;
+                }
+                
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    </script>
+}

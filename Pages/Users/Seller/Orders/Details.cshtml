@@ -1,0 +1,198 @@
+﻿@page
+@model MCBusiness.Pages.Users.Seller.Orders.DetailsModel
+
+@{
+    ViewData["Title"] = "Détails de la Commande";
+}
+
+<!-- Bouton menu mobile -->
+<button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+        style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+        data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+    <i class="bi bi-list fs-4"></i>
+</button>
+
+<!-- Offcanvas Sidebar Mobile -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <partial name="_SideBarPartial"/>
+    </div>
+</div>
+
+<div class="container-fluid px-0">
+    <div class="row g-0">
+        <!-- Sidebar version desktop -->
+        <div class="col-lg-3 d-none d-lg-block bg-white border-end vh-100 sticky-top">
+            <partial name="_SideBarPartial"/>
+        </div> 
+        
+        <div class="col-lg-9 px-4 py-3">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="h4 mb-0">
+                    <i class="bi bi-receipt me-2 text-primary"></i>Commande #@Model.Order.Id
+                </h2>
+                <span class="badge @GetStatusBadgeClass(Model.Order.Status)">
+                    @Model.Order.Status
+                </span>
+            </div>
+
+            <!-- Carte d'informations client -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>Informations client</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Nom :</strong> @Model.Order.User.FullName</p>
+                            <p class="mb-1"><strong>Date de commande :</strong> @LocalTime.Format(Model.Order.OrderDate, "dd/MM/yyyy HH:mm")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>No Telephone :</strong> @Model.Order.User.PhoneNumber </p>
+                            <p class="mb-1"><strong>Adresse :</strong> @Model.Address.FullAddress </p>
+
+                        
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carte de résumé de commande -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-currency-exchange me-2"></i>Résumé de la commande</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="mb-1"><strong>Montant total :</strong></p>
+                        </div>
+                        <div>
+                            <p class="mb-1 fw-bold">@Model.Order.GrandTotal.ToString("N2") @Model.Order.Currency.CurrencyBase</p>
+                        </div>
+                    </div>    
+                </div>
+            </div>
+
+            <!-- Liste des produits -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-cart3 me-2"></i>Produits commandés</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                        @foreach(var prod in Model.ListOrderProducts)
+                        {
+                            <div class="col">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="row g-0 h-100">
+                                        <div class="col-md-4 d-flex align-items-center p-2">
+                                        @{
+                                            var imageUrl = prod.ProductVariant.Images != null && prod.ProductVariant.Images.Any()
+                                                ? prod.ProductVariant.Images[0].Url
+                                                : "/images/no-image.png"; // met un chemin d’image par défaut ici
+                                        }
+                                        <img src="@imageUrl" class="img-fluid rounded-start" alt="@prod.ProductVariant.Product.Name">
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="card-body">
+                                                <h6 class="card-title">@prod.ProductVariant.Product.Name</h6>
+                                                <p class="card-text small mb-1">SKU: @prod.ProductVariant.Sku</p>
+                                                <p class="card-text small mb-2">Quantité: @prod.Quantity</p>
+                                                <div class="d-flex gap-2">
+                                                    <a asp-page="../Products/ProductVariants/Details" asp-route-id="@prod.ProductVariant.Id" 
+                                                       class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-eye"></i> Détails
+                                                    </a>
+                                                    @if((prod.Shipment == null || prod.Shipment.IsDeleted)
+                                                        && (prod.Status == MCBusiness.Models.OrderProductStatus.Pending
+                                                            || prod.Status == MCBusiness.Models.OrderProductStatus.Shipped)
+                                                        && (Model.Order.Status == MCBusiness.Models.OrderStatus.Paid
+                                                            || Model.Order.Status == MCBusiness.Models.OrderStatus.PartiallyShipped
+                                                            || Model.Order.Status == MCBusiness.Models.OrderStatus.PartiallyDelivered)) {
+                                                    <a asp-page="../Shipments/Create" asp-route-id="@prod.Id" asp-route-orderid="@Model.Order.Id" 
+                                                       class="btn btn-sm btn-primary">
+                                                        <i class="bi bi-truck"></i> Livrer
+                                                    </a>
+                                                    }
+                                                </div>
+                                                @if(prod.IsDeleted || prod.ProductVariant.IsDeleted){ <br>                 
+                                                        <span class="text-danger">Produit supprimé</span>
+                                                    }  
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+                <a asp-page="./Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Retour aux commandes
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    @using MCBusiness.Models;
+    string GetStatusBadgeClass(OrderStatus status)
+    {
+        switch(status)
+        {
+            case OrderStatus.Pending:
+                return "bg-warning text-dark";
+            case OrderStatus.Shipped:
+                return "bg-info text-white";
+            case OrderStatus.Delivered:
+                return "bg-success text-white";
+            case OrderStatus.Cancelled:
+                return "bg-danger text-white";
+            default:
+                return "bg-secondary text-white";
+        }
+    }
+} 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle sidebar groups
+        document.querySelectorAll('.sidebar-group').forEach(group => {
+            const item = group.querySelector('.sidebar-item');
+            const submenu = group.querySelector('.sidebar-submenu');
+            
+            // Open if contains active item
+            if (submenu.querySelector('.active')) {
+                group.classList.add('active');
+            }
+            
+            item.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') return;
+                group.classList.toggle('active');
+            });
+        });
+        
+        // Toggle sidebar subgroups
+        document.querySelectorAll('.sidebar-subgroup').forEach(group => {
+            const item = group.querySelector('.sidebar-subitem');
+            const submenu = group.querySelector('.sidebar-subsubmenu');
+            
+            // Open if contains active item
+            if (submenu.querySelector('.active')) {
+                group.classList.add('active');
+            }
+            
+            item.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') return;
+                group.classList.toggle('active');
+            });
+        });
+    });
+</script>

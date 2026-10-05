@@ -1,0 +1,511 @@
+@page
+@using System.Text.Json
+@model MCBusiness.Pages.Orders.ReceiptModel
+@{
+    ViewData["Title"] = $"Reçu commande #{Model.Order.Id}";
+    var order = Model.Order;
+    var culture = Model.Culture;
+    var paymentAmount = order.Payment?.Amount ?? order.GrandTotal;
+    var receiptImageData = new
+    {
+        orderId = order.Id,
+        date = LocalTime.Format(order.OrderDate, "dd/MM/yyyy HH:mm"),
+        status = order.Status.ToString(),
+        customer = order.User?.UserName ?? "Client",
+        email = order.User?.Email ?? "",
+        address = order.Address?.FullAddress ?? "",
+        paymentMethod = order.Payment?.PaymentMethod.ToString() ?? "Non renseignee",
+        transactionId = order.Payment?.TransactionId ?? "N/A",
+        subtotal = $"{order.TotalAmount.ToString("N0", culture)} HTG",
+        shipping = $"{order.ShippingTotal.ToString("N0", culture)} HTG",
+        paid = $"{paymentAmount.ToString("N0", culture)} HTG",
+        fileName = $"reçu-commande-{order.Id}.png",
+        items = order.Products.Select(item => new
+        {
+            product = item.ProductVariant?.Product?.Name ?? "Produit",
+            seller = item.Company?.Name ?? "Vendeur",
+            quantity = item.Quantity.ToString(),
+            unitPrice = $"{item.PriceAtOrder.ToString("N0", culture)} HTG",
+            delivery = $"{item.DeliveryFee.ToString("N0", culture)} HTG",
+            total = $"{(item.SubTotal + item.DeliveryFee).ToString("N0", culture)} HTG"
+        }).ToList()
+    };
+}
+
+<div class="container py-4 receipt-page">
+    <div class="d-flex justify-content-between align-items-start gap-3 mb-4 no-print">
+        <div>
+            <h1 class="h3 fw-bold text-primary mb-1">Reçu de paiement</h1>
+            <p class="text-muted mb-0">Votre paiement a été confirmé. Conservez ce reçu pour votre suivi.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2 justify-content-end">
+            <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
+                <i class="bi bi-printer me-1"></i>PDF / imprimer
+            </button>
+            <button type="button" class="btn btn-outline-primary" id="downloadReceiptImage">
+                <i class="bi bi-download me-1"></i>Enregistrer en photo
+            </button>
+            <a asp-page="/Orders/OrderTracking" asp-route-id="@order.Id" class="btn btn-primary">
+                <i class="bi bi-truck me-1"></i>Suivre la commande
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-info no-print">
+        Conservez une preuve de paiement : faites une capture d'écran, enregistrez cette page en PDF, ou cliquez sur Enregistrer en photo pour garder le reçu dans votre galerie.
+    </div>
+
+    <article class="receipt-sheet" id="receiptSheet">
+        <header class="receipt-header">
+            <div>
+                <h2>MC Business</h2>
+                <p>Reçu officiel de commande</p>
+            </div>
+            <div class="text-end">
+                <div class="receipt-number">Commande #@order.Id</div>
+                <div>@LocalTime.Format(order.OrderDate, "dd/MM/yyyy HH:mm")</div>
+                <span class="badge bg-success mt-2">@order.Status</span>
+            </div>
+        </header>
+
+        <section class="receipt-grid">
+            <div>
+                <h3>Client</h3>
+                <p class="mb-1">@order.User?.UserName</p>
+                <p class="mb-0 text-muted">@order.User?.Email</p>
+            </div>
+            <div>
+                <h3>Livraison</h3>
+                <p class="mb-0">@order.Address?.FullAddress</p>
+            </div>
+            <div>
+                <h3>Paiement</h3>
+                <p class="mb-1">Methode : @(order.Payment?.PaymentMethod.ToString() ?? "Non renseignee")</p>
+                <p class="mb-0 text-muted">Transaction : @(order.Payment?.TransactionId ?? "N/A")</p>
+            </div>
+        </section>
+
+        <section class="mt-4">
+            <h3 class="section-title">Articles achetes</h3>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Vendeur</th>
+                            <th class="text-center">Qte</th>
+                            <th class="text-end">Prix unitaire</th>
+                            <th class="text-end">Livraison</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in order.Products)
+                        {
+                            <tr>
+                                <td>@item.ProductVariant?.Product?.Name</td>
+                                <td>@item.Company?.Name</td>
+                                <td class="text-center">@item.Quantity</td>
+                                <td class="text-end">@item.PriceAtOrder.ToString("N0", culture) HTG</td>
+                                <td class="text-end">@item.DeliveryFee.ToString("N0", culture) HTG</td>
+                                <td class="text-end">@((item.SubTotal + item.DeliveryFee).ToString("N0", culture)) HTG</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="receipt-totals">
+            <div class="totals-box">
+                <div><span>Sous-total produits</span><strong>@order.TotalAmount.ToString("N0", culture) HTG</strong></div>
+                <div><span>Total livraison</span><strong>@order.ShippingTotal.ToString("N0", culture) HTG</strong></div>
+                <div class="grand"><span>Total paye</span><strong>@paymentAmount.ToString("N0", culture) HTG</strong></div>
+            </div>
+        </section>
+
+        <footer class="receipt-footer">
+            Merci pour votre achat. Ce reçu confirme le paiement de votre commande sur MC Business.
+        </footer>
+    </article>
+</div>
+
+<style>
+    .receipt-sheet {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, .08);
+    }
+
+    .receipt-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        border-bottom: 2px solid #005fac;
+        padding-bottom: 1rem;
+    }
+
+    .receipt-header h2 {
+        color: #005fac;
+        font-weight: 800;
+        margin-bottom: .25rem;
+    }
+
+    .receipt-number {
+        font-weight: 800;
+        color: #005fac;
+    }
+
+    .receipt-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .receipt-grid > div {
+        border: 1px solid #edf0f2;
+        border-radius: 8px;
+        padding: 1rem;
+        background: #f8f9fa;
+    }
+
+    .receipt-grid h3,
+    .section-title {
+        font-size: 1rem;
+        color: #005fac;
+        font-weight: 800;
+    }
+
+    .receipt-totals {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+    }
+
+    .totals-box {
+        min-width: 320px;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .totals-box div {
+        display: flex;
+        justify-content: space-between;
+        padding: .8rem 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .totals-box .grand {
+        background: #005fac;
+        color: #fff;
+        border-bottom: 0;
+        font-size: 1.1rem;
+    }
+
+    .receipt-footer {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+        color: #6c757d;
+        text-align: center;
+    }
+
+    @@media (max-width: 767.98px) {
+        .receipt-page > .d-flex.justify-content-between {
+            align-items: flex-start !important;
+            flex-direction: column;
+        }
+
+        .receipt-page > .d-flex.justify-content-between > .d-flex {
+            width: 100%;
+        }
+
+        .receipt-page > .d-flex.justify-content-between .btn {
+            width: 100%;
+            min-height: 42px;
+        }
+
+        .receipt-sheet {
+            padding: 1rem;
+        }
+
+        .receipt-header,
+        .receipt-grid {
+            grid-template-columns: 1fr;
+            display: grid;
+        }
+
+        .text-end {
+            text-align: left !important;
+        }
+
+        .totals-box {
+            min-width: 100%;
+        }
+    }
+
+    @@media print {
+        .no-print,
+        nav,
+        footer:not(.receipt-footer),
+        .bottom-bar {
+            display: none !important;
+        }
+
+        main {
+            padding: 0 !important;
+        }
+
+        .receipt-sheet {
+            box-shadow: none;
+            border: 0;
+            padding: 0;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        const receiptImageData = @Html.Raw(JsonSerializer.Serialize(receiptImageData));
+
+        document.getElementById('downloadReceiptImage')?.addEventListener('click', function () {
+            const button = this;
+            const originalHtml = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Image...';
+
+            try {
+                downloadReceiptAsImage(receiptImageData);
+            } catch (error) {
+                console.error(error);
+                alert("Impossible de generer l'image du reçu. Essayez le bouton PDF / imprimer.");
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalHtml;
+            }
+        });
+
+        function downloadReceiptAsImage(data) {
+            const scale = Math.max(2, Math.min(window.devicePixelRatio || 2, 3));
+            const width = 1100;
+            const margin = 56;
+            const lineHeight = 28;
+            const tableHeaderHeight = 42;
+            const rowHeights = data.items.map(item => {
+                const productLines = wrapText(`${item.product} - ${item.seller}`, 34);
+                return Math.max(54, productLines.length * 24 + 18);
+            });
+            const height = 520 + tableHeaderHeight + rowHeights.reduce((sum, value) => sum + value, 0);
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width * scale;
+            canvas.height = height * scale;
+            canvas.style.width = `${width}px`;
+            canvas.style.height = `${height}px`;
+
+            const ctx = canvas.getContext('2d');
+            ctx.scale(scale, scale);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+
+            drawReceiptBackground(ctx, width, height);
+
+            ctx.fillStyle = '#005fac';
+            ctx.font = '800 34px Arial, sans-serif';
+            ctx.fillText('MC Business', margin, 72);
+            ctx.fillStyle = '#5d6673';
+            ctx.font = '18px Arial, sans-serif';
+            ctx.fillText('Reçu officiel de commande', margin, 104);
+
+            ctx.fillStyle = '#005fac';
+            ctx.font = '800 24px Arial, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(`Commande #${data.orderId}`, width - margin, 72);
+            ctx.fillStyle = '#1f2937';
+            ctx.font = '17px Arial, sans-serif';
+            ctx.fillText(data.date, width - margin, 102);
+            ctx.textAlign = 'left';
+
+            drawDivider(ctx, margin, 130, width - margin);
+
+            let y = 172;
+            drawInfoBox(ctx, margin, y, 310, 'Client', [data.customer, data.email]);
+            drawInfoBox(ctx, margin + 340, y, 310, 'Livraison', wrapText(data.address || '-', 30));
+            drawInfoBox(ctx, margin + 680, y, 310, 'Paiement', [`Methode: ${data.paymentMethod}`, `Transaction: ${data.transactionId}`]);
+
+            y += 150;
+            ctx.fillStyle = '#005fac';
+            ctx.font = '800 22px Arial, sans-serif';
+            ctx.fillText('Articles achetes', margin, y);
+            y += 24;
+
+            const columns = [
+                { label: 'Produit / vendeur', x: margin, width: 430, align: 'left' },
+                { label: 'Qte', x: margin + 450, width: 70, align: 'center' },
+                { label: 'Prix unitaire', x: margin + 540, width: 150, align: 'right' },
+                { label: 'Livraison', x: margin + 710, width: 130, align: 'right' },
+                { label: 'Total', x: margin + 860, width: 130, align: 'right' }
+            ];
+
+            drawTableHeader(ctx, columns, y, tableHeaderHeight);
+            y += tableHeaderHeight;
+
+            data.items.forEach((item, index) => {
+                const rowHeight = rowHeights[index];
+                drawTableRow(ctx, columns, y, rowHeight, item);
+                y += rowHeight;
+            });
+
+            y += 28;
+            const totalsX = width - margin - 360;
+            drawTotals(ctx, totalsX, y, 360, [
+                ['Sous-total produits', data.subtotal],
+                ['Total livraison', data.shipping],
+                ['Total paye', data.paid]
+            ]);
+
+            ctx.fillStyle = '#6c757d';
+            ctx.font = '16px Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Merci pour votre achat. Ce reçu confirme le paiement de votre commande sur MC Business.', width / 2, height - 42);
+            ctx.textAlign = 'left';
+
+            const link = document.createElement('a');
+            link.download = data.fileName || `reçu-commande-${data.orderId}.png`;
+            link.href = canvas.toDataURL('image/png');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        }
+
+        function drawReceiptBackground(ctx, width, height) {
+            ctx.strokeStyle = '#e4e7ec';
+            ctx.lineWidth = 2;
+            roundRect(ctx, 24, 24, width - 48, height - 48, 16);
+            ctx.stroke();
+        }
+
+        function drawDivider(ctx, x1, y, x2) {
+            ctx.strokeStyle = '#005fac';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(x1, y);
+            ctx.lineTo(x2, y);
+            ctx.stroke();
+        }
+
+        function drawInfoBox(ctx, x, y, width, title, lines) {
+            roundRect(ctx, x, y, width, 112, 10);
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fill();
+            ctx.strokeStyle = '#e9ecef';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            ctx.fillStyle = '#005fac';
+            ctx.font = '800 17px Arial, sans-serif';
+            ctx.fillText(title, x + 18, y + 30);
+
+            ctx.fillStyle = '#1f2937';
+            ctx.font = '16px Arial, sans-serif';
+            lines.filter(Boolean).slice(0, 3).forEach((line, index) => {
+                ctx.fillText(line, x + 18, y + 58 + index * 22);
+            });
+        }
+
+        function drawTableHeader(ctx, columns, y, height) {
+            ctx.fillStyle = '#005fac';
+            roundRect(ctx, columns[0].x, y, 990, height, 8);
+            ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '800 15px Arial, sans-serif';
+            columns.forEach(col => drawCellText(ctx, col.label, col, y + 27));
+        }
+
+        function drawTableRow(ctx, columns, y, height, item) {
+            ctx.strokeStyle = '#e9ecef';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(columns[0].x, y, 990, height);
+
+            ctx.fillStyle = '#1f2937';
+            ctx.font = '16px Arial, sans-serif';
+            const productLines = wrapText(`${item.product} - ${item.seller}`, 34);
+            productLines.forEach((line, index) => {
+                ctx.fillText(line, columns[0].x + 12, y + 24 + index * 22);
+            });
+
+            ctx.font = '16px Arial, sans-serif';
+            drawCellText(ctx, item.quantity, columns[1], y + 30);
+            drawCellText(ctx, item.unitPrice, columns[2], y + 30);
+            drawCellText(ctx, item.delivery, columns[3], y + 30);
+            ctx.font = '800 16px Arial, sans-serif';
+            drawCellText(ctx, item.total, columns[4], y + 30);
+        }
+
+        function drawTotals(ctx, x, y, width, rows) {
+            rows.forEach((row, index) => {
+                const isGrand = index === rows.length - 1;
+                ctx.fillStyle = isGrand ? '#005fac' : '#ffffff';
+                ctx.fillRect(x, y + index * 46, width, 46);
+                ctx.strokeStyle = '#e9ecef';
+                ctx.strokeRect(x, y + index * 46, width, 46);
+                ctx.fillStyle = isGrand ? '#ffffff' : '#1f2937';
+                ctx.font = isGrand ? '800 18px Arial, sans-serif' : '16px Arial, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(row[0], x + 16, y + index * 46 + 29);
+                ctx.textAlign = 'right';
+                ctx.fillText(row[1], x + width - 16, y + index * 46 + 29);
+                ctx.textAlign = 'left';
+            });
+        }
+
+        function drawCellText(ctx, text, col, y) {
+            if (col.align === 'right') {
+                ctx.textAlign = 'right';
+                ctx.fillText(text, col.x + col.width - 10, y);
+            } else if (col.align === 'center') {
+                ctx.textAlign = 'center';
+                ctx.fillText(text, col.x + col.width / 2, y);
+            } else {
+                ctx.textAlign = 'left';
+                ctx.fillText(text, col.x + 12, y);
+            }
+            ctx.textAlign = 'left';
+        }
+
+        function wrapText(text, maxLength) {
+            const words = String(text || '').split(/\s+/);
+            const lines = [];
+            let line = '';
+            words.forEach(word => {
+                const next = line ? `${line} ${word}` : word;
+                if (next.length > maxLength && line) {
+                    lines.push(line);
+                    line = word;
+                } else {
+                    line = next;
+                }
+            });
+            if (line) lines.push(line);
+            return lines.length ? lines : ['-'];
+        }
+
+        function roundRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+    </script>
+}

@@ -1,0 +1,220 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_ManageEmployees_Employees.DetailsModel
+@using MCBusiness.Models;
+@{
+    ViewData["Title"] = "Détails de l'employé";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-person-lines-fill me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <!-- Carte d'identité de l'employé -->
+                            <div class="card mb-4 border-primary">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-person-badge me-2"></i>Identité
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <h6 class="text-muted mb-1">
+                                                    <i class="bi bi-person me-1"></i> Utilisateur
+                                                </h6>
+                                                <p class="fs-5 fw-bold">
+                                                    @Model.Employee.User?.UserName
+                                                    <small class="text-muted d-block">ID: @Model.Employee.User?.Id</small>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <h6 class="text-muted mb-1">
+                                                    <i class="bi bi-briefcase me-1"></i> Poste
+                                                </h6>
+                                                <p class="fs-5 fw-bold">
+                                                    @Model.Employee.Post?.Name
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Carte des informations contractuelles -->
+                            <div class="card mb-4 border-primary">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-file-earmark-text me-2"></i>Informations contractuelles
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <h6 class="text-muted mb-1">
+                                                    <i class="bi bi-calendar-plus me-1"></i> Date d'embauche
+                                                </h6>
+                                                <p class="fw-bold">
+                                                    @Model.Employee.HiredAt.ToString("dd/MM/yyyy")
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <h6 class="text-muted mb-1">
+                                                    <i class="bi bi-calendar-minus me-1"></i> Fin de contrat
+                                                </h6>
+                                                <p class="fw-bold">
+                                                    @(Model.Employee.ContractEndDate.HasValue ? Model.Employee.ContractEndDate.Value.ToString("dd/MM/yyyy") : "Indéterminée")
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <h6 class="text-muted mb-1">
+                                                    <i class="bi bi-info-circle me-1"></i> Statut
+                                                </h6>
+                                                <p>
+                                                    @if(Model.Employee.IsDeleted)
+                                                    {
+                                                        <span class="badge bg-secondary">Supprimé</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge @(Model.Employee.Status == EmployeeStatus.Active ? "bg-success" : "bg-warning text-dark")">
+                                                            @Model.Employee.Status
+                                                        </span>
+                                                    }
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Carte des informations salariales -->
+                            <div class="card border-primary">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-cash-stack me-2"></i>Informations salariales
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <h6 class="text-muted mb-1">
+                                                    <i class="bi bi-currency-dollar me-1"></i> Salaire actuel
+                                                </h6>
+                                                <p class="fs-5 fw-bold">
+                                                    @Model.Employee.Salary.ToString("C")
+                                                    <small class="text-muted d-block">@Model.Employee.Currency?.CurrencyBase</small>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <h6 class="text-muted mb-1">
+                                                    <i class="bi bi-cash-coin me-1"></i> Salaire instantané
+                                                </h6>
+                                                <p class="fw-bold">
+                                                    @(Model.Employee.SalarySnapshot?.ToString("C") ?? "N/A")
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <h6 class="text-muted mb-1">
+                                                    <i class="bi bi-clock-history me-1"></i> Dernière mise à jour
+                                                </h6>
+                                                <p class="fw-bold">
+                                                    @Model.Employee.UpdatedAt
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <a asp-page="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Retour à la liste
+                        </a>
+                        <div class="btn-group" role="group">
+                            <a asp-page="./Edit" asp-route-id="@Model.Employee.Id" class="btn btn-primary">
+                                <i class="bi bi-pencil me-1"></i> Modifier
+                            </a>
+                            <a asp-page="./Delete" asp-route-id="@Model.Employee.Id" class="btn btn-outline-danger">
+                                <i class="bi bi-trash me-1"></i> Supprimer
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light">
+                    <div class="small text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        ID employé: @Model.Employee.Id | 
+                        Consulté le: @LocalTime.Format(DateTimeOffset.UtcNow, "dd/MM/yyyy HH:mm")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 0.5rem;
+        }
+        
+        .btn {
+            border-radius: 0.25rem;
+        }
+        
+        .border-primary {
+            border-left: 4px solid #0d6efd !important;
+        }
+        
+        .badge {
+            font-size: 0.9em;
+            padding: 0.35em 0.65em;
+        }
+        
+        .bg-success {
+            background-color: #198754 !important;
+        }
+        
+        .bg-warning {
+            background-color: #ffc107 !important;
+        }
+        
+        .bg-secondary {
+            background-color: #6c757d !important;
+        }
+    </style>
+}

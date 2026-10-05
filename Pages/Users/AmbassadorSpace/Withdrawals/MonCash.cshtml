@@ -1,0 +1,178 @@
+﻿@page
+@model MCBusiness.Pages.Users.AmbassadorSpace.Withdrawals.MonCashModel
+@{
+    ViewData["Title"] = "Retrait MonCash";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0 text-center"><i class="fas fa-money-bill-wave me-2"></i>Retrait avec MonCash</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" id="cashoutForm">
+                        @Html.AntiForgeryToken()
+
+                        <!-- Solde actuel -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Votre solde disponible</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-wallet text-primary"></i></span>
+                                <input type="text" class="form-control fw-bold text-success text-center" 
+                                disabled value="@Model.CurrentWallet.Balance HTG" />
+                            </div>
+                        </div>
+
+                        <!-- Montant du retrait -->
+                        <div class="mb-4">
+                            <label asp-for="Input.Amount" class="form-label fw-bold">Montant du retrait (HTG)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-money-bill text-primary"></i></span>
+                                <input type="number" id="numberInput" class="form-control" 
+                                    oninput="calculatePercentage()" asp-for="Input.Amount" required
+                                    min="500" max="15000" step="100"
+                                    placeholder="500 - 15 000 HTG">
+                            </div>
+                            <small class="text-muted">Minimum: 500 HTG | Maximum: 15 000 HTG</small>
+                            <span asp-validation-for="Input.Amount" class="text-danger small d-block mt-1"></span>
+                        </div>
+
+                        <!-- Numéro MonCash -->
+                        <div class="mb-4">
+                            <label for="MoncashNumber" class="form-label fw-bold">Numéro MonCash</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-mobile-alt text-primary"></i></span>
+                                <select asp-for="Input.CodeNumBer" class="form-select" style="max-width: 100px;">
+                                    <option value="509">+509</option>
+                                </select>
+                                <input asp-for="Input.Number" type="tel" class="form-control" id="MoncashNumber" 
+                                    required placeholder="30 00 0000" pattern="[0-9]{8}">
+                            </div>
+                            <span asp-validation-for="Input.Number" class="text-danger small d-block mt-1"></span>
+                        </div>
+
+                        <!-- Détails des frais -->
+                        <div class="mb-4 p-3 bg-light rounded-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="fw-bold">Montant demandé:</span>
+                                <span id="amountDisplay" class="fw-bold">0.00 HTG</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Frais de retrait (3.0%):</span>
+                                <span id="feeDisplay" class="text-danger">0.00 HTG</span>
+                            </div>
+                            <hr class="my-2">
+                            <div class="d-flex justify-content-between fw-bold">
+                                <span>Total débité:</span>
+                                <span id="totalDisplay" class="text-primary">0.00 HTG</span>
+                            </div>
+                        </div>
+
+                        <!-- Mot de passe -->
+                        <div class="mb-4">
+                            <label for="Password" class="form-label fw-bold">Confirmez votre mot de passe</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-lock text-primary"></i></span>
+                                <input type="password" asp-for="Input.Password" class="form-control" 
+                                    id="Password" placeholder="Votre mot de passe" required>
+                            </div>
+                            <span asp-validation-for="Input.Password" class="text-danger small d-block mt-1"></span>
+                        </div>
+
+                        <!-- reCAPTCHA -->
+                        <div class="mb-4">
+                            <div class="g-recaptcha" data-sitekey="@Model.ReCaptchaSiteKey"></div>
+                        </div>
+
+                        <!-- Boutons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                            <button type="submit" class="btn btn-primary px-4 py-2 me-md-2">
+                                <i class="fas fa-paper-plane me-2"></i>Effectuer le retrait
+                            </button>
+                            <a asp-page="./WithdrawalMethods" class="btn btn-outline-secondary px-4 py-2">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                        </div>
+                    </form>
+
+                    <!-- Messages d'erreur -->
+                    @if (ModelState.ErrorCount > 0)
+                    {
+                        <div class="alert alert-danger mt-4">
+                            <h5 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Erreurs</h5>
+                            <ul class="mb-0">
+                                @foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                    
+                    @if(Model.StatusMessage != null)
+                    {
+                        <div class="alert alert-warning mt-4">
+                            <i class="fas fa-info-circle me-2"></i>@Model.StatusMessage
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .card-header {
+            border-radius: 15px 15px 0 0 !important;
+        }
+        .input-group-text {
+            transition: all 0.3s;
+        }
+        .input-group:focus-within .input-group-text {
+            background-color: #e9ecef;
+        }
+        #numberInput {
+            font-weight: 500;
+        }
+        .bg-light {
+            background-color: #f8f9fa !important;
+        }
+    </style>
+}
+
+@section Scripts {
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    
+    <script>
+        function calculatePercentage() {
+            const inputValue = parseFloat(document.getElementById("numberInput").value) || 0;
+            const percentage = (inputValue * 3) / 100;
+            const totalM = percentage + inputValue;
+
+            // Mise à jour des affichages
+            document.getElementById("amountDisplay").textContent = inputValue.toFixed(2) + " HTG";
+            document.getElementById("feeDisplay").textContent = percentage.toFixed(2) + " HTG";
+            document.getElementById("totalDisplay").textContent = totalM.toFixed(2) + " HTG";
+
+            // Mise à jour des champs cachés (si nécessaire)
+            document.getElementById("percentageResult").value = percentage.toFixed(2);
+            document.getElementById("totalResult").value = totalM.toFixed(2);
+        }
+
+        // Calcul initial au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            calculatePercentage();
+        });
+    </script>
+}

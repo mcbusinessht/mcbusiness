@@ -1,0 +1,156 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Products.CharacteristicValues.IndexModel
+
+@{
+    ViewData["Title"] = "Valeurs des caractéristiques";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-tags me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="Create" class="btn btn-sm btn-light">
+                            <i class="bi bi-plus-circle me-1"></i> Ajouter
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Menu latéral Produits -->
+                        <div class="col-md-3 mb-4 mb-md-0">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-collection me-2"></i>Menu Produits
+                                    </h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="list-group list-group-flush">
+                                        <a asp-page="../Index" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-box-seam me-2"></i>Tous les produits
+                                        </a>
+                                        <a asp-page="../Choose" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-database-add me-2"></i>Ajouter un produit
+                                        </a>
+                                        <a asp-page="../Characteristics/Index" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-tags me-2"></i>Caractéristiques
+                                        </a>
+                                        <a asp-page="./Index" class="list-group-item list-group-item-action ">
+                                            <i class="bi bi-card-list me-2"></i>Valeurs Caractéristiques
+                                        </a>
+                                        <a asp-page="../ProductVariants/Index" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-boxes me-2"></i>Variants Produits
+                                        </a>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tableau des valeurs -->
+                        <div class="col-md-9">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>@Html.DisplayNameFor(model => model.CharacteristicValue[0].Value)</th>
+                                            <th>@Html.DisplayNameFor(model => model.CharacteristicValue[0].Characteristic)</th>
+                                            <th>Catégorie</th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.CharacteristicValue)
+                                        {
+                                            <tr>
+                                                <td>@Html.DisplayFor(modelItem => item.Value)</td>
+                                                <td>@Html.DisplayFor(modelItem => item.Characteristic.Name)</td>
+                                                <td>
+                                                    @if (item.Characteristic.Category != null)
+                                                    {
+                                                        <span class="badge bg-primary">@item.Characteristic.Category.Name</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Non classé</span>
+                                                    }
+                                                </td>
+                                                <td class="text-end">
+                                                    <div class="btn-group" role="group">
+                                                        <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                                            <i class="bi bi-eye"></i>
+                                                        </a>
+                                                        @if (User.IsInRole("Admin"))
+                                                        {
+                                                            <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">
+                                                                <i class="bi bi-pencil"></i>
+                                                            </a>
+                                                            <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                                                <i class="bi bi-trash"></i>
+                                                            </a>
+                                                        }
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="small text-muted">
+                            <i class="bi bi-info-circle me-1"></i> @Model.CharacteristicValue.Count éléments trouvés
+                        </div>
+                        <a asp-page="Create" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-circle me-1"></i> Ajouter une valeur
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .list-group-item {
+            border-left: 0;
+            border-right: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .list-group-item:first-child {
+            border-top: 0;
+        }
+        
+        .list-group-item:last-child {
+            border-bottom: 0;
+        }
+        
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+    </style>
+}

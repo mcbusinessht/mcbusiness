@@ -1,0 +1,68 @@
+﻿@page
+@model MCBusiness.Pages.Users.Seller.Products.ProductVariantCharacteristics.CreateModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>ProductVariantCharacteristic</h4>
+<hr />
+<!-- Bouton menu mobile -->
+    <button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+            style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+            data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+        <i class="bi bi-list fs-4"></i>
+    </button>
+    <!-- Offcanvas Sidebar Mobile -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title">Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <partial name="_SideBarPartial"/>
+        </div>
+    </div>
+
+<div class="container-fluid">
+    <div class="row">
+            <!-- Sidebar version desktop -->
+            <div class="col-lg-3 col-xl-3 d-none d-lg-block bg-white border-end vh-100 sticky-top">
+                <partial name="_SideBarPartial"/>
+            </div>
+        <div class="col-md-4">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="ProductVariantCharacteristic.Id" class="control-label"></label>
+                    <input asp-for="ProductVariantCharacteristic.Id" class="form-control" />
+                    <span asp-validation-for="ProductVariantCharacteristic.Id" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ProductVariantCharacteristic.ProductVariantId" class="control-label"></label>
+                    <select asp-for="ProductVariantCharacteristic.ProductVariantId" class ="form-control" asp-items="ViewBag.ProductVariantId"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ProductVariantCharacteristic.CharacteristicId" class="control-label"></label>
+                    <select asp-for="ProductVariantCharacteristic.CharacteristicId" class ="form-control" asp-items="ViewBag.CharacteristicId"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ProductVariantCharacteristic.CharacteristicValueId" class="control-label"></label>
+                    <select asp-for="ProductVariantCharacteristic.CharacteristicValueId" class ="form-control" asp-items="ViewBag.CharacteristicValueId"></select>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div> 
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

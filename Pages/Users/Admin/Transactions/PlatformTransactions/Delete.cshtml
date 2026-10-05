@@ -1,0 +1,100 @@
+@page
+@model MCBusiness.Pages_Users_Admin_Transactions_PlatformTransactions.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>PlatformTransaction</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PlatformTransaction.Type)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PlatformTransaction.Type)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PlatformTransaction.Category)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PlatformTransaction.Category)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PlatformTransaction.Amount)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PlatformTransaction.Amount)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PlatformTransaction.Description)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PlatformTransaction.Description)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PlatformTransaction.CreatedAt)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PlatformTransaction.CreatedAt)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PlatformTransaction.Order)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PlatformTransaction.Order.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PlatformTransaction.AmbassadorSubscription)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PlatformTransaction.AmbassadorSubscription.UserId)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PlatformTransaction.AmbassadorSubscription)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PlatformTransaction.AmbassadorSubscription.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PlatformTransaction.Employee)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PlatformTransaction.Employee.UserId)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PlatformTransaction.Seller)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PlatformTransaction.Seller.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PlatformTransaction.Wallet)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PlatformTransaction.Wallet.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PlatformTransaction.IsManual)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PlatformTransaction.IsManual)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PlatformTransaction.IsDeleted)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PlatformTransaction.IsDeleted)
+        </dd>
+    </dl>
+    
+    <form method="post">
+        <input type="hidden" asp-for="PlatformTransaction.Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-page="./Index">Back to List</a>
+    </form>
+</div>

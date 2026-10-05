@@ -1,0 +1,106 @@
+@model IndexModel
+
+<section class="faq-section py-5 bg-light">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h6 class="section-subtitle">SUPPORT CLIENT</h6>
+            <h2 class="section-title">Questions fréquentes</h2>
+            <p class="section-description">Les réponses essentielles avant d'acheter, vendre ou rejoindre le programme ambassadeur.</p>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="accordion faq-accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                <i class="bi bi-basket3 me-2"></i>Comment passer une commande ?
+                            </button>
+                        </h3>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <ol>
+                                    <li>Choisissez un produit dans le magasin ou via la recherche.</li>
+                                    <li>Ajoutez-le au panier et vérifiez la quantité, le prix et les éventuels paliers.</li>
+                                    <li>Confirmez votre adresse et les frais de livraison affichés.</li>
+                                    <li>Créez la commande, puis payez depuis votre portefeuille MC Business.</li>
+                                    <li>Suivez votre commande depuis votre espace client.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                <i class="bi bi-wallet2 me-2"></i>Comment fonctionne le paiement ?
+                            </button>
+                        </h3>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>Les commandes sont payées avec le portefeuille MC Business. Vous pouvez l'alimenter selon les méthodes disponibles sur votre compte, notamment MonCash ou virement bancaire lorsque ces options sont activées.</p>
+                                <p class="mb-0"><strong>Important :</strong> une commande n'est considérée comme payée que lorsque le paiement est confirmé et comptabilisé.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                <i class="bi bi-truck me-2"></i>Qui livre la commande ?
+                            </button>
+                        </h3>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>La livraison dépend du vendeur, du produit et de la zone. Les frais disponibles sont affichés avant la validation de la commande. Une fois la commande payée, le vendeur prépare l'expédition et vous pouvez suivre l'évolution de la livraison.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                <i class="bi bi-shop-window me-2"></i>Comment vendre sur MC Business ?
+                            </button>
+                        </h3>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>Vous pouvez soumettre une demande vendeur depuis la page dédiée. Après validation, vous aurez accès à votre espace vendeur pour gérer vos produits, variantes, commandes, livraisons et paiements vendeurs.</p>
+                                <a href="/SellerApplication/Create" class="btn btn-outline-primary btn-sm">Devenir vendeur</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                <i class="bi bi-star me-2"></i>Comment fonctionne l'affiliation ?
+                            </button>
+                        </h3>
+                        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>Le programme ambassadeur permet de recommander MC Business et de recevoir des commissions sur les ventes qualifiées selon le plan actif, les règles de validation et les plafonds prévus.</p>
+                                <a asp-page="/Plans/Index" class="btn btn-outline-primary btn-sm">Voir les plans</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
+                                <i class="bi bi-headset me-2"></i>Comment contacter le support ?
+                            </button>
+                        </h3>
+                        <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>Pour une question sur une commande, un paiement, une livraison, un compte vendeur ou l'affiliation, utilisez la page contact ou le centre d'aide.</p>
+                                <a asp-page="/HelpUs" class="btn btn-outline-primary btn-sm me-2">Centre d'aide</a>
+                                <a asp-page="/Contact" class="btn btn-primary btn-sm">Nous contacter</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,228 @@
+﻿@page
+@model MCBusiness.Pages.About
+@{
+    ViewData["Title"] = "A Propos";
+}
+
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-12">
+            <div class="card border-0 shadow-lg overflow-hidden" id="aboutCard">
+                <!-- Card Header with Gradient Background -->
+                <div class="card-header bg-primary text-white py-4 position-relative overflow-hidden">
+                    <div class="position-absolute w-100 h-100 top-0 start-0" style="background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%);"></div>
+                    <h2 class="text-center mb-0 position-relative">À propos de MC Business</h2>
+                </div>
+                
+                <!-- Card Body -->
+                <div class="card-body p-5">
+                    <div class="about-content">
+                        <!-- Introduction Section -->
+                        <div class="mb-5">
+                            <h3 class="text-primary mb-3">Votre plateforme d'économies intelligentes</h3>
+                            <p class="lead">
+                                MC Business est une plateforme innovante qui connecte les consommateurs avec des entreprises.
+                                Notre mission est d'offrir à nos utilisateurs des réductions exclusives sur une large gamme
+                                de produits, tout en facilitant l'achat direct via notre plateforme.
+                            </p>
+                        </div>
+
+                        <!-- Services Section -->
+                        <div class="mb-5">
+                            <h3 class="text-primary mb-4">Nos Services</h3>
+                            
+                            <div class="row g-4 mb-4">
+                                <!-- Service 1 -->
+                                <div class="col-md-4">
+                                    <div class="feature-item p-3 h-100">
+                                        <div class="feature-icon  bg-opacity-10 text-primary rounded-circle p-3 mb-3 mx-auto" style="width: 70px; height: 70px;">
+                                            <i class="bi bi-percent fs-3"></i>
+                                        </div>
+                                        <h5 class="text-center">Réductions Exclusives</h5>
+                                        <p class="text-center">
+                                            Accédez à des prix réduits sur les produits de nos partenaires commerciaux.
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Service 2 -->
+                                <div class="col-md-4">
+                                    <div class="feature-item p-3 h-100">
+                                        <div class="feature-icon  bg-opacity-10 text-primary rounded-circle p-3 mb-3 mx-auto" style="width: 70px; height: 70px;">
+                                            <i class="bi bi-people-fill fs-3"></i>
+                                        </div>
+                                        <h5 class="text-center">Système de Parrainage</h5>
+                                        <p class="text-center">
+                                            Gagnez des commissions en parrainant de nouveaux membres.
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Service 3 -->
+                                <div class="col-md-4">
+                                    <div class="feature-item p-3 h-100">
+                                        <div class="feature-icon  bg-opacity-10 text-primary rounded-circle p-3 mb-3 mx-auto" style="width: 70px; height: 70px;">
+                                            <i class="bi bi-briefcase-fill fs-3"></i>
+                                        </div>
+                                        <h5 class="text-center">Partenariats</h5>
+                                        <p class="text-center">
+                                            Les entreprises atteignent plus de clients tout en offrant des réductions.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h5>1. Réductions Exclusives sur les Achats</h5>
+                                <p>
+                                    En utilisant MC Business, vous avez accès à des prix réduits sur les produits de nos partenaires
+                                    commerciaux. Sur MC Business, bénéficiez de tarifs spéciaux, vous permettant de faire des économies
+                                    à chaque achat.
+                                </p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h5>2. Système de Parrainage</h5>
+                                <p>
+                                    MC Business offre un système de parrainage où vous pouvez inviter d'autres utilisateurs
+                                    à rejoindre la plateforme. Chaque fois qu'un invité utilise votre lien de parrainage et effectue
+                                    un achat, vous bénéficiez d'une commission.
+                                </p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h5>3. Partenariats avec des Entreprises</h5>
+                                <p>
+                                    MC Business permet aux entreprises de vendre leurs produits à une plus large audience
+                                    tout en offrant des réductions attractives. Découvrez de nouveaux produits à des prix
+                                    avantageux tout en soutenant des entreprises locales et internationales.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Why Choose Us Section -->
+                        <div class="mb-5">
+                            <h3 class="text-primary mb-3">Pourquoi Choisir MC Business ?</h3>
+                            <ul class="list-unstyled">
+                                <li class="mb-2 d-flex align-items-start">
+                                    <i class="bi bi-check-circle-fill text-primary me-2 mt-1"></i>
+                                    <span><strong>Réductions exclusives :</strong> Faites des économies à chaque achat</span>
+                                </li>
+                                <li class="mb-2 d-flex align-items-start">
+                                    <i class="bi bi-check-circle-fill text-primary me-2 mt-1"></i>
+                                    <span><strong>Facilité d'utilisation :</strong> Plateforme intuitive et simple à utiliser</span>
+                                </li>
+                                <li class="mb-2 d-flex align-items-start">
+                                    <i class="bi bi-check-circle-fill text-primary me-2 mt-1"></i>
+                                    <span><strong>Transparence :</strong> Vous savez exactement ce que vous payez</span>
+                                </li>
+                                <li class="d-flex align-items-start">
+                                    <i class="bi bi-check-circle-fill text-primary me-2 mt-1"></i>
+                                    <span><strong>Communauté :</strong> Profitez des avantages du système de parrainage</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Vision Section -->
+                        <div class="mb-5">
+                            <h3 class="text-primary mb-3">Notre Vision</h3>
+                            <p>
+                                Chez MC Business, nous voulons faciliter l'accès à des produits de qualité à des prix réduits, tout en
+                                créant une communauté où chacun peut profiter des avantages du système de parrainage pour
+                                augmenter ses économies. Nous croyons en un modèle de consommation plus avantageux et
+                                plus accessible pour tous.
+                            </p>
+                        </div>
+
+                        <!-- Join Us Section -->
+                        <div>
+                            <h3 class="text-primary mb-3">Rejoignez-Nous</h3>
+                            <p class="highlight-text mb-4">
+                                Que vous soyez un consommateur à la recherche de bonnes affaires ou une entreprise souhaitant
+                                augmenter ses ventes, MC Business est la plateforme qu'il vous faut.
+                            </p>
+                            <p class="highlight-text fw-bold">
+                                Rejoignez-nous dès aujourd'hui et faites partie d'une communauté qui valorise la
+                                croissance et l'innovation.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card Footer -->
+                <div class="card-footer bg-transparent border-0 text-center py-4">
+                    <a href="/Account/SignUp" class="btn btn-primary btn-lg px-5 py-2 rounded-pill fw-bold">
+                        Rejoindre MC Business <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                    <div class="mt-3 text-muted">
+                        <i class="bi bi-envelope me-1"></i> suppor@mcbusinessht.com | 
+                        <i class="bi bi-telephone me-1"></i> +509 34 73 4465
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Custom styles */
+        #aboutCard {
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        #aboutCard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .about-content p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            color: #495057;
+        }
+        
+        .about-content .lead {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: #212529;
+        }
+        
+        .highlight-text {
+            font-weight: 500;
+            color: #0d6efd !important;
+            font-size: 1.15rem !important;
+        }
+        
+        .feature-item {
+            transition: all 0.3s ease;
+            border-radius: 10px;
+        }
+        
+        .feature-item:hover {
+            transform: translateY(-5px);
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .feature-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .feature-item:hover .feature-icon {
+            background-color: rgba(13, 110, 253, 0.2) !important;
+            transform: scale(1.1);
+        }
+        
+        .btn-primary {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+        }
+    </style>
+}

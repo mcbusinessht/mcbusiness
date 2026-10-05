@@ -1,0 +1,190 @@
+@page
+@model MCBusiness.Pages.Users.Seller.PaymentsModel
+@using MCBusiness.Models
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Vos paiements";
+    var culture = new CultureInfo("fr-FR");
+}
+
+<div class="container-fluid px-0">
+    <div class="row g-0">
+        <div class="col-lg-3 d-none d-lg-block border-end">
+            <partial name="_SideBarPartial" />
+        </div>
+
+        <button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none"
+                style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+                data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+            <i class="bi bi-list fs-4"></i>
+        </button>
+
+        <main class="col-lg-9 px-4 py-3">
+            <div class="seller-payments-header mb-4">
+                <div>
+                    <p class="text-muted mb-1">@Model.Company?.Name</p>
+                    <h1 class="h3 mb-0">Vos paiements</h1>
+                </div>
+                <a asp-page="/Users/Seller/Dashboard" class="btn btn-outline-primary">
+                    <i class="bi bi-speedometer2 me-1"></i>
+                    Tableau de bord
+                </a>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="payment-summary">
+                        <span>En attente</span>
+                        <strong>@Model.FormatMoney(Model.PendingTotal, "HTG")</strong>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="payment-summary">
+                        <span>Déjà payé</span>
+                        <strong>@Model.FormatMoney(Model.PaidTotal, "HTG")</strong>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="payment-summary">
+                        <span>Total généré</span>
+                        <strong>@Model.FormatMoney(Model.LifetimeTotal, "HTG")</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h2 class="h5 mb-0">Historique des paiements vendeur</h2>
+                </div>
+                <div class="card-body p-0">
+                    @if (!Model.Payments.Any())
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-wallet2"></i>
+                            <p class="mb-0">Aucun paiement vendeur n'est encore disponible.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Commande</th>
+                                        <th>Montant brut</th>
+                                        <th>Commission</th>
+                                        <th>Net vendeur</th>
+                                        <th>Statut</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var payment in Model.Payments)
+                                    {
+                                        var currency = payment.Currency?.Code ?? "HTG";
+                                        var statusClass = payment.Status switch
+                                        {
+                                            PaymentStatus.Completed => "bg-success",
+                                            PaymentStatus.Failed => "bg-danger",
+                                            _ => "bg-warning text-dark"
+                                        };
+
+                                        <tr>
+                                            <td>
+                                                @if (payment.Order != null)
+                                                {
+                                                    <a asp-page="/Users/Seller/Orders/Details" asp-route-id="@payment.Order.Id" class="fw-semibold text-decoration-none">
+                                                        #@payment.Order.Id
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">N/A</span>
+                                                }
+                                            </td>
+                                            <td>@Model.FormatMoney(Model.GetGrossAmount(payment), currency)</td>
+                                            <td>@Model.FormatMoney(Model.GetPlatformCommission(payment), currency)</td>
+                                            <td class="fw-semibold">@Model.FormatMoney(Model.GetSellerNetAmount(payment), currency)</td>
+                                            <td>
+                                                <span class="badge @statusClass">@payment.Status</span>
+                                                @if (payment.IsPaidToSeller)
+                                                {
+                                                    <small class="d-block text-muted mt-1">Versé au vendeur</small>
+                                                }
+                                            </td>
+                                            <td>@LocalTime.Format(payment.PaymentDate, "dd/MM/yyyy HH:mm", culture)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title">Menu fournisseur</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <partial name="_SideBarPartial" />
+    </div>
+</div>
+
+<style>
+    .seller-payments-header {
+        align-items: center;
+        display: flex;
+        gap: 1rem;
+        justify-content: space-between;
+    }
+
+    .payment-summary {
+        background: #fff;
+        border: 1px solid rgba(31, 72, 117, 0.12);
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        min-height: 96px;
+        padding: 1rem;
+    }
+
+    .payment-summary span {
+        color: #6c757d;
+        font-size: 0.92rem;
+    }
+
+    .payment-summary strong {
+        color: var(--primary-color);
+        font-size: 1.35rem;
+    }
+
+    .empty-state {
+        align-items: center;
+        color: #6c757d;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 3rem 1rem;
+        text-align: center;
+    }
+
+    .empty-state i {
+        color: var(--primary-color);
+        font-size: 2rem;
+    }
+
+    @@media (max-width: 767.98px) {
+        .seller-payments-header {
+            align-items: stretch;
+            flex-direction: column;
+        }
+    }
+</style>

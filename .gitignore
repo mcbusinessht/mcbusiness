@@ -1,0 +1,15 @@
+bin/
+obj/
+.vscode/
+.git/
+.env
+config/
+.dotnet/
+.codex-build*/
+.codex-backups/
+.cursor/
+*.user
+appsettings.Backup.json
+keys/
+/acli.exe
+/wwwroot/uploads/

@@ -1,0 +1,98 @@
+﻿@page
+@model MCBusiness.Pages.Users.Seller.Profil.IndexModel
+@{
+    ViewData["Title"] = "Profil de l'entreprise";
+}
+
+<div class="container py-5">
+    <form method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        <div class="row">
+            <!-- Logo -->
+            <div class="col-lg-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <img src="@(Model.Company.UrlLogo ?? "/images/default-company.png")"
+                             class="rounded-circle mb-3"
+                             style="width:200px;height:200px;object-fit:cover" />
+                        <input asp-for="LogoFile" type="file" accept=".png,.jpg,.jpeg" hidden id="logoInput" />
+                        <label for="logoInput" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-camera me-2"></i>Changer le logo
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">Informations de l'entreprise</h4>
+                    </div>
+                    <div class="card-body">
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+                        }
+
+                        <!-- Lecture seule pour certains champs -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Nom</label>
+                                <div class="form-control bg-light" readonly>@Model.Company.Name</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Secteur</label>
+                                <div class="form-control bg-light" readonly>@Model.Company.Category?.Name</div>
+                            </div>
+                        </div>
+
+                        <!-- Champs modifiables -->
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="UpdateData.PhoneNumber" class="form-label">Téléphone</label>
+                                <input asp-for="UpdateData.PhoneNumber" class="form-control" />
+                                <span asp-validation-for="UpdateData.PhoneNumber" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="UpdateData.Email" class="form-label">Email</label>
+                                <input asp-for="UpdateData.Email" class="form-control" />
+                                <span asp-validation-for="UpdateData.Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="UpdateData.WebSite" class="form-label">Site Web</label>
+                                <input asp-for="UpdateData.WebSite" class="form-control" />
+                                <span asp-validation-for="UpdateData.WebSite" class="text-danger"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="UpdateData.Description" class="form-label">Description</label>
+                                <textarea asp-for="UpdateData.Description" class="form-control" maxlength="500" rows="3"></textarea>
+                                <span asp-validation-for="UpdateData.Description" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 text-end">
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="bi bi-save me-2"></i>Enregistrer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Aperçu du logo avant upload
+        document.getElementById('logoInput').addEventListener('change', function (e) {
+            const reader = new FileReader();
+            reader.onload = evt => {
+                document.querySelector('.card-body img').src = evt.target.result;
+            };
+            reader.readAsDataURL(this.files[0]);
+        });
+    </script>
+}

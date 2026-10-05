@@ -1,0 +1,155 @@
+﻿@page
+@model MCBusiness.Pages_Users_Seller_Shipments_ShippingFees.DeleteModel
+@{
+    ViewData["Title"] = "Supprimer le Tarif de Livraison";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-3 d-none d-lg-block border-end">
+            <partial name="_SideBarPartial"/>
+        </div>
+        
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="display-6 fw-bold text-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>@ViewData["Title"]
+                    </h1>
+                    <p class="text-muted mb-0">Confirmez la suppression de ce tarif de livraison</p>
+                </div>
+                <a asp-page="./Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Retour à la liste
+                </a>
+            </div>
+
+            <div class="card border-danger border-2 shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-trash me-2"></i>Confirmation de suppression
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading">
+                            <i class="bi bi-exclamation-octagon me-2"></i>Attention !
+                        </h4>
+                        <p>Vous êtes sur le point de supprimer définitivement ce tarif de livraison. Cette action est irréversible.</p>
+                        <hr>
+                        <p class="mb-0">Veuillez confirmer votre choix en cliquant sur le bouton "Supprimer".</p>
+                    </div>
+
+                    <div class="row">
+                        <!-- Informations de base -->
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="bi bi-building me-2"></i>Informations Compagnie
+                                </h5>
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
+                                        <i class="bi bi-truck text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">@Model.ShippingFee.Company?.Name</h6>
+                                        <small class="text-muted">@Model.ShippingFee.Company?.Address</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="bi bi-currency-exchange me-2"></i>Détails Tarifaires
+                                </h5>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success bg-opacity-10 p-2 rounded me-3">
+                                        <i class="bi bi-cash-coin text-success"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="mb-0">@Model.ShippingFee.Price.ToString("C")</h4>
+                                        <small class="text-muted">@Model.ShippingFee.Currency?.Symbol</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Localisation -->
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">
+                                <i class="bi bi-geo-alt me-2"></i>Zone de Livraison
+                            </h5>
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <ul class="list-unstyled mb-0">
+                                        <li class="mb-2">
+                                            <i class="bi bi-globe me-2 text-primary"></i>
+                                            <strong>Pays :</strong> @Model.ShippingFee.Country?.Name
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="bi bi-map me-2 text-primary"></i>
+                                            <strong>Région :</strong> @Model.ShippingFee.State?.Name
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="bi bi-building me-2 text-primary"></i>
+                                            <strong>Ville :</strong> @Model.ShippingFee.City?.Name
+                                        </li>
+                                        <li>
+                                            <i class="bi bi-house-door me-2 text-primary"></i>
+                                            <strong>Quartier :</strong> @(Model.ShippingFee.Neighborhood?.Name ?? "Non spécifié")
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light border-top">
+                    <form method="post" class="d-flex justify-content-between">
+                        <input type="hidden" asp-for="ShippingFee.Id" />
+                        <a asp-page="./Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-2"></i>Confirmer la suppression
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Menu mobile -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <partial name="_SideBarPartial"/>
+    </div>
+</div>
+
+<button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+        style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+        data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+    <i class="bi bi-list fs-4"></i>
+</button>
+
+@section Styles {
+    <style>
+        .card {
+            box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.05);
+        }
+        .list-unstyled li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .list-unstyled li:last-child {
+            border-bottom: none;
+        }
+        .border-danger {
+            border-color: #dc3545 !important;
+        }
+    </style>
+}

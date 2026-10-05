@@ -1,0 +1,287 @@
+@page
+@model MCBusiness.Pages.Users.Admin.Promotions.PromoAnalyticsModel
+@{
+    ViewData["Title"] = "Analyse des Coûts Promotionnels";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-chart-line text-primary"></i> Analyse des Coûts Promotionnels
+                </h1>
+                <div>
+                    <button class="btn btn-outline-primary" onclick="window.print()">
+                        <i class="fas fa-print"></i> Imprimer
+                    </button>
+                    <a asp-page="/Users/Admin/Promotions/Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-ticket-alt fa-2x text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Codes Utilisés</h6>
+                            <h3 class="mb-0">@Model.TotalUsages</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-dollar-sign fa-2x text-danger"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Coût Total Promos</h6>
+                            <h3 class="mb-0 text-danger">@Model.TotalPromoDiscount.ToString("N0") HTG</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-money-bill-wave fa-2x text-success"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Revenus Bruts</h6>
+                            <h3 class="mb-0 text-success">@Model.TotalRevenue.ToString("N0") HTG</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-percentage fa-2x text-warning"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Taux Remise Moyen</h6>
+                            <h3 class="mb-0 text-warning">@Model.AverageDiscountRate.ToString("N2")%</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Date Début</label>
+                    <input type="date" name="StartDate" class="form-control" value="@Model.StartDate?.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Date Fin</label>
+                    <input type="date" name="EndDate" class="form-control" value="@Model.EndDate?.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Campagne</label>
+                    <select name="CampaignId" class="form-select">
+                        <option value="">Toutes les campagnes</option>
+                        @foreach (var campaign in Model.Campaigns)
+                        {
+                            <option value="@campaign.Id" selected="@(Model.CampaignId == campaign.Id)">@campaign.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter"></i> Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tableau détaillé par campagne -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom">
+            <h5 class="mb-0"><i class="fas fa-table"></i> Détails par Campagne</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Campagne</th>
+                            <th>Code Promo</th>
+                            <th class="text-center">Utilisations</th>
+                            <th class="text-end">Coût Total</th>
+                            <th class="text-end">Revenu Généré</th>
+                            <th class="text-end">ROI</th>
+                            <th class="text-center">Statut Audit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.CampaignStats)
+                        {
+                            var roi = item.Revenue > 0 ? ((item.Revenue - item.DiscountCost) / item.Revenue * 100) : 0;
+                            var auditComplete = item.AuditedUsages >= item.TotalUsages;
+                            <tr>
+                                <td>
+                                    <strong>@item.CampaignName</strong>
+                                    <br />
+                                    <small class="text-muted">@item.StartDate.ToString("dd/MM/yyyy") - @item.EndDate.ToString("dd/MM/yyyy")</small>
+                                </td>
+                                <td>
+                                    <code class="bg-light px-2 py-1 rounded">@item.PromoCode</code>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-info">@item.TotalUsages</span>
+                                </td>
+                                <td class="text-end text-danger">
+                                    <strong>@item.DiscountCost.ToString("N0") HTG</strong>
+                                </td>
+                                <td class="text-end text-success">
+                                    <strong>@item.Revenue.ToString("N0") HTG</strong>
+                                </td>
+                                <td class="text-end">
+                                    <span class="badge @(roi >= 0 ? "bg-success" : "bg-danger")">
+                                        @roi.ToString("N1")%
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    @if (auditComplete)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check"></i> Complet
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-exclamation-triangle"></i> @item.AuditedUsages/@item.TotalUsages
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <th colspan="2">TOTAL</th>
+                            <th class="text-center">@Model.TotalUsages</th>
+                            <th class="text-end text-danger">@Model.TotalPromoDiscount.ToString("N0") HTG</th>
+                            <th class="text-end text-success">@Model.TotalRevenue.ToString("N0") HTG</th>
+                            <th class="text-end">
+                                @{
+                                    var totalRoi = Model.TotalRevenue > 0 ? ((Model.TotalRevenue - Model.TotalPromoDiscount) / Model.TotalRevenue * 100) : 0;
+                                }
+                                <span class="badge @(totalRoi >= 0 ? "bg-success" : "bg-danger")">
+                                    @totalRoi.ToString("N1")%
+                                </span>
+                            </th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphiques -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Répartition des Coûts</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="costDistributionChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Top 10 Codes les Plus Coûteux</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="topPromoCodesChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Graphique de répartition
+        const costCtx = document.getElementById('costDistributionChart').getContext('2d');
+        new Chart(costCtx, {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CampaignStats.Select(c => c.CampaignName).ToList())),
+                datasets: [{
+                    label: 'Coût',
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CampaignStats.Select(c => c.DiscountCost).ToList())),
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                        '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // Graphique top 10
+        const topCtx = document.getElementById('topPromoCodesChart').getContext('2d');
+        const top10 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+            Model.CampaignStats.OrderByDescending(c => c.DiscountCost).Take(10).ToList()
+        ));
+        new Chart(topCtx, {
+            type: 'bar',
+            data: {
+                labels: top10.map(c => c.PromoCode),
+                datasets: [{
+                    label: 'Coût (HTG)',
+                    data: top10.map(c => c.DiscountCost),
+                    backgroundColor: '#FF6384'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+}

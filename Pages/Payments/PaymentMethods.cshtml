@@ -1,0 +1,515 @@
+﻿@page
+@model MCBusiness.Pages.Payments.PaymentMethodsModel
+@{
+    ViewData["Title"] = "PaymentMethods";
+}
+
+<div class="container mt-5 mb-5">
+    
+    <form id="paymentForm">
+        <div class="row">      
+            <div class="col-md-8 mx-auto shadow p-4">             
+                <h2 class="mb-4 text-center text-primary">Choisissez votre méthode de paiement</h2>
+                <div class="row">
+                    <!-- Paiement MonCash-->
+                    <div class="col-md-6 mb-4 ">
+                        <div class="card payment-card" onclick="selectPayment('cash')">
+                            <div class="card-body">
+                                <div class="form-check d-flex align-items-center">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="cashPayment" value="cash">
+                                    <label class="form-check-label ms-3" for="cashPayment">
+                                        <img src="~/image/MON-Cash-Haiti-logo.png" alt="MonCash" style="height: 40px;">
+                                        <h5 class="mt-2">MonCash</h5>
+                                        <p class="text-muted">Paiement via votre compte MonCash</p>
+                                        <div class="badge bg-success  text-success">
+                                            <i class="bi bi-check-circle-fill"></i> Disponible | Instantané
+                                        </div> 
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Virement Bancaire -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card payment-card" onclick="selectPayment('transfer')">
+                            <div class="card-body">
+                                <div class="form-check d-flex align-items-center">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="transferPayment" value="transfer">
+                                    <label class="form-check-label ms-3" for="transferPayment">
+                                        <i class="bi bi-bank fs-3 text-success"></i>
+                                        <h5 class="mt-2">Virement Bancaire</h5>
+                                        <p class="text-muted">Transfert direct depuis votre banque</p>
+                                        <div class="badge bg-success  text-success">
+                                            <i class="bi bi-check-circle-fill"></i> Disponible | 24-72h
+                                        </div> 
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Carte Bancaire -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card payment-card" onclick="selectPayment('card')">
+                            <div class="card-body">
+                                <div class="form-check d-flex align-items-center">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="cardPayment" value="card">
+                                    <label class="form-check-label ms-3" for="cardPayment">
+                                        <i class="bi bi-credit-card fs-3"></i>
+                                        <h5 class="mt-2">Carte Bancaire</h5>
+                                        <p class="text-muted">Paiement sécurisé par carte</p>
+                                        <div class="badge bg-danger  text-danger">
+                                            <i class="bi bi-x-circle-fill"></i> Temporairement indisponible
+                                        </div> 
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+                    <!-- PayPal -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card payment-card" onclick="selectPayment('paypal')">
+                            <div class="card-body">
+                                <div class="form-check d-flex align-items-center">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="paypalPayment" value="paypal">
+                                    <label class="form-check-label ms-3" for="paypalPayment">
+                                        <i class="bi bi-paypal fs-3 text-primary"></i>
+                                        <h5 class="mt-2">PayPal</h5>
+                                        <p class="text-muted">Paiement via votre compte PayPal</p>
+                                        <div class="badge bg-danger  text-danger">
+                                            <i class="bi bi-x-circle-fill"></i> Temporairement indisponible
+                                        </div> 
+                                    </label>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                </div>
+                <div class="text-center mb-2">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" id="continueBtn" disabled onclick="openSelectedPaymentModal()">
+                        Poursuivre le paiement
+                    </button>
+                    <a asp-page="/Users/User/Dashboard" class="btn btn-danger">
+                        Annuler le paiement
+                    </a>
+                    <br><br>
+                    <img src="~/image/ssl-secure.jpg" alt="" width="300">
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Modal pour Carte Bancaire -->
+<div class="modal fade" id="cardModal" tabindex="-1" aria-labelledby="cardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cardModalLabel">Paiement par Carte Bancaire</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="cardNumber" class="form-label">Numéro de carte</label>
+                        <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="expiryDate" class="form-label">Date d'expiration</label>
+                            <input type="text" class="form-control" id="expiryDate" placeholder="MM/AA">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="cvv" class="form-label">CVV</label>
+                            <input type="text" class="form-control" id="cvv" placeholder="123">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cardName" class="form-label">Nom sur la carte</label>
+                        <input type="text" class="form-control" id="cardName" placeholder="John Doe">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary">Payer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour PayPal -->
+<div class="modal fade" id="paypalModal" tabindex="-1" aria-labelledby="paypalModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paypalModalLabel">Paiement via PayPal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p>Vous serez redirigé vers PayPal pour compléter votre paiement</p>
+                <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" alt="PayPal" class="my-3">
+                <p class="text-muted">Cliquez sur "Payer avec PayPal" pour continuer</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary">Payer avec PayPal</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal pour Virement Bancaire -->
+<div class="modal fade" id="transferModal" tabindex="-1" aria-labelledby="transferModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="transferModalLabel">Virement Bancaire</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5 class="text-center">Informations de notre compte bancaire</h5>
+                <div class="row">
+                    <div class="col-7">
+                        <p><strong>Nom de la banque</strong> : SOGEBANK</p>
+                        <p><strong>Numéro de compte</strong> : 906019377</p>
+                        <p><strong>Nom du titulaire</strong> : MC Business</p>
+                        
+                    </div>
+                    <div class="col-5">
+                        <p><strong>Type</strong> : Compte courant</p>
+                        <p><strong>Devise</strong> : Gourde (HTG)</p>
+                        <p><strong>SWIFT</strong> : SOGHHTPP</p>
+                    </div>
+                </div>
+                    
+                <form method="post" enctype="multipart/form-data" asp-page-handler="BankTransfer" id="bankTransferForm">
+                     <div class="mb-4">
+                        <h5>Proceder au virement bancaire</h5>
+                        <label class="form-label fw-bold">Nom de la banque</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="bi bi-bank text-primary"></i>
+                            </span>
+                            <select class="form-select" id="bankSelect" required>
+                                <option value="" selected disabled>-- Sélectionnez votre banque --</option>
+                                <option value="Sogebank">Sogebank</option>
+                                <option value="Unibank">Unibank</option>
+                                <option value="BUH">BUH (Banque de l'Union Haïtienne)</option>
+                                <option value="BNC">BNC (Banque Nationale de Crédit)</option>
+                                <option value="Other">Autre banque</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Champ réel pour la banque (toujours utilisé pour la soumission) -->
+                        <input type="hidden" asp-for="BankTransferInput.BankName" id="realBankName" />
+                        
+                        <!-- Champ pour "Autre banque" -->
+                        <div id="otherBankContainer" class="mt-2" style="display: none;">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-pencil text-primary"></i>
+                                </span>
+                                <input type="text" id="otherBankInput" class="form-control" 
+                                    placeholder="Nom complet de votre banque">
+                            </div>
+                        </div>
+                        <span asp-validation-for="BankTransferInput.BankName" class="text-danger small d-block mt-1"></span>
+                    </div>    
+                    <div class="mb-3">
+                        <label asp-for="BankTransferInput.AccountName" class="form-label">Titulaire du compte</label>
+                        <input asp-for="BankTransferInput.AccountName" class="form-control" required />
+                        <span asp-validation-for="BankTransferInput.AccountName" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="BankTransferInput.AccountNumber" class="form-label">Numéro de compte</label>
+                        <input asp-for="BankTransferInput.AccountNumber" class="form-control" required />
+                        <span asp-validation-for="BankTransferInput.AccountNumber" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="BankTransferInput.TransferMethod" class="form-label">Type de virement</label>
+                        <select asp-for="BankTransferInput.TransferMethod" class="form-select">
+                            <option value="Local">Local (Haiti)</option>
+                            <option value="SPIH">SPIH (Haiti)</option>
+                            <option value="SWIFT">SWIFT (International)</option>
+                        </select>
+                        <span asp-validation-for="BankTransferInput.TransferMethod" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="BankTransferInput.CurrencyId" class="form-label fw-bold">Devise</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="bi bi-currency-exchange text-primary"></i>
+                            </span>
+                            <select asp-for="BankTransferInput.CurrencyId" class="form-select" required>
+                                <option value="" selected disabled>-- Sélectionnez une devise --</option>
+                                @foreach (var currency in Model.AvailableCurrencies)
+                                {
+                                    <option value="@currency.Id">@currency.CurrencyBase (@currency.Symbol)</option>
+                                }
+                            </select>
+                        </div>
+                        <span asp-validation-for="BankTransferInput.CurrencyId" class="text-danger small d-block mt-1"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="BankTransferInput.Amount" class="form-label">Montant</label>
+                        <input asp-for="BankTransferInput.Amount" class="form-control" type="number" step="0.01" min="1" required />
+                        <span asp-validation-for="BankTransferInput.Amount" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="BankTransferInput.ProofFile" class="form-label">Preuve de paiement (PDF ou image)</label>
+                        <input asp-for="BankTransferInput.ProofFile" type="file" class="form-control" required/>
+                        <span asp-validation-for="BankTransferInput.ProofFile" class="text-danger"></span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary" id="submitBankTransferBtn">
+                            <span class="button-text">J'ai effectué le virement</span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal pour MonCash -->
+<div class="modal fade" id="cashModal" tabindex="-1" aria-labelledby="cashModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="plan-MethodLabel">Détails du Paiement</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-page-handler="MonCashPayment">
+                <div class="text-center mb-4">
+                    <img src="~/image/MON-Cash-Haiti-logo.png" alt="MonCash" style="height: 50px;" class="mb-3">
+                    <h4 class="fw-bold text-danger">Dépôt via MonCash</h4>
+                </div>
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                }
+                        
+                <div class="mb-3">
+                    <label for="numberInput" class="form-label fw-bold">Montant du Dépôt (HTG)</label>
+                    <div class="input-group">
+                        <span class="input-group-text">HTG</span>
+                        <input asp-for="Amount" type="number" class="form-control"
+                            id="numberInput"
+                            min="50.00"
+                            max="20000.00"
+                            step="0.01"
+                            oninput="calculatePercentage()"
+                            required>
+                    </div>
+                    <span asp-validation-for="Amount" class="text-danger"></span>
+                </div>
+
+
+
+                
+                        
+                <div class="mb-3">
+                    <label class="form-label">Frais de Dépôt (2%)</label>
+                    <input type="text" id="percentageResult" class="form-control bg-light" readonly>
+                </div>
+                        
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Total à Payer</label>                              
+                    <input type="text" id="totalResult" class="form-control bg-light fw-bold" readonly>            
+                </div>
+                        
+                <div class="d-grid gap-2">            
+                    <button type="submit" class="btn btn-primary py-3 rounded-pill fw-bold" asp-page-handler="MonCashPayment"><i class="bi bi-credit-card me-2"></i> Faire le depot</button>
+                    <a asp-page="../Users/User/Dashboard" class="btn btn-outline-secondary py-3 rounded-pill">
+                        <i class="bi bi-x-circle me-2"></i> Annuler
+                    </a>
+                </div>
+                        
+                @if (!string.IsNullOrEmpty(Model.PaymentLink))
+                {
+                    <div class="alert alert-info mt-4">
+                        <h5 class="alert-heading">Lien de paiement généré</h5>
+                        <a href="@Model.PaymentLink" target="_blank" class="text-break">@Model.PaymentLink</a>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger mt-3">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        @Model.ErrorMessage
+                    </div>
+                }
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="plan-Method" tabindex="-1" aria-labelledby="plan-MethodLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cashModalLabel">Paiement à la Livraison</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Vous payerez en espèces ou par carte bancaire lorsque vous recevrez votre commande.</p>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> Des frais supplémentaires de 2,50 € s'appliquent pour cette option.
+                </div>
+                <p>Le livreur vous demandera le montant total de votre commande.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary">Confirmer la commande</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const bankSelect = document.getElementById('bankSelect');
+            const otherBankContainer = document.getElementById('otherBankContainer');
+            const otherBankInput = document.getElementById('otherBankInput');
+            const realBankName = document.getElementById('realBankName');
+            const form = document.getElementById('bankTransferForm');
+            const submitBtn = document.getElementById('submitBankTransferBtn');
+            let isSubmitting = false;
+            
+            // Gestion du changement de sélection
+            bankSelect.addEventListener('change', function() {
+                if (this.value === 'Other') {
+                    otherBankContainer.style.display = 'block';
+                    realBankName.value = ''; // Réinitialise la valeur
+                } else {
+                    otherBankContainer.style.display = 'none';
+                    realBankName.value = this.value; // Stocke la valeur sélectionnée
+                }
+            });
+
+            // Mise à jour de la valeur quand on tape dans "Autre banque"
+            otherBankInput.addEventListener('input', function() {
+                realBankName.value = this.value; // Stocke directement dans le champ caché
+            });
+
+            // Validation avant soumission avec protection anti-double-clic
+            form.addEventListener('submit', function(e) {
+                // Vérifier si déjà en cours de soumission
+                if (isSubmitting) {
+                    e.preventDefault();
+                    console.log('Formulaire déjà en cours de soumission');
+                    return false;
+                }
+
+                if (bankSelect.value === 'Other' && !otherBankInput.value.trim()) {
+                    e.preventDefault();
+                    alert('Veuillez saisir le nom de votre banque');
+                    return false;
+                }
+                
+                // Vérifie qu'une valeur est bien présente
+                if (!realBankName.value) {
+                    e.preventDefault();
+                    alert('Veuillez sélectionner ou saisir une banque');
+                    return false;
+                }
+                
+                // Marquer comme en cours de soumission
+                isSubmitting = true;
+                
+                // Désactiver le bouton et afficher le spinner
+                submitBtn.disabled = true;
+                submitBtn.querySelector('.button-text').textContent = 'Envoi en cours...';
+                submitBtn.querySelector('.spinner-border').classList.remove('d-none');
+                
+                return true;
+            });
+        });
+    </script>
+    <script>
+        function selectPayment(method) {
+            document.getElementById(method + 'Payment').checked = true;
+            document.getElementById('continueBtn').disabled = false;
+        }
+        
+        function openSelectedPaymentModal() {
+            const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const modal = new bootstrap.Modal(document.getElementById(selectedMethod + 'Modal'));
+            modal.show();
+        }
+        
+        // Ajoute un effet visuel lors de la sélection d'une carte
+        document.querySelectorAll('.payment-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // Retire la classe 'selected' de toutes les cartes
+                document.querySelectorAll('.payment-card').forEach(c => {
+                    c.classList.remove('border-primary', 'shadow');
+                });
+                // Ajoute la classe 'selected' à la carte cliquée
+                this.classList.add('border-primary', 'shadow');
+            });
+        });
+    </script>
+        <script>
+        function calculatePercentage() {
+            const inputValue = parseFloat(document.getElementById("numberInput").value) || 0;
+            const percentage = (inputValue * 2) / 100;
+            const totalM = percentage + inputValue;
+            
+            document.getElementById("percentageResult").value = percentage.toFixed(2) + " HTG";
+            document.getElementById("totalResult").value = totalM.toFixed(2) + " HTG";
+        }
+        
+        // Highlight selected payment method
+        document.querySelectorAll('.payment-method-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) {
+                    radio.checked = true;
+                    document.querySelectorAll('.payment-method-card').forEach(c => {
+                        c.classList.remove('border-primary', 'border-2');
+                    });
+                    this.classList.add('border-primary', 'border-2');
+                }
+            });
+        });
+    </script>
+}
+
+<style>
+    .payment-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .payment-card:hover {
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    
+    .form-check-input {
+        cursor: pointer;
+    }
+    
+    .form-check-label {
+        cursor: pointer;
+    }
+    .payment-card { cursor: pointer; transition: all .3s; }
+    @* .payment-card:hover { transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); } *@
+   
+</style>

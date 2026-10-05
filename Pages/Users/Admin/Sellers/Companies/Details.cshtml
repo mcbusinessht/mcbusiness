@@ -1,0 +1,159 @@
+@page
+@model MCBusiness.Pages.Users.Admin.Sellers.Companies.DetailsModel
+@{
+    ViewData["Title"] = "Détails de l'entreprise";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-building me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <div>
+                            <a asp-page="./Edit" asp-route-id="@Model.Company.Id" class="btn btn-sm btn-light me-2">
+                                <i class="bi bi-pencil-square me-1"></i> Modifier
+                            </a>
+                            <a asp-page="./Index" class="btn btn-sm btn-outline-light">
+                                <i class="bi bi-arrow-left me-1"></i> Retour
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Colonne de gauche - Informations principales -->
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5 class="border-bottom pb-2 mb-3">Informations générales</h5>
+                                <dl class="row">
+                                    <dt class="col-sm-4">Fournisseur</dt>
+                                    <dd class="col-sm-8">@Model.Company.Seller?.FullName</dd>            
+
+                                    <dt class="col-sm-4">Nom</dt>
+                                    <dd class="col-sm-8 fw-bold">@Model.Company.Name</dd>                                 
+
+                                    <dt class="col-sm-4">Secteur</dt>                   
+                                    <dd class="col-sm-8">
+                                        <span class="badge bg-primary">@Model.Company.Category.Name</span>
+                                    </dd>
+
+                                    <dt class="col-sm-4">Date création</dt>
+                                    <dd class="col-sm-8">@Model.Company.CreationDate.ToString("dd/MM/yyyy")</dd>
+                                </dl>
+                            </div>
+
+                            <div class="mb-4">
+                                <h5 class="border-bottom pb-2 mb-3">Coordonnées</h5>
+                                <dl class="row">
+                                    <dt class="col-sm-4">Téléphone</dt>
+                                    <dd class="col-sm-8">
+                                        <a href="tel:@Model.Company.PhoneNumber" class="text-decoration-none">
+                                            <i class="bi bi-telephone me-2"></i>@Model.Company.PhoneNumber
+                                        </a>
+                                    </dd>
+
+                                    <dt class="col-sm-4">Email</dt>
+                                    <dd class="col-sm-8">
+                                        <a href="mailto:@Model.Company.Email" class="text-decoration-none">
+                                            <i class="bi bi-envelope me-2"></i>@Model.Company.Email
+                                        </a>
+                                    </dd>
+
+                                    <dt class="col-sm-4">Site web</dt>
+                                    <dd class="col-sm-8">
+                                        @if (!string.IsNullOrEmpty(Model.Company.WebSite))
+                                        {
+                                            <a href="@Model.Company.WebSite" target="_blank" class="text-decoration-none">
+                                                <i class="bi bi-globe me-2"></i>@Model.Company.WebSite
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Non renseigné</span>
+                                        }
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+
+                        <!-- Colonne de droite - Adresse -->
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5 class="border-bottom pb-2 mb-3">Localisation</h5>
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-start">
+                                            <i class="bi bi-geo-alt-fill text-primary fs-4 me-3"></i>
+                                            <div>
+                                                <h6 class="mb-2">Adresse complète</h6>
+                                                @if (Model.Company.PrimaryAddress != null)
+                                                {
+                                                    <p class="mb-1">@Model.Company.PrimaryAddress.Line1</p>
+                                                    <p class="mb-1">@Model.Company.PrimaryAddress.City?.Name</p>
+                                                    <p class="mb-1">@Model.Company.PrimaryAddress.State?.Name</p>
+                                                    <p class="mb-0">@Model.Company.PrimaryAddress.Country?.Name</p>
+                                                }
+                                                else
+                                                {
+                                                    <p class="mb-0 text-muted">Aucune adresse</p>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-transparent">
+                    <div class="d-flex justify-content-between">
+                        <small class="text-muted">
+                            Dernière mise à jour : @LocalTime.Format(DateTimeOffset.UtcNow, "dd/MM/yyyy HH:mm")
+                        </small>
+                        <div>
+                            <a asp-page="./Edit" asp-route-id="@Model.Company.Id" class="btn btn-outline-primary btn-sm me-2">
+                                <i class="bi bi-pencil-square me-1"></i> Modifier
+                            </a>
+                            <a asp-page="./Index" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-list-ul me-1"></i> Liste complète
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card-header {
+            padding: 1rem 1.5rem;
+        }
+        
+        dt {
+            font-weight: 500;
+            color: #6c757d;
+        }
+        
+        .badge {
+            font-size: 0.85em;
+            padding: 0.35em 0.65em;
+        }
+        
+        .bg-light {
+            background-color: #f8f9fa !important;
+            border-radius: 0.5rem;
+        }
+    </style>
+}    

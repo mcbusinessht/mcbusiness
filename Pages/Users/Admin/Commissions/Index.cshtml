@@ -1,0 +1,73 @@
+@page
+@model MCBusiness.Pages.Users.Admin.Commissions.IndexModel
+@{
+    ViewData["Title"] = "Commissions Ambassadeur";
+}
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4">Commissions Ambassadeur</h1>
+        <form method="get" class="d-flex gap-2">
+            <input class="form-control form-control-sm" type="text" name="amb" value="@Model.FilterAmb" placeholder="Ambassadeur (email/username)">
+            <input class="form-control form-control-sm" type="number" name="orderId" value="@(Model.FilterOrderId ?? 0)" placeholder="OrderId">
+            <select class="form-select form-select-sm" name="status">
+                <option value="">Tous statuts</option>
+                @foreach (var s in Model.StatusOptions) {
+                    <option value="@s" selected="@(Model.FilterStatus==s)">@s</option>
+                }
+            </select>
+            <button class="btn btn-sm btn-primary" type="submit">Filtrer</button>
+        </form>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Ambassadeur</th>
+                            <th>Order</th>
+                            <th>Montant</th>
+                            <th>Statut</th>
+                            <th>Created</th>
+                            <th>Available</th>
+                            <th>Notes</th>
+                            <th style="width: 260px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model.Items.Count == 0) {
+                        <tr><td colspan="9" class="text-center text-muted">Aucune commission</td></tr>
+                    } else {
+                        foreach (var c in Model.Items) {
+                            <tr>
+                                <td>@c.Id</td>
+                                <td>@c.AmbassadorEmail</td>
+                                <td>@c.OrderId</td>
+                                <td class="text-end">@c.Amount.ToString("N2") HTG</td>
+                                <td><span class="badge bg-secondary">@c.Status</span></td>
+                                <td>@LocalTime.Format(c.CreatedAt, "g")</td>
+                                <td>@(c.AvailableAt.HasValue ? LocalTime.Format(c.AvailableAt.Value, "g") : "-")</td>
+                                <td>@(string.IsNullOrWhiteSpace(c.ProcessingNotes)?"-":c.ProcessingNotes)</td>
+                                <td>
+                                    <form method="post" class="d-flex gap-1">
+                                        <input type="hidden" name="id" value="@c.Id" />
+                                        <select name="newStatus" class="form-select form-select-sm" required>
+                                            @foreach (var s in Model.StatusOptions) {
+                                                <option value="@s" selected="@(s==c.Status)">@s</option>
+                                            }
+                                        </select>
+                                        <input type="text" name="note" class="form-control form-control-sm" placeholder="Note (optionnel)" />
+                                        <button class="btn btn-sm btn-outline-success" type="submit">Mettre à jour</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,292 @@
+@page
+@model MCBusiness.Pages.Users.Admin.FinancialReconciliation.IndexModel
+@{
+    ViewData["Title"] = "Réconciliation Financière";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <partial name="_AdminSidebarPartial" />
+        <div class="col-lg-9 col-12">
+            <!-- En-tête -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">💰 Réconciliation Financière</h1>
+                <div>
+                    <button class="btn btn-outline-primary" onclick="window.print()">
+                        📊 Imprimer Rapport
+                    </button>
+                    <a asp-page="/Users/Admin/FinancialReconciliation/Export" class="btn btn-success">
+                        📥 Exporter CSV
+                    </a>
+                </div>
+            </div>
+
+            <!-- Alertes de réconciliation -->
+            @if (Model.HasReconciliationIssues)
+            {
+                <div class="alert alert-warning">
+                    <h5>⚠️ Problèmes de réconciliation détectés</h5>
+                    <ul>
+                        @foreach (var issue in Model.ReconciliationIssues)
+                        {
+                            <li>@issue</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <!-- Métriques principales -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5>💵 Revenus (Payments)</h5>
+                            <h3>@Model.TotalRevenue.ToString("C")</h3>
+                            <small>Depuis le début</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5>✅ Auditées</h5>
+                            <h3>@Model.AuditedTransactionsCount</h3>
+                            <small>@Model.AuditCoveragePercent.ToString("F1")% couverture</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <h5>⚠️ Non Auditées</h5>
+                            <h3>@Model.UnauditedTransactionsCount</h3>
+                            <small>À traiter</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5>📈 Aujourd'hui</h5>
+                            <h3>@Model.TodayRevenue.ToString("C")</h3>
+                            <small>@Model.TodayTransactionsCount tx</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Totaux audit PlatformTransaction + cohérence solde -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card border-@(Model.PlatformBalanceMatchesPT ? "success" : "danger")">
+                        <div class="card-header">
+                            📊 Totaux d'audit (PlatformTransaction) et solde plateforme
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <strong>Revenus PT</strong> (OrderPayment, SubscriptionPayment, UserDeposit, etc.) : <span class="text-success">@Model.TotalRevenueFromPT.ToString("C")</span>
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>Dépenses PT</strong> (SupplierPayment, CommissionReferrer, PromoDiscount, etc.) : <span class="text-danger">@Model.TotalExpenseFromPT.ToString("C")</span>
+                                </div>
+                                <div class="col-md-2">
+                                    <strong>Net PT</strong> : @Model.NetBalanceFromPT.ToString("C")
+                                </div>
+                                <div class="col-md-2">
+                                    <strong>Solde wallet plateforme</strong> : @Model.PlatformWalletBalance.ToString("C")
+                                </div>
+                                <div class="col-md-2">
+                                    @if (Model.PlatformBalanceMatchesPT)
+                                    {
+                                        <span class="badge bg-success">✓ Cohérent</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">✗ Écart</span>
+                                    }
+                                </div>
+                            </div>
+                            <p class="mb-0 mt-2 small text-muted">Détail des lignes dans <a asp-page="/Users/Admin/Transactions/PlatformTransactions/Index">Transactions > Platform Transactions</a>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtres -->
+            <div class="card mb-4">
+                <div class="card-header">🔍 Filtres de Réconciliation</div>
+                <div class="card-body">
+                    <form method="get">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label>Date de début</label>
+                                <input type="date" class="form-control" name="startDate" value="@Model.StartDate?.ToString("yyyy-MM-dd")" />
+                            </div>
+                            <div class="col-md-3">
+                                <label>Date de fin</label>
+                                <input type="date" class="form-control" name="endDate" value="@Model.EndDate?.ToString("yyyy-MM-dd")" />
+                            </div>
+                            <div class="col-md-3">
+                                <label>Statut Audit</label>
+                                <select name="auditStatus" class="form-control">
+                                    <option value="">Tous</option>
+                                    <option value="audited" selected="@(Model.AuditStatus == "audited")">Auditées</option>
+                                    <option value="unaudited" selected="@(Model.AuditStatus == "unaudited")">Non auditées</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label>&nbsp;</label>
+                                <button type="submit" class="btn btn-primary form-control">Filtrer</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Résumé par méthode de paiement -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">💳 Par Méthode de Paiement</div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Méthode</th>
+                                        <th>Montant</th>
+                                        <th>Audit %</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var method in Model.PaymentMethodSummary)
+                                    {
+                                        <tr>
+                                            <td>@method.Method</td>
+                                            <td>@method.Amount.ToString("C")</td>
+                                            <td>
+                                                <span class="badge badge-@(method.AuditPercentage >= 95 ? "success" : method.AuditPercentage >= 80 ? "warning" : "danger")">
+                                                    @method.AuditPercentage.ToString("F1")%
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">📊 Évolution Mensuelle</div>
+                        <div class="card-body">
+                            <canvas id="revenueChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tableau détaillé des transactions -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between">
+                        <span>📋 Détail des Transactions (@Model.FilteredTransactions.Count)</span>
+                        <div>
+                            <button class="btn btn-sm btn-warning" onclick="showUnauditedOnly()">
+                                Voir Non Auditées
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="transactionsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>Utilisateur</th>
+                                    <th>Montant</th>
+                                    <th>Méthode</th>
+                                    <th>Statut Audit</th>
+                                    <th>Description</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var transaction in Model.FilteredTransactions)
+                                {
+                                    <tr class="@(transaction.IsAudited ? "" : "table-warning")">
+                                        <td>@transaction.Id</td>
+                                        <td>@LocalTime.Format(transaction.CreatedAt, "dd/MM/yyyy HH:mm")</td>
+                                        <td>@transaction.UserEmail</td>
+                                        <td>@transaction.Amount.ToString("C")</td>
+                                        <td>@transaction.PaymentMethod</td>
+                                        <td>
+                                            @if (transaction.IsAudited)
+                                            {
+                                                <span class="badge badge-success">✅ Auditée</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-warning">⚠️ Manquante</span>
+                                            }
+                                        </td>
+                                        <td>@transaction.Description</td>
+                                        <td>
+                                            <a asp-page="Details" asp-route-id="@transaction.Id" class="btn btn-sm btn-outline-info">
+                                                📄 Détails
+                                            </a>
+                                            @if (!transaction.IsAudited)
+                                            {
+                                                <button class="btn btn-sm btn-warning" onclick="forceAudit(@transaction.Id)">
+                                                    🔧 Forcer Audit
+                                                </button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showUnauditedOnly() {
+        var table = document.getElementById('transactionsTable');
+        var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        
+        for (var i = 0; i < rows.length; i++) {
+            if (rows[i].classList.contains('table-warning')) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    }
+
+    async function forceAudit(transactionId) {
+        if (!confirm('Forcer l\'audit de cette transaction ?')) return;
+        
+        try {
+            const response = await fetch(`/Users/Admin/FinancialReconciliation/ForceAudit?id=${transactionId}`, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': '@Html.AntiForgeryToken()'
+                }
+            });
+            
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Erreur lors du forçage de l\'audit');
+            }
+        } catch (error) {
+            alert('Erreur: ' + error.message);
+        }
+    }
+</script>

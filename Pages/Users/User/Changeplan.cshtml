@@ -1,0 +1,97 @@
+@page
+@model MCBusiness.Pages.Users.User.ChangeplanModel 
+@{
+    ViewData["Title"] = "Changer de plan";
+}
+
+<div>
+    <div class=" row justify-content-center bg-light row-plans  text-center pt-3 m-3">
+        <h3>Nos Plans</h3>
+        @if(Model.plans!=null && Model.plans.Any()){
+        @foreach(var plan in Model.plans){
+
+        
+        <div class=" col-12 col-md-6 col-lg-3 mb-3 d-flex justify-content-center" id="boxSignUp">
+            <div class="card-body"> 
+            @if(@plan.PathPicture!="" && @plan.PathPicture!=null ){<img src="@plan.PathPicture" alt="Photo de profil" class="profile-pic" style="width: 100px; height: 100px; border-radius: 50%;">}
+            else{<img src="~/image/vector-illustration-depicting-ma.png" alt="Photo de profil" class="profile-pic" style=" height: 150px; border-radius: 50%;">}
+            <h5 class="card-title" style="color: #c57b4c;">@plan.Name</h5>
+                <p class="card-text" style="font-weight:800;">@plan.Price HTG</p>
+                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#@plan.Name">Plus de details</a>
+                <!-- Button trigger modal -->
+            
+                <!-- Modal -->
+                <div class="modal fade" id="@plan.Name"  style="z-index: 9679 !important;" aria-labelledby="@($"{plan.Name}Label")" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="@($"{plan.Name}Label")">Plan @plan.Name</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    @if (@plan.PathPicture != "" && @plan.PathPicture != null)
+                                    {
+                                        <img src="@plan.PathPicture" alt="Photo de profil" class="rounded-circle me-3" style="width: 80px; height: 80px;">
+                                    }
+                                    else
+                                    {
+                                        <img src="~/image/vector-illustration-depicting-ma.png" alt="Photo de profil" class="rounded-circle me-3" style="width: 80px; height: 80px;">
+                                    }
+                                    <h4 class="fw-bold mb-0">@plan.Name</h4>
+                                </div>
+                                
+                                <dl class="text-start row">
+                                    <dt class="text-success col-6"><i class="bi bi-check2"></i> <strong>Prix </strong></dt>
+                                    <dd class="fw-bold col-6 text-success">: @plan.Price HTG</dd>
+
+                                    <dt class="text-success col-6"><i class="bi bi-check2"></i> <strong>Durée Plan </strong></dt>
+                                    <dd class="fw-bold col-6 text-success">: @plan.DurationInDays jours</dd>
+
+                                    <dt class="text-success col-6"><i class="bi bi-check2"></i> <strong>Bonus Génération 1 </strong></dt>
+                                    <dd class="fw-bold col-6 text-success">: @plan.AmbassadorCommissionPercentage %</dd>
+
+                                    @if(plan.AmbassadorCommissionPercentage==0.00m){
+                                        <dt class="text-danger col-6"><i class="bi bi-dash"></i> <strong>Bonus Génération 2 </strong></dt>
+                                        <dd class="fw-bold col-6 text-danger">: @plan.AmbassadorCommissionPercentage %</dd>
+
+                                    }else{
+                                        <dt class="text-success col-6"><i class="bi bi-check2"></i> <strong>Bonus Génération 2 </strong></dt>
+                                        <dd class="fw-bold col-6 text-success">: @plan.AmbassadorCommissionPercentage %</dd>
+
+                                    }
+                                    
+                                    @if(plan.AmbassadorCommissionPercentage==0.00m){
+                                        <dt class="text-danger col-6"><i class="bi bi-dash"></i> <strong>Bonus Génération 3 </strong></dt>
+                                        <dd class="fw-bold col-6 text-danger" >: @plan.AmbassadorCommissionPercentage %</dd>
+
+                                    }else{
+                                        <dt class="text-success col-6"><i class="bi bi-check2"></i> <strong>Bonus Génération 3 </strong></dt>
+                                        <dd class="fw-bold col-6 text-success" >: @plan.AmbassadorCommissionPercentage %</dd>
+
+                                    }
+                                    
+                                    <dt class=" col-6"><i class="bi bi-check2"></i> <strong>Plafond par mois</strong></dt>
+                                    <dd class="fw-bold col-6 ">: @plan.Ceiling HTG</dd>
+
+                                    <dt class="col-6"><strong>Description </strong></dt>
+                                    <dd class="col-6">: @plan.Description</dd>
+                                </dl>
+
+                            </div>
+
+                            <div class="modal-footer d-flex justify-content-between">
+                                <a href="../../Payments/Payment?planId=@plan.Id" class="btn btn-primary" style="width: 45%;">Payer ce plan</a>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="width: 45%;">Fermer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+        }else{
+            <p>Aucun plan n'est disponible pour le momment, repasser plus tard ! </p>
+        }
+    </div>
+</div>

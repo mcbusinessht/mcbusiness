@@ -1,0 +1,106 @@
+<div class="sidebar-wrapper">
+    <div class="sidebar-header p-3 border-bottom">
+        <h3 class="h6 mb-0">
+            <i class="bi bi-person-workspace me-2"></i>Espace Employé
+        </h3>
+    </div>
+    
+    <nav class="sidebar-nav px-2 pt-3">
+        <div class="sidebar-group">
+            <div class="sidebar-item">
+                <a asp-page="/Users/Employee/Dashboard" class="d-flex align-items-center text-decoration-none">
+                    <i class="bi bi-speedometer2 me-2"></i>
+                    <span>Tableau de bord</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="sidebar-group">
+            <div class="sidebar-item">
+                <a class="d-flex align-items-center text-decoration-none" 
+                   data-bs-toggle="collapse" href="#tasksCollapse">
+                    <i class="bi bi-list-task me-2"></i>
+                    <span>Tâches</span>
+                    <i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+            </div>
+            <div class="sidebar-submenu collapse" id="tasksCollapse">
+                <a asp-page="/Users/Employee/Tasks/Index" class="sidebar-subitem">
+                    <i class="bi bi-card-checklist me-2"></i> Mes tâches
+                </a>
+                <a asp-page="/Users/Employee/Tasks/Calendar" class="sidebar-subitem">
+                    <i class="bi bi-calendar-week me-2"></i> Calendrier
+                </a>
+            </div>
+        </div>
+
+        <div class="sidebar-group">
+            <div class="sidebar-item">
+                <a asp-page="/Users/Employee/TimeTracking" class="d-flex align-items-center text-decoration-none">
+                    <i class="bi bi-clock-history me-2"></i>
+                    <span>Feuille de temps</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="sidebar-group">
+            <div class="sidebar-item">
+                <a class="d-flex align-items-center text-decoration-none" 
+                   data-bs-toggle="collapse" href="#hrCollapse">
+                    <i class="bi bi-person-lines-fill me-2"></i>
+                    <span>RH</span>
+                    <i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+            </div>
+            <div class="sidebar-submenu collapse" id="hrCollapse">
+                <a asp-page="/Users/Employee/Profile" class="sidebar-subitem">
+                    <i class="bi bi-person-circle me-2"></i> Mon profil
+                </a>
+                <a asp-page="/Users/Employee/Payslips" class="sidebar-subitem">
+                    <i class="bi bi-file-earmark-text me-2"></i> Fiches de paie
+                </a>
+                <a asp-page="/Users/Employee/Documents" class="sidebar-subitem">
+                    <i class="bi bi-folder me-2"></i> Documents
+                </a>
+            </div>
+        </div>
+
+        <div class="sidebar-group">
+            <div class="sidebar-item">
+                <a asp-page="/Users/Employee/Settings" class="d-flex align-items-center text-decoration-none">
+                    <i class="bi bi-gear me-2"></i>
+                    <span>Paramètres</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+</div>
+
+<style>
+    .sidebar-wrapper {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .sidebar-nav {
+        flex: 1;
+        overflow-y: auto;
+    }
+    
+    .sidebar-item, .sidebar-subitem {
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+        color: #333;
+    }
+    
+    .sidebar-item:hover, .sidebar-subitem:hover {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+    
+    .sidebar-submenu {
+        padding-left: 1.5rem;
+    }
+</style>

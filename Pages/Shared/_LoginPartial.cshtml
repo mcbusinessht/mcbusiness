@@ -1,0 +1,76 @@
+@* _LoginPartialModern.cshtml *@
+@using MCBusiness.Models;
+@using Microsoft.AspNetCore.Identity;
+@inject SignInManager<ApplicationUser> signIn
+@inject UserManager<ApplicationUser> user
+
+
+@{
+    var currentUser = await user.GetUserAsync(User);
+    var userName = currentUser?.UserName ?? "Utilisateur";
+}
+
+<div class="dropdown" style="z-index: 1050!important;">
+    @if(signIn.IsSignedIn(User)){
+        <button class="btn btn-link text-dark dropdown-toggle d-flex align-items-center" 
+                data-bs-toggle="dropdown">
+            <i class="bi bi-person-circle me-1"></i>
+            <span class="d-none d-lg-inline">@userName</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="stickyDropdown">
+            <li class="dropdown-header">Bonjour, @userName</li>
+            <li><hr class="dropdown-divider"></li>
+            @if (User.IsInRole("User")) {
+                            <li class="">
+                                <a class="dropdown-item" asp-page="/Orders/MyOrders">
+                                    <i class="bi bi-box-seam me-2"></i>Commandes
+                                </a>
+                            </li>
+                            <li class="">
+                                <a class="dropdown-item" asp-page="/Users/User/Dashboard">
+                                    <i class="bi bi-speedometer2 me-2"></i>Tableau de bord
+                                </a>
+                            </li>
+                        }
+                        @if (User.IsInRole("Admin") || User.IsInRole("SecondAdmin")) {
+                            <li class="">
+                                <a class="dropdown-item" asp-page="/Users/Admin/Dashboard">
+                                    <i class="bi bi-shield-lock me-2"></i>Administration
+                                </a>
+                            </li>
+                        }
+                        @if (User.IsInRole("Seller")) {
+                            <li class="">
+                                <a class="dropdown-item" asp-page="/Users/Seller/Dashboard">
+                                    <i class="bi bi-truck me-2"></i>Vendeur
+                                </a>
+                            </li>
+                        }
+                        @if (User.IsInRole("Employee")) {
+                            <li class="">
+                                <a class="dropdown-item" asp-page="/Users/EmployeeSpace/Dashboard">
+                                    <i class="bi bi-person-workspace me-2"></i> Espace employé 
+                                </a>
+                            </li>
+                        }
+                        @if (User.IsInRole("Ambassador")) {
+                            <li class="">
+                                <a class="dropdown-item" asp-page="/Users/AmbassadorSpace/Dashboard">
+                                    <i class="bi bi-person-workspace me-2"></i> Espace Ambassadeur
+                                </a>
+                            </li>
+                        }
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <a class="dropdown-item text-danger" asp-page="/Account/Login" asp-page-handler="LogOut">
+                    <i class="bi bi-box-arrow-left me-2"></i>Déconnexion
+                </a>
+            </li>
+        </ul>
+    }
+    else {
+        <a class="btn btn-outline-primary m-1" asp-page="/Account/Login">
+            <i class="bi bi-person me-2"></i>Mon Compte
+        </a>
+    }
+</div>

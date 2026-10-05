@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//FR" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Language" content="fr" />
+    <title>Réinitialisation de votre mot de passe - MC Business</title>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background-color: #005fac;
+            padding: 25px;
+            text-align: center;
+        }
+        .header img {
+            width: 150px;
+            height: auto;
+        }
+        .content {
+            padding: 30px;
+            font-size: 16px;
+        }
+        .security-alert {
+            background-color: #fff8f8;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 14px 30px;
+            background-color: #005fac;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-weight: bold;
+            text-align: center;
+        }
+        .code-box {
+            background: #f8f9fa;
+            border: 2px dashed #005fac;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #005fac;
+            border-radius: 6px;
+        }
+        .footer {
+            font-size: 12px;
+            text-align: center;
+            color: #777777;
+            padding: 25px;
+            border-top: 1px solid #eeeeee;
+            line-height: 1.5;
+            background-color: #f9f9f9;
+        }
+        .footer a {
+            color: #005fac;
+            text-decoration: none;
+        }
+        .text-muted {
+            color: #777777;
+        }
+        .instructions {
+            background-color: #f0f7ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .expiry-notice {
+            color: #e74c3c;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- <div class="header">
+            <img src="https://MCBusinessht.com/image/Logo_MCBusiness.png" alt="MC Business" />
+        </div> -->
+        
+        <div class="content">
+            <!-- <h2 style="color: #005fac; text-align: center;">Réinitialisation de mot de passe</h2> -->
+            
+            <p>Bonjour <strong>{{FullName}}</strong>,</p>
+            
+            <p>Nous avons reçu une demande de réinitialisation de mot de passe pour votre compte MC Business.</p>
+            
+            <p style="text-align: center;">
+                <a href="{{ResetLink}}" class="cta-button">Réinitialiser mon mot de passe</a>
+            </p>
+            
+            <div class="instructions">
+                <p>Si vous ne parvenez pas à cliquer sur le bouton, copiez et collez le lien suivant dans votre navigateur :</p>
+                <p style="word-break: break-all; font-size: 14px; color: #005fac;">{{ResetLink}}</p>
+            </div>
+            
+            <div class="expiry-notice">
+                ⏳ Ce lien expirera dans 24 heures
+            </div>
+            
+            <div class="security-alert">
+                <strong>⚠️ Sécurité :</strong> Si vous n'avez pas demandé cette réinitialisation, veuillez ignorer cet email ou <a href="mailto:support@mcbusinessht.com" style="color: #e74c3c;">nous contacter</a> immédiatement.
+            </div>
+            
+            <p>Cordialement,<br />
+            <strong>L'équipe de sécurité MC Business</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p class="text-muted">© 2025 MC Business. Tous droits réservés.</p>
+            <p class="text-muted">
+                Contact : <a href="mailto:support@mcbusinessht.com">support@mcbusinessht.com</a> | 
+                Tél. : +509 34 73 4465
+            </p>
+            <p class="text-muted">
+                <a href="https://www.facebook.com/share/18VC2DsxN2/?mibextid=wwXIfr">Facebook</a> | 
+                <a href="https://www.instagram.com/MCBusinessht?igsh=MWRwMjE3YWhjczR1bA%3D%3D&utm_source=qr">Instagram</a>
+            </p>
+            <p class="text-muted" style="font-size: 11px;">
+                Vous recevez cet email car une demande de réinitialisation a été effectuée pour votre compte.
+                <a href="{{UnsubscribeLink}}" style="color: #777777;">Gérer les notifications</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

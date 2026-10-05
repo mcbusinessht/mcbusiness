@@ -1,0 +1,172 @@
+﻿@page
+@using MCBusiness.Models
+@model MCBusiness.Pages.Users.Seller.Shipments.CreateModel
+@{
+    ViewData["Title"] = "Nouvelle Livraison";
+}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-3 d-none d-lg-block border-end">
+            <partial name="_SideBarPartial"/>
+        </div>
+         <button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+                    style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+                    data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+
+            
+        <div class="col-lg-9">
+           <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="h5 mb-0">
+                        <i class="bi bi-plus-circle me-2"></i>@ViewData["Title"]
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <!-- COMMANDE -->
+                        <div class="mb-3">
+                            <label class="form-label">Commande</label>
+                            <select id="orderSelector" class="form-select" required>
+                                <option value="">Sélectionner une commande</option>
+                                @foreach (var order in Model.Orders)
+                                {
+                                    <option value="@order.Value" selected="@order.Selected">@order.Text</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- PRODUIT DANS COMMANDE -->
+                        <div class="mb-3">
+                            <label asp-for="Shipment.OrderProductId" class="form-label">Produit de commande</label>
+                            <select asp-for="Shipment.OrderProductId" class="form-select" id="productSelector" required>
+                                <option value="">Sélectionner un produit</option>
+                                @foreach (var product in Model.OrderProducts)
+                                {
+                                    <option value="@product.Value" selected="@product.Selected">@product.Text</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Shipment.OrderProductId" class="text-danger"></span>
+                        </div>
+
+                        <!-- TRACKING -->
+                        <div class="mb-3">
+                            <label asp-for="Shipment.TrackingNumber" class="form-label">Numéro de suivi</label>
+                            <input asp-for="Shipment.TrackingNumber" class="form-control" value="@Model.TrackingNumber" readonly />
+                        </div>
+
+                        <!-- LIVREUR -->
+                        <div class="mb-3">
+                            <label asp-for="Shipment.DeliveryPersonId" class="form-label">Livreur</label>
+                            <select asp-for="Shipment.DeliveryPersonId" class="form-select" asp-items="Model.DeliveryPersons" required>
+                                <option value="">Sélectionner un livreur</option>
+                            </select>
+                            <span asp-validation-for="Shipment.DeliveryPersonId" class="text-danger"></span>
+                        </div>
+
+                        <!-- DATES -->
+                        <div class="mb-3">
+                            <label asp-for="Shipment.ShippingDate" class="form-label">Date d'expédition</label>
+                            <input asp-for="Shipment.ShippingDate" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="Shipment.ShippingDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Shipment.DeliveryDate" class="form-label">Date prévue pour la livraison</label>
+                            <input asp-for="Shipment.DeliveryDate" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="Shipment.DeliveryDate" class="text-danger"></span>
+                        </div>
+
+                        <!-- STATUT -->
+                        <div class="mb-3">
+                            <label asp-for="Shipment.Status" class="form-label">Statut</label>
+                            <select asp-for="Shipment.Status" class="form-select">
+                                <option value="@ShipmentStatus.InTransit">InTransit</option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-page="Index" class="btn btn-secondary">Annuler</a>
+                            <button type="submit" class="btn btn-primary">Créer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🧠 JavaScript pour AJAX -->
+@section Scripts {
+    
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle sidebar groups
+        document.querySelectorAll('.sidebar-group').forEach(group => {
+            const item = group.querySelector('.sidebar-item');
+            const submenu = group.querySelector('.sidebar-submenu');
+            
+            // Open if contains active item
+            if (submenu.querySelector('.active')) {
+                group.classList.add('active');
+            }
+            
+            item.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') return;
+                group.classList.toggle('active');
+            });
+        });
+        
+        // Toggle sidebar subgroups
+        document.querySelectorAll('.sidebar-subgroup').forEach(group => {
+            const item = group.querySelector('.sidebar-subitem');
+            const submenu = group.querySelector('.sidebar-subsubmenu');
+            
+            // Open if contains active item
+            if (submenu.querySelector('.active')) {
+                group.classList.add('active');
+            }
+            
+            item.addEventListener('click', function(e) {         
+                if (e.target.tagName === 'A') return;
+                group.classList.toggle('active');
+            });
+        });
+    });
+</script>
+    <script>
+        document.getElementById('orderSelector').addEventListener('change', function () {
+            const orderId = this.value;
+            const productSelector = document.getElementById('productSelector');
+            productSelector.innerHTML = '<option>Chargement...</option>';
+
+            if (!orderId) {
+                productSelector.innerHTML = '<option value="">Sélectionner un produit</option>';
+                return;
+            }
+
+            fetch(`?handler=ProductsByOrder&orderId=${orderId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur de chargement');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    productSelector.innerHTML = '<option value="">Sélectionner un produit</option>';
+                    data.forEach(p => {
+                        const option = document.createElement('option');
+                        option.value = p.id;
+                        option.textContent = p.name;
+                        productSelector.appendChild(option);
+                    });
+                })
+                .catch(() => {
+                    productSelector.innerHTML = '<option value="">Impossible de charger les produits</option>';
+                });
+        });
+    </script>
+}

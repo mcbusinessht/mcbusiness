@@ -1,0 +1,447 @@
+@page
+@model MCBusiness.Pages.Users.Seller.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard Fournisseur";
+}
+
+@if (!Model.CurrentUser.EmailConfirmed && Model.CurrentUser.Email != null)
+{
+    Layout = "~/Pages/Shared/_MinimalLayout.cshtml";
+
+    <div class="row position-absolute top-50 start-50 translate-middle w-100">
+        <div class="col-md-6 col-sm-8 col-xs-10 mx-auto my-auto p-4 mt-4 profile-section">
+            <h2 class="text-center mb-4">Votre adresse mail n'est pas vérifiée</h2>
+            <p class="text-center mb-4">Pour accéder à cette page, vous devez d'abord vérifier votre adresse email.</p>
+            
+            <div class="text-center"> 
+                <a asp-page="/Account/VerifyEmail" class="btn btn-primary px-4 py-2">
+                    Accéder à la page de vérification <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+}
+else if (Model.Company == null)
+{
+    <partial name="NoCompany" />
+}
+else
+{
+    <!-- Bouton menu mobile -->
+    <button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+            style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+            data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+        <i class="bi bi-list fs-4"></i>
+    </button>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar version desktop -->
+            <div class="col-lg-3 col-xl-3 d-none d-lg-block bg-white border-end vh-100 sticky-top">
+                <partial name="_SideBarPartial"/>
+            </div>
+
+            <!-- Main Content -->
+            <main class="col-lg-9 col-xl-9 p-4 bg-light">
+                <!-- En-tête du Dashboard -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h3 mb-1 text-primary fw-bold">
+                            <i class="bi bi-building me-2"></i>@Model.Company.Name
+                        </h1>
+                        <p class="text-muted mb-0">Tableau de bord fournisseur - Gérez votre activité</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" onclick="refreshDashboard()">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Actualiser
+                        </button>
+                        @if (Model.Company.IsVerified)
+                        {
+                            <span class="badge bg-success fs-6 px-3 py-2">
+                                <i class="bi bi-patch-check me-1"></i>Vérifié
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning fs-6 px-3 py-2">
+                                <i class="bi bi-clock me-1"></i>En attente
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- KPI Business Fournisseur (Seller SEULEMENT) -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm h-100 bg-gradient-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-light mb-1 opacity-75">Chiffre d'Affaires Brut</h6>
+                                        <h2 class="text-white mb-1" id="totalRevenue">
+                                            @Model.GrossAmount.ToString("N2") HTG
+                                        </h2>
+                                        <small class="text-light opacity-75">
+                                            <i class="bi bi-arrow-up"></i> Ventes livrées
+                                        </small>
+                                    </div>
+                                    <div class="text-white opacity-50">
+                                        <i class="bi bi-graph-up display-4"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm h-100 bg-gradient-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-light mb-1 opacity-75">Produits vendus</h6>
+                                        <h2 class="text-white mb-1" id="totalOrders">
+                                            @Model.ProductSold
+                                        </h2>
+                                        <small class="text-light opacity-75">
+                                            En attente: @(ViewData["PendingOrders"] ?? 0)
+                                        </small>
+                                    </div>
+                                    <div class="text-white opacity-50">
+                                        <i class="bi bi-box-seam display-4"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm h-100 bg-gradient-warning text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-light mb-1 opacity-75">Vues produits</h6>
+                                        <h2 class="text-white mb-1" id="totalProducts">
+                                            @Model.ClicksOnProduct
+                                        </h2>
+                                        <small class="text-light opacity-75">
+                                            Stock bas: @(ViewData["LowStockProducts"] ?? 0)
+                                        </small>
+                                    </div>
+                                    <div class="text-white opacity-50">
+                                        <i class="bi bi-bag-check display-4"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm h-100 bg-gradient-info text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-light mb-1 opacity-75">Note Moyenne</h6>
+                                        <h2 class="text-white mb-1" id="averageRating">
+                                            @Model.Rate.ToString("F1")
+                                        </h2>
+                                        <small class="text-light opacity-75">
+                                            Sur @Model.RateCount avis clients
+                                        </small>
+                                    </div>
+                                    <div class="text-white opacity-50">
+                                        <i class="bi bi-star-fill display-4"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphiques Business et Alertes -->
+                <div class="row mb-4">
+                    <div class="col-lg-8">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-graph-up me-2"></i>Performance Commerciale
+                                    <span class="badge bg-info ms-2">DERNIERS 6 MOIS</span>
+                                </h6>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-success" onclick="toggleChart('revenue')">CA</button>
+                                    <button class="btn btn-sm btn-primary" onclick="toggleChart('orders')">Commandes</button>
+                                    <button class="btn btn-sm btn-warning" onclick="toggleChart('products')">Produits</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="businessChart" height="100"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header bg-warning text-dark">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>Alertes Fournisseur
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                @{
+                                    var lowStockProducts = (int)(ViewData["LowStockProducts"] ?? 0);
+                                    var pendingOrders = (int)(ViewData["PendingOrders"] ?? 0);
+                                    var pendingPayments = (decimal)(ViewData["PendingPayments"] ?? 0m);
+                                }
+                                
+                                @if (lowStockProducts > 0)
+                                {
+                                    <div class="alert alert-warning mb-2" role="alert">
+                                        <i class="bi bi-box me-1"></i>
+                                        <strong>@lowStockProducts</strong> produits en rupture de stock
+                                    </div>
+                                }
+                                
+                                @if (pendingOrders > 0)
+                                {
+                                    <div class="alert alert-info mb-2" role="alert">
+                                        <i class="bi bi-clock me-1"></i>
+                                        <strong>@pendingOrders</strong> commandes à traiter
+                                    </div>
+                                }
+                                
+                                @if (pendingPayments > 0)
+                                {
+                                    <div class="alert alert-success mb-2" role="alert">
+                                        <i class="bi bi-cash-coin me-1"></i>
+                                        <strong>@pendingPayments.ToString("N2") HTG</strong> paiement en attente
+                                    </div>
+                                }
+                                
+                                @if (!Model.Company.IsVerified)
+                                {
+                                    <div class="alert alert-danger mb-0" role="alert">
+                                        <i class="bi bi-exclamation-circle me-1"></i>
+                                        Entreprise non vérifiée - Fonctionnalités limitées
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-success mb-0" role="alert">
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        Tout fonctionne parfaitement !
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions Rapides -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-lightning-charge me-2"></i>Actions Rapides
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2 d-md-flex">
+                                    <a asp-page="./Products/Create" class="btn btn-success">
+                                        <i class="bi bi-plus-circle me-1"></i>Ajouter un produit
+                                    </a>
+                                    
+                                    <a asp-page="./Orders/Index" class="btn btn-outline-primary">
+                                        <i class="bi bi-list-check me-1"></i>Gérer les commandes
+                                    </a>
+                                    
+                                    <a asp-page="./Products/Index" class="btn btn-outline-warning">
+                                        <i class="bi bi-box me-1"></i>Inventaire & Stock
+                                    </a>
+                                    
+                                    <a asp-page="./Payments/Index" class="btn btn-outline-success">
+                                        <i class="bi bi-cash-coin me-1"></i>Mes Paiements
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Offcanvas Sidebar Mobile -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title">Menu Fournisseur</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <partial name="_SideBarPartial"/>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSellerCharts();
+        });
+
+        function initializeSellerCharts() {
+            // Graphique des ventes sur 6 mois
+            const canvas = document.getElementById('businessChart');
+            if (!canvas) return;
+            const businessCtx = canvas.getContext('2d');
+            window.businessChart = new Chart(businessCtx, {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.SalesLabels)),
+                    datasets: [{
+                        label: 'Ventes (HTG)',
+                        data: @Html.Raw(Json.Serialize(Model.SalesValues)),
+                        backgroundColor: 'rgba(25, 135, 84, 0.8)',
+                        borderColor: '#198754',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString() + ' HTG';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function refreshDashboard() {
+            location.reload();
+        }
+        
+        function toggleChart(type) {
+            const chart = window.businessChart;
+            if (type === 'revenue') {
+                chart.data.datasets[0].data = @Html.Raw(Json.Serialize(Model.SalesValues ?? new List<decimal>()));
+                chart.data.datasets[0].label = 'Chiffre d\'affaires Réel (HTG)';
+                chart.data.datasets[0].backgroundColor = 'rgba(25, 135, 84, 0.8)';
+            } else if (type === 'orders') {
+                const realOrderData = @Html.Raw(Json.Serialize(Model.DashboardData?.OrderCountValues ?? new List<decimal>()));
+                chart.data.datasets[0].data = realOrderData;
+                chart.data.datasets[0].label = 'Commandes Réelles';
+                chart.data.datasets[0].backgroundColor = 'rgba(13, 110, 253, 0.8)';
+            } else if (type === 'products') {
+                const productData = @Html.Raw(Json.Serialize(Model.DashboardData?.ProductsSoldValues ?? new List<decimal>()));
+                chart.data.datasets[0].data = productData;
+                chart.data.datasets[0].label = 'Produits Vendus Réels';
+                chart.data.datasets[0].backgroundColor = 'rgba(255, 193, 7, 0.8)';
+            }
+            chart.update();
+        }
+    </script>
+}
+
+@section Styles {
+    <style>
+        .bg-gradient-success {
+            background: #fff !important;
+            color: #212529 !important;
+        }
+        
+        .bg-gradient-primary {
+            background: #fff !important;
+            color: #212529 !important;
+        }
+        
+        .bg-gradient-warning {
+            background: #fff !important;
+            color: #212529 !important;
+        }
+        
+        .bg-gradient-info {
+            background: #fff !important;
+            color: #212529 !important;
+        }
+
+        .bg-gradient-success .text-white,
+        .bg-gradient-primary .text-white,
+        .bg-gradient-warning .text-white,
+        .bg-gradient-info .text-white,
+        .bg-gradient-success .text-light,
+        .bg-gradient-primary .text-light,
+        .bg-gradient-warning .text-light,
+        .bg-gradient-info .text-light {
+            color: #212529 !important;
+        }
+        
+        .card {
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+        }
+        
+        .card:hover {
+            border-color: rgba(13, 110, 253, 0.2);
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.1);
+        }
+        
+        .display-4 {
+            font-size: 2rem;
+        }
+
+        @@media (max-width: 767.98px) {
+            main.p-4 {
+                padding: 1rem !important;
+            }
+
+            main > .d-flex.justify-content-between {
+                align-items: flex-start !important;
+                flex-direction: column;
+                gap: .75rem;
+            }
+
+            main > .d-flex.justify-content-between > .d-flex {
+                flex-wrap: wrap;
+                width: 100%;
+            }
+
+            main > .d-flex.justify-content-between .btn {
+                flex: 1 1 150px;
+                min-height: 42px;
+            }
+
+            .card-header {
+                align-items: flex-start !important;
+                flex-direction: column;
+                gap: .6rem;
+            }
+
+            .card-header .d-flex {
+                flex-wrap: wrap;
+                width: 100%;
+            }
+
+            .card-header .btn {
+                flex: 1 1 auto;
+            }
+
+            canvas {
+                min-height: 240px;
+            }
+        }
+    </style>
+}

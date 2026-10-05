@@ -1,0 +1,353 @@
+@page
+@using MCBusiness.Models
+@model MCBusiness.Pages.Users.Seller.Shipments.IndexModel
+@{
+    ViewData["Title"] = "Gestion des livraisons";
+}
+
+<div class="container-fluid shipments-page">
+    <div class="row">
+        <div class="col-lg-3 d-none d-lg-block border-end">
+            <partial name="_SideBarPartial" />
+        </div>
+
+        <button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none"
+                style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+                data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+            <i class="bi bi-list fs-4"></i>
+        </button>
+
+        <main class="col-lg-9">
+            <div class="page-head mb-4">
+                <div>
+                    <h1 class="h3 mb-1">
+                        <i class="bi bi-truck me-2"></i>@ViewData["Title"]
+                    </h1>
+                    <p class="text-muted mb-0">Finalisez les livraisons depuis cette page pour declencher le flux commande et financier.</p>
+                </div>
+                <a asp-page="Create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Nouvelle livraison
+                </a>
+            </div>
+
+            @if (TempData["SuccessMessage"] is string successMessage)
+            {
+                <div class="alert alert-success">@successMessage</div>
+            }
+            @if (TempData["ErrorMessage"] is string errorMessage)
+            {
+                <div class="alert alert-danger">@errorMessage</div>
+            }
+
+            <section class="card mb-4">
+                <div class="card-header bg-light">
+                    <h2 class="h6 mb-0"><i class="bi bi-funnel"></i> Filtres</h2>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" asp-for="SearchString"
+                                   placeholder="Rechercher par numero de suivi, produit ou livreur">
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" asp-for="StatusFilter">
+                                <option value="">Tous les statuts</option>
+                                @foreach (var status in Enum.GetValues(typeof(ShipmentStatus)))
+                                {
+                                    <option value="@status">@StatusLabel((ShipmentStatus)status)</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-filter"></i> Filtrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="card-body p-0">
+                    @if (!Model.Shipments.Any())
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-truck"></i>
+                            <p>Aucune livraison trouvee.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>N° suivi</th>
+                                        <th>Commande</th>
+                                        <th>Produit</th>
+                                        <th>Livreur</th>
+                                        <th>Date expedition</th>
+                                        <th>Date livraison</th>
+                                        <th>Statut</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.Shipments)
+                                    {
+                                        var canFinalize = item.Status == ShipmentStatus.InTransit;
+                                        var isFinal = item.Status == ShipmentStatus.Delivered || item.Status == ShipmentStatus.Canceled;
+                                        var productName = item.OrderProduct?.ProductVariant?.Product?.Name ?? "-";
+                                        <tr>
+                                            <td>
+                                                <strong>@item.TrackingNumber</strong>
+                                            </td>
+                                            <td>Commande #@item.OrderProduct?.OrderId</td>
+                                            <td>@productName</td>
+                                            <td>@(item.DeliveryPerson?.Name ?? "-")</td>
+                                            <td>@LocalTime.Format(item.ShippingDate, "dd/MM/yyyy HH:mm")</td>
+                                            <td>@(item.DeliveryDate.HasValue ? LocalTime.Format(item.DeliveryDate.Value, "dd/MM/yyyy HH:mm") : "-")</td>
+                                            <td>
+                                                <span class="badge @GetStatusBadgeClass(item.Status)">
+                                                    @StatusLabel(item.Status)
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="action-row">
+                                                    @if (!isFinal)
+                                                    {
+                                                        <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Modifier les informations">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </a>
+                                                    }
+                                                    <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Details">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+
+                                                    @if (canFinalize)
+                                                    {
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-outline-success js-confirm-action"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#confirmShipmentActionModal"
+                                                                data-form-id="markDeliveredForm-@item.Id"
+                                                                data-title="Marquer comme livree"
+                                                                data-message="Cette action confirmera la livraison, mettra la ligne de commande comme livree et relancera les enregistrements financiers eligibles. Continuer ?"
+                                                                data-confirm-class="btn-success"
+                                                                data-confirm-text="Oui, marquer livree">
+                                                            <i class="bi bi-check2-circle"></i>
+                                                        </button>
+
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-outline-danger js-confirm-action"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#confirmShipmentActionModal"
+                                                                data-form-id="cancelShipmentForm-@item.Id"
+                                                                data-title="Annuler la livraison"
+                                                                data-message="Cette action annulera la livraison et marquera la ligne de commande comme retournee. Cette operation peut avoir un impact sur le traitement de la commande. Continuer ?"
+                                                                data-confirm-class="btn-danger"
+                                                                data-confirm-text="Oui, annuler">
+                                                            <i class="bi bi-x-circle"></i>
+                                                        </button>
+                                                    }
+
+                                                    @if (item.Status == ShipmentStatus.Delivered)
+                                                    {
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-outline-warning js-confirm-action"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#confirmShipmentActionModal"
+                                                                data-form-id="reconcileFinancialsForm-@item.Id"
+                                                                data-title="Relancer les ecritures financieres"
+                                                                data-message="Cette action verifiera et relancera les ecritures vendeur et plateforme pour cette livraison. L'action est idempotente et ne doit pas creer de doublon. Continuer ?"
+                                                                data-confirm-class="btn-warning"
+                                                                data-confirm-text="Relancer">
+                                                            <i class="bi bi-cash-coin"></i>
+                                                        </button>
+                                                    }
+
+                                                    @if (!isFinal)
+                                                    {
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-outline-danger js-confirm-action"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#confirmShipmentActionModal"
+                                                                data-form-id="deleteShipmentForm-@item.Id"
+                                                                data-title="Supprimer la livraison"
+                                                                data-message="Cette livraison sera supprimee. Continuer ?"
+                                                                data-confirm-class="btn-danger"
+                                                                data-confirm-text="Oui, supprimer">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    }
+                                                </div>
+
+                                                <form id="markDeliveredForm-@item.Id" method="post" asp-page-handler="MarkDelivered" asp-route-id="@item.Id" class="d-none"></form>
+                                                <form id="cancelShipmentForm-@item.Id" method="post" asp-page-handler="CancelShipment" asp-route-id="@item.Id" class="d-none"></form>
+                                                <form id="reconcileFinancialsForm-@item.Id" method="post" asp-page-handler="ReconcileFinancials" asp-route-id="@item.Id" class="d-none"></form>
+                                                <form id="deleteShipmentForm-@item.Id" method="post" asp-page-handler="Delete" asp-route-id="@item.Id" class="d-none"></form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <partial name="_SideBarPartial" />
+    </div>
+</div>
+
+<div class="modal fade" id="confirmShipmentActionModal" tabindex="-1" aria-labelledby="confirmShipmentActionTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmShipmentActionTitle">Confirmer l'action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmShipmentActionMessage" class="mb-0"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Retour</button>
+                <button type="button" class="btn btn-primary" id="confirmShipmentActionButton">Confirmer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let selectedFormId = null;
+        const modalTitle = document.getElementById('confirmShipmentActionTitle');
+        const modalMessage = document.getElementById('confirmShipmentActionMessage');
+        const confirmButton = document.getElementById('confirmShipmentActionButton');
+
+        document.querySelectorAll('.js-confirm-action').forEach(button => {
+            button.addEventListener('click', function () {
+                selectedFormId = this.dataset.formId;
+                modalTitle.textContent = this.dataset.title || 'Confirmer';
+                modalMessage.textContent = this.dataset.message || 'Confirmer cette action ?';
+                confirmButton.textContent = this.dataset.confirmText || 'Confirmer';
+                confirmButton.className = `btn ${this.dataset.confirmClass || 'btn-primary'}`;
+            });
+        });
+
+        confirmButton.addEventListener('click', function () {
+            if (!selectedFormId) return;
+            const form = document.getElementById(selectedFormId);
+            if (form) {
+                confirmButton.disabled = true;
+                form.submit();
+            }
+        });
+
+        document.querySelectorAll('.sidebar-group').forEach(group => {
+            const item = group.querySelector('.sidebar-item');
+            const submenu = group.querySelector('.sidebar-submenu');
+            if (submenu?.querySelector('.active')) {
+                group.classList.add('active');
+            }
+            item?.addEventListener('click', function (e) {
+                if (e.target.tagName === 'A') return;
+                group.classList.toggle('active');
+            });
+        });
+
+        document.querySelectorAll('.sidebar-subgroup').forEach(group => {
+            const item = group.querySelector('.sidebar-subitem');
+            const submenu = group.querySelector('.sidebar-subsubmenu');
+            if (submenu?.querySelector('.active')) {
+                group.classList.add('active');
+            }
+            item?.addEventListener('click', function (e) {
+                if (e.target.tagName === 'A') return;
+                group.classList.toggle('active');
+            });
+        });
+    });
+</script>
+
+<style>
+    .shipments-page .page-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .shipments-page .card {
+        border: 1px solid rgba(0, 0, 0, .08);
+        border-radius: .5rem;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, .06);
+    }
+
+    .action-row {
+        display: flex;
+        justify-content: flex-end;
+        gap: .45rem;
+        flex-wrap: wrap;
+    }
+
+    .empty-state {
+        padding: 2.5rem 1rem;
+        text-align: center;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        display: block;
+        font-size: 2.5rem;
+        margin-bottom: .75rem;
+        color: #adb5bd;
+    }
+
+    @@media (max-width: 767.98px) {
+        .shipments-page .page-head {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .shipments-page .page-head .btn {
+            width: 100%;
+            min-height: 42px;
+        }
+    }
+</style>
+
+@functions {
+    string GetStatusBadgeClass(ShipmentStatus status)
+    {
+        return status switch
+        {
+            ShipmentStatus.Pending => "bg-warning text-dark",
+            ShipmentStatus.InTransit => "bg-primary",
+            ShipmentStatus.Delivered => "bg-success",
+            ShipmentStatus.Canceled => "bg-secondary",
+            _ => "bg-light text-dark"
+        };
+    }
+
+    string StatusLabel(ShipmentStatus status)
+    {
+        return status switch
+        {
+            ShipmentStatus.Pending => "En attente",
+            ShipmentStatus.InTransit => "En transit",
+            ShipmentStatus.Delivered => "Livree",
+            ShipmentStatus.Canceled => "Annulee",
+            _ => status.ToString()
+        };
+    }
+}

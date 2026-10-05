@@ -1,0 +1,185 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_BankTransferPayments.DetailsModel 
+@using MCBusiness.Models;  <!-- Ajoutez cette ligne -->   
+
+@{
+    ViewData["Title"] = "Details du virement";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial"/>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-receipt me-2"></i>@ViewData["Title"]
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Colonne Utilisateur -->
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Informations utilisateur</h5>
+                            <dl class="row">
+                                <dt class="col-sm-4">Nom:</dt>
+                                <dd class="col-sm-8">@Model.BankTransferPayment.User.FullName</dd>
+                                
+                                <dt class="col-sm-4">Email:</dt>
+                                <dd class="col-sm-8">@Model.BankTransferPayment.User.Email</dd>
+                                
+                                <dt class="col-sm-4">Téléphone:</dt>
+                                <dd class="col-sm-8">@Model.BankTransferPayment.User.PhoneNumber</dd>
+                            </dl>
+                        </div>
+
+                        <!-- Colonne Virement -->
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Détails du virement</h5>
+                            <dl class="row">
+                                <dt class="col-sm-4">Banque:</dt>
+                                <dd class="col-sm-8">@Model.BankTransferPayment.BankName</dd>
+                                
+                                <dt class="col-sm-4">Compte:</dt>
+                                <dd class="col-sm-8">
+                                    @Model.BankTransferPayment.AccountName<br>
+                                    <small class="text-muted">@Model.BankTransferPayment.AccountNumber</small>
+                                </dd>
+                                
+                                <dt class="col-sm-4">Type/Méthode:</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge bg-info">@Model.BankTransferPayment.TransferMethod</span>
+                                    <span class="badge bg-secondary ms-2">@Model.BankTransferPayment.Direction</span>
+                                </dd>
+                                
+                                <dt class="col-sm-4">Montant:</dt>
+                                <dd class="col-sm-8 fw-bold">@Model.BankTransferPayment.Amount.ToString("C")</dd>
+                                
+                                <dt class="col-sm-4">Statut:</dt>
+                                <dd class="col-sm-8">
+                                    @switch(Model.BankTransferPayment.Status)
+                                    {
+                                        case BankTransferStatus.Pending:
+                                            <span class="badge bg-warning">En Attente</span>
+                                            break;
+                                        case BankTransferStatus.Approved:
+                                            <span class="badge bg-success">Approuvé</span>
+                                            break;
+                                        case BankTransferStatus.Rejected:
+                                            <span class="badge bg-danger">Rejeté</span>
+                                            break;
+                                    }
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Section Preuve -->
+                    <div class="mt-4">
+                        <h5>Preuve de transaction</h5>
+                        <div class="border p-3 rounded">
+                            @if (!string.IsNullOrEmpty(Model.BankTransferPayment.ProofFilePath))
+                            {
+                                var fileExtension = System.IO.Path.GetExtension(Model.BankTransferPayment.ProofFilePath)?.ToLower();
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <a href="@Model.BankTransferPayment.ProofFilePath" 
+                                           class="btn btn-outline-primary btn-sm"
+                                           download
+                                           target="_blank">
+                                            <i class="bi bi-download me-2"></i>Télécharger
+                                        </a>
+                                    </div>
+                                    <small class="text-muted">@Model.BankTransferPayment.SubmittedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                                </div>
+
+                                @if (new[] { ".jpg", ".jpeg", ".png", ".gif" }.Contains(fileExtension))
+                                {
+                                    <a href="@Model.BankTransferPayment.ProofFilePath" 
+                                       class="glightbox"
+                                       data-gallery="gallery">
+                                        <img src="@Model.BankTransferPayment.ProofFilePath" 
+                                             class="img-fluid rounded border"
+                                             alt="Preuve de transaction"
+                                             style="max-height: 400px;">
+                                    </a>
+                                }
+                                else if (fileExtension == ".pdf")
+                                {
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-file-pdf me-2"></i>Document PDF
+                                        <a href="@Model.BankTransferPayment.ProofFilePath" 
+                                           target="_blank"
+                                           class="ms-2">
+                                            Prévisualiser
+                                        </a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-secondary">
+                                        Fichier non prévisualisable
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning">
+                                    Aucun fichier de preuve fourni
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Section Commentaire Admin -->
+                    @if (!string.IsNullOrEmpty(Model.BankTransferPayment.AdminComment))
+                    {
+                        <div class="mt-4">
+                            <h5>Commentaire administratif</h5>
+                            <div class="border p-3 rounded bg-light">
+                                @Model.BankTransferPayment.AdminComment
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="card-footer">
+                    <a asp-page="./Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Retour à la liste
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" rel="stylesheet">
+    <style>
+        .glightbox img {
+            cursor: zoom-in;
+            transition: transform 0.3s ease;
+        }
+        .glightbox:hover img {
+            transform: scale(1.02);
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/gh/mcstudios/glightbox/dist/js/glightbox.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const lightbox = GLightbox({
+                touchNavigation: true,
+                loop: true,
+                zoomable: true
+            });
+        });
+    </script>
+}

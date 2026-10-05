@@ -1,0 +1,160 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Products.CharacteristicValues.EditModel
+
+@{
+    ViewData["Title"] = "Modifier une valeur de caractéristique";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-pencil-square me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="./Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Menu latéral Produits -->
+                        <div class="col-md-3 mb-4 mb-md-0">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-collection me-2"></i>Menu Produits
+                                    </h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="list-group list-group-flush">
+                                        <a asp-page="../Index" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-box-seam me-2"></i>Tous les produits
+                                        </a>
+                                        <a asp-page="../Choose" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-database-add me-2"></i>Ajouter un produit
+                                        </a>
+                                        <a asp-page="../Characteristics/Index" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-tags me-2"></i>Caractéristiques
+                                        </a>
+                                        <a asp-page="./Index" class="list-group-item list-group-item-action ">
+                                            <i class="bi bi-card-list me-2"></i>Valeurs Caractéristiques
+                                        </a>
+                                        <a asp-page="../ProductVariants/Index" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-boxes me-2"></i>Variants Produits
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Formulaire d'édition -->
+                        <div class="col-md-9">
+                            <form method="post" class="needs-validation" novalidate>
+                                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                                <input type="hidden" asp-for="CharacteristicValue.Id" />
+                                
+                                <div class="mb-3">
+                                    <label asp-for="CharacteristicValue.CharacteristicId" class="form-label fw-bold">
+                                        <i class="bi bi-tag-fill me-2"></i>Caractéristique
+                                    </label>
+                                    <select asp-for="CharacteristicValue.CharacteristicId" class="form-select" asp-items="ViewBag.CharacteristicId">
+                                        <option value="">-- Sélectionner une caractéristique --</option>
+                                    </select>
+                                    <span asp-validation-for="CharacteristicValue.CharacteristicId" class="text-danger small"></span>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label asp-for="CharacteristicValue.Value" class="form-label fw-bold">
+                                        <i class="bi bi-card-text me-2"></i>Valeur <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="CharacteristicValue.Value" class="form-control" placeholder="Entrez la valeur" required />
+                                    <span asp-validation-for="CharacteristicValue.Value" class="text-danger small"></span>
+                                    <div class="form-text">Cette valeur sera associée à la caractéristique sélectionnée.</div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a asp-page="./Index" class="btn btn-outline-secondary">
+                                        <i class="bi bi-x-circle me-1"></i> Annuler
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle me-1"></i> Enregistrer
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Activation de la validation Bootstrap
+        (function () {
+            'use strict'
+            
+            // Récupérer tous les formulaires auxquels nous voulons appliquer les styles de validation Bootstrap personnalisés
+            var forms = document.querySelectorAll('.needs-validation')
+            
+            // Boucle sur eux et empêcher la soumission
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+}
+
+@section Styles {
+    <style>
+        .list-group-item {
+            border-left: 0;
+            border-right: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .list-group-item:first-child {
+            border-top: 0;
+        }
+        
+        .list-group-item:last-child {
+            border-bottom: 0;
+        }
+        
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 0.25rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        
+        
+        .btn {
+            transition: all 0.2s ease;
+        }
+    </style>
+}

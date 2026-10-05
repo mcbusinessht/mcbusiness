@@ -1,0 +1,22 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Products.ChooseModel
+@{
+    ViewData["Title"] = "Choose Company";
+}
+
+
+<div class="row">
+    <div class="col-5 mx-auto">
+        <form action="" method="post" class="text-center">
+            <h4 class="mb-4"> Choisissez L'Entreprise </h4>
+            <div class="form-group mb-4">
+                <select asp-for="Company.Id" class="form-select"  id="" asp-items="ViewBag.Company" required>
+                    <option value="" selected disabled >--Veuillez choisir une Entreprise</option>
+                </select>
+            </div>
+            <div class=" mb-3">
+                <button type="submit" class="btn btn-primary" >Poursuivre <i class="bi bi-arrow-right"></i></button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,481 @@
+﻿@page
+@model MCBusiness.Pages.Users.User.TransactionModel
+@using MCBusiness.Models
+@{
+    ViewData["Title"] = "Transactions";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+
+        <!-- Sidebar Desktop -->
+        <div class="col-lg-3 d-none d-lg-block">
+            <div class=" shadow-sm rounded-3 p-3 sticky-top" style="top:1rem">
+                <partial name="_SideBarUser" />
+            </div>
+        </div>
+
+        <!-- Sidebar Mobile (OFFCANVAS UNIQUE) -->
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="userSidebar">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title">Menu</h5>
+                <button class="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body p-0">
+                <partial name="_SideBarUser" />
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="transaction-container mx-auto p-4 rounded-4 shadow-lg">
+                <div class="header-gradient rounded-3 p-4 mb-5">
+                    <h1 class="text-primary text-center display-5 fw-bold mb-0">Historique des Transactions</h1>
+                    <p class="text-center text-success mb-0 mt-2 opacity-85">Suivi de vos activités financières</p>
+                </div>
+
+        @if (Model.Transactions != null && Model.Transactions.Any())
+        {
+            <div class="transaction-list" id="transactionsList">
+                @foreach (var transaction in Model.Transactions)
+                {
+                    <div class="transaction-card rounded-3 p-4 mb-3 shadow-sm hover-scale">
+                        <div class="row align-items-center">
+                            <div class="col-lg-2 mb-3 mb-lg-0">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="transaction-icon bg-primary-soft rounded-2 p-2">
+                                        @switch (transaction.Type)
+                                        {
+                                            case TransactionType.Deposit:
+                                                <span>↗️</span>
+                                                break;
+                                            case TransactionType.Withdrawal:
+                                                <span>↘️</span>
+                                                break;
+                                            default:
+                                                <span>🔄</span>
+                                                break;
+                                        }
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Type</div>
+                                        <div class="fw-bold">@transaction.Type.ToString()</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-2 mb-3 mb-lg-0">
+                                <div class="text-muted small">Montant</div>
+                                <div class="fw-bold @(transaction.Type == TransactionType.Deposit ? "text-success" : "text-danger")">
+                                    @transaction.Amount.ToString("N2") HTG
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 mb-3 mb-lg-0">
+                                <div class="text-muted small">Méthode</div>
+                                <div class="fw-bold">
+                                    @if (transaction.Method == TransactionMethod.MonCash || transaction.Method == TransactionMethod.Natcash)
+                                    {
+                                        <span class="badge bg-mobile">📱 @transaction.Method.ToString()</span>
+                                    }
+                                    else if (transaction.Method == TransactionMethod.BankTransfer)
+                                    {
+                                        <span class="badge bg-bank">🏦 @transaction.Method.ToString()</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-default">💳 @transaction.Method.ToString()</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 mb-3 mb-lg-0">
+                                <div class="text-muted small">Statut</div>
+                                <div class="fw-bold">
+                                    @switch (transaction.Status)
+                                    {
+                                        case TransactionStatus.Failed:
+                                            <span class="status-badge failed">⛔ @transaction.Status.ToString()</span>
+                                            break;
+                                        case TransactionStatus.Completed:
+                                            <span class="status-badge success">✅ @transaction.Status.ToString()</span>
+                                            break;
+                                        default:
+                                            <span class="status-badge pending">⏳ @transaction.Status.ToString()</span>
+                                            break;
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <div class="text-muted small">Date</div>
+                                        <div class="fw-bold">@LocalTime.Format(transaction.TransactionDate, "g")</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="text-muted small">Référence</div>
+                                        <div class="fw-bold text-primary font-monospace small">@transaction.OrderId</div>
+                                        @if (!string.IsNullOrEmpty(transaction.TransactionId))
+                                        {
+                                            <div class="text-muted small">Transaction ID</div>
+                                            <div class="small font-monospace">@transaction.TransactionId</div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state text-center py-5">
+                <div class="mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-clock-history text-muted" viewBox="0 0 16 16">
+                        <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7 7 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.995 6.995 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7 7 0 0 0-.214-.468l.893-.45a7.97 7.97 0 0 1 .45 1.088l-.95.313a7.023 7.023 0 0 0-.179-.483zm.53 2.507a7 7 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a7.936 7.936 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501zm-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535zm-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8.073 8.073 0 0 1-.401.432l-.707-.707z"/>
+                    </svg>
+                </div>
+                <h3 class="text-muted mb-3">Aucune transaction trouvée</h3>
+                <p class="text-muted">Vos transactions apparaîtront ici</p>
+            </div>
+            
+            <!-- Pagination dynamique -->
+            <div class="d-flex justify-content-center mt-4" id="loadMoreTransactionsContainer">
+                <button class="btn btn-outline-primary" id="loadMoreTransactions">
+                    <i class="bi bi-arrow-down-circle me-2"></i>
+                    Charger plus de transactions
+                </button>
+            </div>
+        }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Menu Button (Mobile & Tablet) -->
+<button class="btn btn-sidebar-toggle d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#userSidebar" aria-controls="userSidebar">
+    <i class="bi bi-list"></i>
+</button>
+
+@section Scripts {
+<script>
+// Pagination dynamique pour les transactions
+let currentSkip = @Model.Transactions.Count;
+const loadMoreBtn = document.getElementById('loadMoreTransactions');
+
+if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', async function() {
+        loadMoreBtn.disabled = true;
+        loadMoreBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Chargement...';
+        
+        try {
+            const response = await fetch(`/Users/User/Transaction?handler=LoadMoreTransactions&skip=${currentSkip}&take=20`);
+            const transactions = await response.json();
+            
+            if (transactions && transactions.length > 0) {
+                const transactionsList = document.getElementById('transactionsList');
+                
+                transactions.forEach(t => {
+                    const typeIcons = {
+                        0: '↗️', // Deposit
+                        1: '↙️', // Withdrawal
+                        2: '💰', // Commission
+                        3: '🎁', // Bonus
+                        4: '🛒', // Purchase
+                        5: '↩️'  // Refund
+                    };
+                    
+                    const typeLabels = {
+                        0: 'Dépôt',
+                        1: 'Retrait',
+                        2: 'Commission',
+                        3: 'Bonus',
+                        4: 'Achat',
+                        5: 'Remboursement'
+                    };
+                    
+                    const statusBadges = {
+                        0: '<span class="badge bg-warning text-dark">En attente</span>',
+                        1: '<span class="badge bg-success">Complétée</span>',
+                        2: '<span class="badge bg-danger">Échouée</span>',
+                        3: '<span class="badge bg-secondary">Annulée</span>'
+                    };
+                    
+                    const date = new Date(t.transactionDate);
+                    const formattedDate = date.toLocaleDateString('fr-FR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    const card = `
+                        <div class="transaction-card  rounded-3 p-4 mb-3 shadow-sm hover-scale">
+                            <div class="row align-items-center">
+                                <div class="col-lg-2 mb-3 mb-lg-0">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="transaction-icon bg-primary-soft rounded-2 p-2">
+                                            <span>${typeIcons[t.type] || '💵'}</span>
+                                        </div>
+                                        <div class="d-none d-lg-block">
+                                            <p class="fw-bold mb-0 text-primary">${typeLabels[t.type] || 'Transaction'}</p>
+                                            <small class="text-muted">${formattedDate}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 mb-3 mb-lg-0">
+                                    <p class="mb-1 fw-semibold text-dark">${t.description || 'Sans description'}</p>
+                                    <small class="d-lg-none text-muted">${formattedDate}</small>
+                                </div>
+                                <div class="col-lg-2 mb-3 mb-lg-0 text-lg-center">
+                                    <span class="badge rounded-pill px-3 py-2" style="font-size:0.9rem">${t.currency || 'HTG'}</span>
+                                </div>
+                                <div class="col-lg-2 mb-3 mb-lg-0 text-lg-center">
+                                    <h5 class="mb-0 fw-bold ${t.type === 0 || t.type === 2 || t.type === 3 ? 'text-success' : 'text-danger'}">
+                                        ${t.type === 0 || t.type === 2 || t.type === 3 ? '+' : '-'}${t.amount.toLocaleString('fr-FR', {minimumFractionDigits: 2})}
+                                    </h5>
+                                </div>
+                                <div class="col-lg-2 text-lg-end">
+                                    ${statusBadges[t.status] || '<span class="badge bg-secondary">Inconnu</span>'}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    transactionsList.insertAdjacentHTML('beforeend', card);
+                });
+                
+                currentSkip += transactions.length;
+                
+                if (transactions.length < 20) {
+                    loadMoreBtn.style.display = 'none';
+                }
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors du chargement des transactions');
+        } finally {
+            loadMoreBtn.disabled = false;
+            loadMoreBtn.innerHTML = '<i class="bi bi-arrow-down-circle me-2"></i>Charger plus de transactions';
+        }
+    });
+}
+</script>
+}
+
+<style>
+    .transaction-container {
+        max-width: 1200px;
+        background: #f8f9fa;
+    }
+
+    .header-gradient {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--success-color) 100%);
+        box-shadow: 0 8px 25px rgba(0, 95, 172, 0.25);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .header-gradient::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+        animation: shimmer 3s infinite;
+    }
+
+    @@keyframes shimmer {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+
+    .header-gradient h1,
+    .header-gradient p {
+        position: relative;
+        z-index: 2;
+    }
+
+    .transaction-icon {
+        background: rgba(0, 95, 172, 0.1);
+    }
+
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.9em;
+    }
+
+    .status-badge.success {
+        background: #e6f4ea;
+        color: #137333;
+    }
+
+    .status-badge.failed {
+        background: #fce8e6;
+        color: #c5221f;
+    }
+
+    .status-badge.pending {
+        background: #fef7e0;
+        color: #c28508;
+    }
+
+    .hover-scale {
+        transition: transform 0.2s ease;
+    }
+
+    .hover-scale:hover {
+        transform: translateY(-2px);
+    }
+
+    .bg-mobile {
+        background: #e3f2fd;
+        color: #0d47a1;
+    }
+
+    .bg-bank {
+        background: #e8f5e9;
+        color: #1b5e20;
+    }
+
+    .bg-primary-soft {
+        background: rgba(0, 95, 172, 0.1);
+    }
+
+    .font-monospace {
+        font-family: monospace;
+    }
+
+    /* Floating Menu Button */
+    .btn-sidebar-toggle {
+        position: fixed;
+        bottom: 2rem;
+        right: 1.5rem;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+        color: white;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 95, 172, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        z-index: 999;
+        transition: all 0.3s ease;
+    }
+
+    .btn-sidebar-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 95, 172, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-sidebar-toggle:active {
+        transform: scale(0.95);
+    }
+
+    @@media (max-width: 991.98px) {
+        .btn-sidebar-toggle {
+            display: flex;
+        }
+    }
+
+    @@media (min-width: 992px) {
+        .btn-sidebar-toggle {
+            display: none;
+        }
+    }
+
+    /* Badges méthode de paiement - bien contrastés (pas flous) */
+    .badge.bg-mobile{
+        background-color:#0d6efd !important; /* bleu vif */
+        color:#fff !important;
+        font-weight:600;
+        box-shadow: 0 0 0 0.1rem rgba(13,110,253,.15);
+    }
+    .badge.bg-bank{
+        background-color:#198754 !important; /* vert vif */
+        color:#fff !important;
+        font-weight:600;
+        box-shadow: 0 0 0 0.1rem rgba(25,135,84,.15);
+    }
+    .badge.bg-default{
+        background-color:#6c757d !important; /* gris foncé */
+        color:#fff !important;
+        font-weight:600;
+        box-shadow: 0 0 0 0.1rem rgba(108,117,125,.15);
+    }
+
+    /* MODE SOMBRE */
+    [data-theme="dark"] .transaction-container {
+        background: #0a0e14;
+    }
+
+    [data-theme="dark"] .transaction-card {
+        background: rgba(30, 39, 52, 0.8) !important;
+        border: 1px solid rgba(26, 140, 255, 0.15);
+        color: #f0f4f8 !important;
+    }
+
+    [data-theme="dark"] .transaction-card:hover {
+        background: rgba(30, 39, 52, 0.95) !important;
+        border-color: rgba(26, 140, 255, 0.3);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    [data-theme="dark"] .transaction-card .text-dark {
+        color: #f0f4f8 !important;
+    }
+
+    [data-theme="dark"] .transaction-card .text-muted {
+        color: #94a3b8 !important;
+    }
+
+    [data-theme="dark"] .transaction-card .fw-semibold,
+    [data-theme="dark"] .transaction-card .fw-bold,
+    [data-theme="dark"] .transaction-card p {
+        color: #f0f4f8 !important;
+    }
+
+    [data-theme="dark"] .transaction-card h5 {
+        color: #f0f4f8 !important;
+    }
+
+    [data-theme="dark"] .transaction-icon {
+        background: rgba(26, 140, 255, 0.15) !important;
+    }
+
+    [data-theme="dark"] .badge {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    [data-theme="dark"] .badge.bg-warning {
+        background: rgba(255, 193, 7, 0.2) !important;
+        color: #ffc107 !important;
+        border-color: rgba(255, 193, 7, 0.3);
+    }
+
+    [data-theme="dark"] .text-success {
+        color: #4ade80 !important;
+    }
+
+    [data-theme="dark"] .text-danger {
+        color: #f87171 !important;
+    }
+
+    [data-theme="dark"] .text-primary {
+        color: #1a8cff !important;
+    }
+</style>
+

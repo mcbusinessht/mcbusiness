@@ -1,0 +1,95 @@
+<script src="https://www.google.com/recaptcha/api.js"></script>
+<script>
+    function onSubmit() {
+        document.querySelector("form").submit();
+    }
+
+    // Animate stats counting
+    function animateStats() {
+        const statValues = document.querySelectorAll('.stat-value');
+        
+        statValues.forEach(stat => {
+            const target = parseInt(stat.getAttribute('data-count'));
+            const duration = 2000;
+            const start = 0;
+            const increment = target / (duration / 16);
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    clearInterval(timer);
+                    current = target;
+                }
+                stat.textContent = Math.floor(current);
+            }, 16);
+        });
+    }
+    
+    // Initialize animation when stats section is in view
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateStats();
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    document.querySelectorAll('.stats-section').forEach(section => {
+        observer.observe(section);
+    });
+    
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+
+    // Scroll functionality for plans and products
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize scroll containers
+        const initScrollContainer = (containerClass, wrapperClass) => {
+            const container = document.querySelector(containerClass);
+            if (!container) return;
+            
+            const wrapper = container.querySelector(wrapperClass);
+            const scrollLeftBtn = container.querySelector('.scroll-left');
+            const scrollRightBtn = container.querySelector('.scroll-right');
+            
+            // Hide buttons if not scrollable
+            const checkScrollButtons = () => {
+                scrollLeftBtn.style.display = wrapper.scrollLeft > 0 ? 'flex' : 'none';
+                scrollRightBtn.style.display = 
+                    wrapper.scrollLeft < (wrapper.scrollWidth - wrapper.clientWidth) ? 'flex' : 'none';
+            };
+            
+            // Scroll left
+            scrollLeftBtn?.addEventListener('click', () => {
+                wrapper.scrollBy({ left: -300, behavior: 'smooth' });
+            });
+            
+            // Scroll right
+            scrollRightBtn?.addEventListener('click', () => {
+                wrapper.scrollBy({ left: 300, behavior: 'smooth' });
+            });
+            
+            // Check on scroll
+            wrapper.addEventListener('scroll', checkScrollButtons);
+            
+            // Initial check
+            checkScrollButtons();
+            
+            // Check on resize
+            window.addEventListener('resize', checkScrollButtons);
+        };
+        
+        // Initialize both containers
+        initScrollContainer('.plans-scroll-container', '.plans-scroll-wrapper');
+        initScrollContainer('.products-scroll-container', '.products-scroll-wrapper');
+    });
+</script>

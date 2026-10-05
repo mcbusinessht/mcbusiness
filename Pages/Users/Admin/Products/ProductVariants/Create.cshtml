@@ -1,0 +1,343 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Products.ProductVariants.CreateModel
+@{
+    ViewData["Title"] = "Créer une nouvelle variante";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-plus-circle me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="./Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Menu latéral Produits -->
+                        <div class="col-md-3 mb-4 mb-md-0">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-collection me-2"></i>Menu Produits
+                                    </h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="list-group list-group-flush">
+                                        <a asp-page="../Index" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-box-seam me-2"></i>Tous les produits
+                                        </a>
+                                        <a asp-page="../Choose" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-database-add me-2"></i>Ajouter un produit
+                                        </a>
+                                        <a asp-page="../Characteristics/Index" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-tags me-2"></i>Caractéristiques
+                                        </a>
+                                        <a asp-page="../CharacteristicValues/Index" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-card-list me-2"></i>Valeurs Caractéristiques
+                                        </a>
+                                        <a asp-page="./Index" class="list-group-item list-group-item-action active">
+                                            <i class="bi bi-boxes me-2"></i>Variants Produits
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Formulaire de création -->
+                        <div class="col-md-9">
+                            <form method="post" class="needs-validation" novalidate>
+                                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                                
+                                <div class="mb-4">
+                                    <label asp-for="ProductVariant.ProductId" class="form-label fw-bold">
+                                        <i class="bi bi-box-seam me-2"></i>Produit
+                                    </label>
+                                    <select asp-for="ProductVariant.ProductId" class="form-select" asp-items="ViewBag.ProductId" required>
+                                        <option value="">-- Sélectionnez un produit --</option>
+                                    </select>
+                                    <span asp-validation-for="ProductVariant.ProductId" class="text-danger small"></span>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label asp-for="ProductVariant.Sku" class="form-label fw-bold">
+                                            <i class="bi bi-upc-scan me-2"></i>SKU
+                                        </label>
+                                        <input asp-for="ProductVariant.Sku" class="form-control" placeholder="Ex: PROD-VAR-001" required />
+                                        <span asp-validation-for="ProductVariant.Sku" class="text-danger small"></span>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label asp-for="ProductVariant.Price" class="form-label fw-bold">
+                                            <i class="bi bi-currency-euro me-2"></i>Prix
+                                        </label>
+                                        <div class="input-group">
+                                            <input asp-for="ProductVariant.Price" class="form-control" placeholder="0.00" />
+                                            <span class="input-group-text">€</span>
+                                        </div>
+                                        <span asp-validation-for="ProductVariant.Price" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label asp-for="ProductVariant.Quantity" class="form-label fw-bold">
+                                            <i class="bi bi-box-seam me-2"></i>Quantité en stock
+                                        </label>
+                                        <input asp-for="ProductVariant.Quantity" class="form-control" placeholder="0" />
+                                        <span asp-validation-for="ProductVariant.Quantity" class="text-danger small"></span>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">
+                                            <i class="bi bi-toggle-on me-2"></i>Statut
+                                        </label>
+                                        <div class="form-check form-switch mt-2">
+                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ProductVariant.IsAvailable" checked>
+                                            <label class="form-check-label" asp-for="ProductVariant.IsAvailable">
+                                                @(Model.ProductVariant.IsAvailable ? "Disponible" : "Indisponible")
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card border-0 shadow-sm mb-4">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0"><i class="bi bi-truck me-2"></i>Livraison</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label asp-for="ProductVariant.ShippingPackageType" class="form-label">Type de colis</label>
+                                                <select asp-for="ProductVariant.ShippingPackageType" class="form-select" asp-items="Html.GetEnumSelectList<MCBusiness.Models.ShippingPackageType>()"></select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label asp-for="ProductVariant.WeightKg" class="form-label">Poids optionnel (kg)</label>
+                                                <input asp-for="ProductVariant.WeightKg" type="number" step="0.01" min="0" class="form-control" />
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" role="switch" asp-for="ProductVariant.RequiresSpecialHandling">
+                                                    <label class="form-check-label" asp-for="ProductVariant.RequiresSpecialHandling">Fragile ou manutention spéciale</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" role="switch" asp-for="ProductVariant.ShippingQuoteRequired">
+                                                    <label class="form-check-label" asp-for="ProductVariant.ShippingQuoteRequired">Livraison sur devis</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">
+                                        <i class="bi bi-tags me-2"></i>Caractéristiques
+                                    </label>
+                                    <div class="card border-0 shadow-sm mb-3">
+                                        <div class="card-body">
+                                            <div class="row g-2">
+                                                <div class="col-md-5">
+                                                    <select id="characteristicSelect" class="form-select" asp-items="ViewBag.Characteristic">
+                                                        <option value="" selected>-- Sélectionnez une caractéristique --</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <select id="valueSelect" class="form-select">
+                                                        <option value="">-- Sélectionnez d'abord une caractéristique --</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button type="button" id="addCharacteristic" class="btn btn-success w-100">
+                                                        <i class="bi bi-plus-lg"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="small text-muted mt-2">
+                                                <i class="bi bi-info-circle me-1"></i> Sélectionnez une caractéristique et une valeur, puis cliquez sur <i class="bi bi-plus-lg"></i> pour l'ajouter
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header bg-light">
+                                            <h6 class="mb-0">Caractéristiques sélectionnées</h6>
+                                        </div>
+                                        <ul id="characteristicList" class="list-group list-group-flush"></ul>
+                                    </div>
+                                    <input type="hidden" id="hiddenCharacteristics" name="SelectedCharacteristics" />
+                                </div>
+                                
+                                <div class="d-flex justify-content-between mt-4">
+                                    <a asp-page="Index" class="btn btn-outline-secondary">
+                                        <i class="bi bi-x-circle me-1"></i> Annuler
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle me-1"></i> Enregistrer la variante
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Activation de la validation Bootstrap
+        (function () {
+            'use strict'
+            
+            var forms = document.querySelectorAll('.needs-validation')
+            
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })();
+
+        // Gestion des caractéristiques
+        document.getElementById("characteristicSelect").addEventListener("change", function() {
+            let characteristicId = this.value;
+            let valueSelect = document.getElementById("valueSelect");
+            valueSelect.innerHTML = "<option value=''>Chargement...</option>";
+
+            if (characteristicId) {
+                fetch(`/Users/Admin/Products/ProductVariants/Create?handler=CharacteristicValues&characteristicId=${characteristicId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        valueSelect.innerHTML = "<option value=''>-- Sélectionnez une valeur --</option>";
+                        data.forEach(item => {
+                            let option = document.createElement("option");
+                            option.value = item.id;
+                            option.textContent = item.value;
+                            valueSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error("Erreur :", error));
+            } else {
+                valueSelect.innerHTML = "<option value=''>-- Sélectionnez une caractéristique d'abord --</option>";
+            }
+        });
+
+        document.getElementById("addCharacteristic").addEventListener("click", function() {
+            let characteristicSelect = document.getElementById("characteristicSelect");
+            let valueSelect = document.getElementById("valueSelect");
+            let characteristicList = document.getElementById("characteristicList");
+            let hiddenField = document.getElementById("hiddenCharacteristics");
+
+            let characteristicId = characteristicSelect.value;
+            let characteristicText = characteristicSelect.options[characteristicSelect.selectedIndex].text;
+            let valueId = valueSelect.value;
+            let valueText = valueSelect.options[valueSelect.selectedIndex].text;
+
+            if (!characteristicId || !valueId) {
+                alert("Veuillez sélectionner une caractéristique et une valeur.");
+                return;
+            }
+
+            // Vérifier si cette paire existe déjà
+            let newValue = characteristicId + "-" + valueId;
+            if (hiddenField.value && hiddenField.value.split(',').includes(newValue)) {
+                alert("Cette caractéristique avec cette valeur a déjà été ajoutée.");
+                return;
+            }
+
+            let li = document.createElement("li");
+            li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+            
+            let span = document.createElement("span");
+            span.textContent = `${characteristicText}: ${valueText}`;
+            li.appendChild(span);
+            
+            let removeBtn = document.createElement("button");
+            removeBtn.classList.add("btn", "btn-sm", "btn-outline-danger");
+            removeBtn.innerHTML = '<i class="bi bi-trash"></i>';
+            removeBtn.onclick = function() {
+                // Mettre à jour le champ caché
+                let values = hiddenField.value.split(',');
+                values = values.filter(v => v !== newValue);
+                hiddenField.value = values.join(',');
+                
+                // Supprimer l'élément de la liste
+                li.remove();
+            };
+            li.appendChild(removeBtn);
+            
+            characteristicList.appendChild(li);
+
+            hiddenField.value += (hiddenField.value ? "," : "") + newValue;
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .list-group-item {
+            border-left: 0;
+            border-right: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .list-group-item:first-child {
+            border-top: 0;
+        }
+        
+        .list-group-item:last-child {
+            border-bottom: 0;
+        }
+        
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .form-check-input:checked {
+            background-color: #198754;
+            border-color: #198754;
+        }
+        
+        .form-switch .form-check-input {
+            width: 3em;
+            height: 1.5em;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 0.25rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        
+        .btn-outline-danger:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+    </style>
+}

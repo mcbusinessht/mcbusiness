@@ -1,0 +1,166 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_Addresses_Countries.IndexModel
+
+@{
+    ViewData["Title"] = "Gestion des Pays";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-flag me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="Create" class="btn btn-sm btn-light">
+                            <i class="bi bi-plus-circle me-1"></i> Nouveau Pays
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>
+                                        <i class="bi bi-flag me-1"></i>
+                                        @Html.DisplayNameFor(model => model.Country[0].Name)
+                                    </th>
+                                    <th>
+                                        <i class="bi bi-code me-1"></i>
+                                        @Html.DisplayNameFor(model => model.Country[0].CountryCode)
+                                    </th>
+                                    <th class="text-end">
+                                        <i class="bi bi-gear me-1"></i>
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Country)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <span class="fi fi-@(item.CountryCode?.ToLower() ?? "xx") me-2"></span>
+                                                <strong>@Html.DisplayFor(modelItem => item.Name)</strong>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">
+                                                @Html.DisplayFor(modelItem => item.CountryCode)
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                                        type="button" id="dropdownMenu-@item.Id" 
+                                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu-@item.Id">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="../States/Index" asp-route-countryId="@item.Id">
+                                                            <i class="bi bi-list-ul me-2"></i>Départements/Régions
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="../States/Create" asp-route-countryId="@item.Id">
+                                                            <i class="bi bi-plus-circle me-2"></i>Ajouter Département
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="./Edit" asp-route-id="@item.Id">
+                                                            <i class="bi bi-pencil me-2"></i>Modifier
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="./Details" asp-route-id="@item.Id">
+                                                            <i class="bi bi-info-circle me-2"></i>Détails
+                                                        </a>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <a class="dropdown-item text-danger" asp-page="./Delete" asp-route-id="@item.Id">
+                                                            <i class="bi bi-trash me-2"></i>Supprimer
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="small text-muted">
+                            <i class="bi bi-info-circle me-1"></i> @Model.Country.Count pays enregistrés
+                        </div>
+                        <a asp-page="Create" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-circle me-1"></i> Ajouter un pays
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/6.6.6/css/flag-icons.min.css" />
+    <style>
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        
+        .badge {
+            font-size: 0.85em;
+            padding: 0.35em 0.65em;
+        }
+        
+        .dropdown-menu {
+            min-width: 220px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+        
+        .dropdown-item {
+            padding: 0.5rem 1.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(3px);
+        }
+        
+        .dropdown-item.text-danger:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .fi {
+            width: 1.5em;
+            height: 1.1em;
+            border-radius: 2px;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+        }
+    </style>
+}

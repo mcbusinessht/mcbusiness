@@ -1,0 +1,93 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_Shipments_ShippingFees.CreateModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>ShippingFee</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ShippingFee.CompanyId" class="control-label"></label>
+                <select asp-for="ShippingFee.CompanyId" class ="form-control" asp-items="ViewBag.CompanyId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="ShippingFee.CountryId" class="control-label"></label>
+                <select asp-for="ShippingFee.CountryId" class ="form-control" asp-items="ViewBag.CountryId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="ShippingFee.StateId" class="control-label"></label>
+                <select asp-for="ShippingFee.StateId" class ="form-control" asp-items="ViewBag.StateId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="ShippingFee.CityId" class="control-label"></label>
+                <select asp-for="ShippingFee.CityId" class ="form-control" asp-items="ViewBag.CityId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="ShippingFee.NeighborhoodId" class="control-label"></label>
+                <select asp-for="ShippingFee.NeighborhoodId" class ="form-control" asp-items="ViewBag.NeighborhoodId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="ShippingFee.Price" class="control-label"></label>
+                <input asp-for="ShippingFee.Price" type="hidden" />
+                <input asp-for="ShippingFee.BasePrice" type="number" step="0.01" min="0" class="form-control" />
+                <span asp-validation-for="ShippingFee.Price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ShippingFee.PackageType" class="control-label">Type de colis</label>
+                <select asp-for="ShippingFee.PackageType" class="form-control" asp-items="Html.GetEnumSelectList<MCBusiness.Models.ShippingPackageType>()"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="ShippingFee.AdditionalItemPrice" class="control-label">Supplément autre article</label>
+                <input asp-for="ShippingFee.AdditionalItemPrice" type="number" step="0.01" min="0" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="ShippingFee.AdditionalUnitPrice" class="control-label">Supplément unité additionnelle</label>
+                <input asp-for="ShippingFee.AdditionalUnitPrice" type="number" step="0.01" min="0" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="ShippingFee.PricePerKg" class="control-label">Prix par kg</label>
+                <input asp-for="ShippingFee.PricePerKg" type="number" step="0.01" min="0" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="ShippingFee.MinPrice" class="control-label">Minimum</label>
+                <input asp-for="ShippingFee.MinPrice" type="number" step="0.01" min="0" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="ShippingFee.MaxPrice" class="control-label">Maximum</label>
+                <input asp-for="ShippingFee.MaxPrice" type="number" step="0.01" min="0" class="form-control" />
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="ShippingFee.QuoteRequired" /> Sur devis
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="ShippingFee.IsActive" checked /> Actif
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="ShippingFee.CurrencyBase" class="control-label"></label>
+                <select asp-for="ShippingFee.CurrencyBase" class ="form-control" asp-items="ViewBag.CurrencyBase"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

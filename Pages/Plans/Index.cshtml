@@ -1,0 +1,772 @@
+@page
+@model MCBusiness.Pages.Plans.Index
+@using MCBusiness.Models
+@{
+    ViewData["Title"] = "Plans ambassadeurs";
+}
+
+@functions {
+    private static string CurrencyCode(AmbassadorPlan plan) => plan.Currency?.Code ?? "HTG";
+    private static string Money(AmbassadorPlan plan, decimal amount) => $"{amount:N0} {CurrencyCode(plan)}";
+    private static string Percent(decimal rate) => $"{rate * 100:N1}%";
+    private static string PointsLimit(int value) => value > 0 ? $"{value:N0} pts/mois" : "Illimité";
+    private static string PlanPrice(AmbassadorPlan plan) => plan.IsFreeplan || plan.Price == 0 ? "Gratuit" : $"{plan.Price:N0} {CurrencyCode(plan)}";
+}
+
+<section class="plans-hero">
+    <div class="container">
+        <nav class="plans-breadcrumb" aria-label="breadcrumb">
+            <a asp-page="/Index">Accueil</a>
+            <span>/</span>
+            <span>Plans</span>
+        </nav>
+
+        <div class="plans-hero-grid">
+            <div>
+                <span class="section-kicker">Affiliation MC Business</span>
+                <h1>Choisissez votre plan ambassadeur</h1>
+                <p>
+                    Une licence vous donne accès au programme ambassadeur, aux commissions sur ventes qualifiées
+                    et aux règles de points configurées par la plateforme.
+                </p>
+            </div>
+
+            <div class="plans-hero-panel">
+                <strong>@Model.plans.Count</strong>
+                <span>plan(s) actif(s)</span>
+                <small>Comparez les avantages et choisissez celui qui correspond à votre activité.</small>
+            </div>
+        </div>
+    </div>
+</section>
+
+<main class="container plans-page">
+    @if (Model.plans != null && Model.plans.Any())
+    {
+        <div class="plans-toolbar">
+            <div>
+                <h2>Plans disponibles</h2>
+                <p>Comparez les prix, commissions, plafonds et points avant de souscrire.</p>
+            </div>
+        </div>
+
+        <div class="plans-grid">
+            @foreach (var plan in Model.plans)
+            {
+                var bonuses = Model.PlanBonuses.TryGetValue(plan.Id, out var planBonuses)
+                    ? planBonuses
+                    : new List<AmbassadorPlanBonus>();
+
+                <article class="plan-card">
+                    <div class="plan-media">
+                        <img src="@(string.IsNullOrWhiteSpace(plan.PathPicture) ? "/image/logoMcbusiness.png" : plan.PathPicture)"
+                             alt="@plan.Name"
+                             loading="lazy">
+                    </div>
+
+                    <div class="plan-card-body">
+                        <div class="plan-card-heading">
+                            <div>
+                                <span class="plan-category">@(plan.Category?.Name ?? "Plan ambassadeur")</span>
+                                <h3>@plan.Name</h3>
+                            </div>
+                            @if (plan.IsFreeplan || plan.Price == 0)
+                            {
+                                <span class="plan-badge free">Gratuit</span>
+                            }
+                            else
+                            {
+                                <span class="plan-badge paid">Payant</span>
+                            }
+                        </div>
+
+                        <p class="plan-description">
+                            @(string.IsNullOrWhiteSpace(plan.Description) ? "Aucune description détaillée n'a encore été ajoutée pour ce plan." : plan.Description)
+                        </p>
+
+                        <div class="plan-price">@PlanPrice(plan)</div>
+
+                        <div class="plan-summary-grid">
+                            <div>
+                                <span>Durée</span>
+                                <strong>@plan.DurationInDays jours</strong>
+                            </div>
+                            <div>
+                                <span>Commission</span>
+                                <strong>@Percent(plan.AmbassadorCommissionPercentage)</strong>
+                            </div>
+                            <div>
+                                <span>Plafond gains</span>
+                                <strong>@Money(plan, plan.Ceiling)</strong>
+                            </div>
+                            <div>
+                                <span>Points mensuels</span>
+                                <strong>@PointsLimit(plan.MonthlyPointsLimit)</strong>
+                            </div>
+                        </div>
+
+                        <div class="plan-actions">
+                            <button class="btn btn-outline-primary"
+                                    type="button"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#planDetails-@plan.Id">
+                                <i class="bi bi-info-circle me-1"></i>Détails
+                            </button>
+                            <a asp-page="/Payments/Payment"
+                               asp-route-type="plan"
+                               asp-route-id="@plan.Id"
+                               class="btn btn-primary">
+                                <i class="bi bi-credit-card me-1"></i>Souscrire
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <div class="modal fade plan-modal" id="planDetails-@plan.Id" tabindex="-1" aria-labelledby="planDetailsLabel-@plan.Id" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <div>
+                                    <span class="section-kicker">Détails du plan</span>
+                                    <h5 class="modal-title" id="planDetailsLabel-@plan.Id">@plan.Name</h5>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <div class="plan-modal-layout">
+                                    <aside class="plan-modal-summary">
+                                        <img src="@(string.IsNullOrWhiteSpace(plan.PathPicture) ? "/image/logoMcbusiness.png" : plan.PathPicture)"
+                                             alt="@plan.Name"
+                                             loading="lazy">
+                                        <h3>@PlanPrice(plan)</h3>
+                                        <p>@(plan.Category?.Name ?? "Plan ambassadeur")</p>
+
+                                        <div class="status-row">
+                                            <span class="badge @(plan.IsActive ? "bg-success" : "bg-secondary")">
+                                                @(plan.IsActive ? "Actif" : "Inactif")
+                                            </span>
+                                            @if (plan.IsFreeplan)
+                                            {
+                                                <span class="badge bg-info text-dark">Plan gratuit</span>
+                                            }
+                                        </div>
+
+                                        <a asp-page="/Payments/Payment"
+                                           asp-route-type="plan"
+                                           asp-route-id="@plan.Id"
+                                           class="btn btn-primary w-100">
+                                            Souscrire à ce plan
+                                        </a>
+                                    </aside>
+
+                                    <section class="plan-modal-details">
+                                        <div class="details-section">
+                                            <h4>Informations principales</h4>
+                                            <div class="details-grid">
+                                                <div>
+                                                    <span>Nom</span>
+                                                    <strong>@plan.Name</strong>
+                                                </div>
+                                                <div>
+                                                    <span>Catégorie</span>
+                                                    <strong>@(plan.Category?.Name ?? "Non renseignée")</strong>
+                                                </div>
+                                                <div>
+                                                    <span>Prix</span>
+                                                    <strong>@PlanPrice(plan)</strong>
+                                                </div>
+                                                <div>
+                                                    <span>Devise</span>
+                                                    <strong>@CurrencyCode(plan)</strong>
+                                                </div>
+                                                <div>
+                                                    <span>Durée</span>
+                                                    <strong>@plan.DurationInDays jours</strong>
+                                                </div>
+                                                <div>
+                                                    <span>Statut</span>
+                                                    <strong>@(plan.IsActive ? "Actif" : "Inactif")</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="details-section">
+                                            <h4>Argent et commissions</h4>
+                                            <div class="details-grid">
+                                                <div>
+                                                    <span>Commission ambassadeur</span>
+                                                    <strong>@Percent(plan.AmbassadorCommissionPercentage)</strong>
+                                                </div>
+                                                <div>
+                                                    <span>Plafond de gains</span>
+                                                    <strong>@Money(plan, plan.Ceiling)</strong>
+                                                </div>
+                                            </div>
+                                            <p class="details-note">
+                                                Cette commission s'applique aux ventes qualifiées générées par votre activité d'ambassadeur.
+                                            </p>
+                                        </div>
+
+                                        <div class="details-section">
+                                            <h4>Points de fidélité et parrainage</h4>
+                                            <div class="points-grid">
+                                                <div>
+                                                    <span>Génération 1</span>
+                                                    <strong>@plan.PointsGeneration1 pts</strong>
+                                                    <small>Parrainage direct</small>
+                                                </div>
+                                                <div>
+                                                    <span>Génération 2</span>
+                                                    <strong>@plan.PointsGeneration2 pts</strong>
+                                                    <small>Niveau 2</small>
+                                                </div>
+                                                <div>
+                                                    <span>Génération 3</span>
+                                                    <strong>@plan.PointsGeneration3 pts</strong>
+                                                    <small>Niveau 3</small>
+                                                </div>
+                                                <div>
+                                                    <span>Bienvenue</span>
+                                                    <strong>@plan.WelcomeBonusPoints pts</strong>
+                                                    <small>Nouveaux parrainés</small>
+                                                </div>
+                                                <div>
+                                                    <span>Plafond mensuel</span>
+                                                    <strong>@PointsLimit(plan.MonthlyPointsLimit)</strong>
+                                                    <small>Limite mensuelle de points</small>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="details-section">
+                                            <h4>Bonus liés</h4>
+                                            @if (bonuses.Any())
+                                            {
+                                                <div class="bonus-list">
+                                                    @foreach (var bonus in bonuses)
+                                                    {
+                                                        <div class="bonus-item">
+                                                            <div>
+                                                                <strong>@bonus.Name</strong>
+                                                                <p>@bonus.Description</p>
+                                                            </div>
+                                                            <span>@bonus.BonusAmount.ToString("N0") @CurrencyCode(plan)</span>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="empty-inline">Aucun bonus additionnel n'est lié à ce plan.</div>
+                                            }
+                                        </div>
+
+                                        <div class="details-section">
+                                            <h4>Description</h4>
+                                            <p class="mb-0">
+                                                @(string.IsNullOrWhiteSpace(plan.Description) ? "Aucune description disponible." : plan.Description)
+                                            </p>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
+                                <a asp-page="/Payments/Payment"
+                                   asp-route-type="plan"
+                                   asp-route-id="@plan.Id"
+                                   class="btn btn-primary">
+                                    Souscrire
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="bi bi-wallet2"></i>
+            <h2>Aucun plan disponible actuellement</h2>
+            <p>De nouvelles offres seront bientôt disponibles.</p>
+            <a asp-page="/Index" class="btn btn-primary">Retour à l'accueil</a>
+        </div>
+    }
+
+    <section class="plans-note">
+        <i class="bi bi-lightbulb"></i>
+        <p>
+            Avant de souscrire, vérifiez le prix, la durée, la commission, les plafonds et les règles de points.
+            Choisissez le plan qui correspond le mieux à votre manière de promouvoir les produits.
+        </p>
+    </section>
+</main>
+
+<style>
+    :root {
+        --plans-primary: #005fac;
+        --plans-primary-dark: #153a5e;
+        --plans-accent: #5dab31;
+        --plans-text: #243447;
+        --plans-muted: #667085;
+        --plans-border: #e6ebf1;
+        --plans-soft: #f7f9fc;
+    }
+
+    .plans-hero {
+        background: #f6f9fc;
+        border-bottom: 1px solid var(--plans-border);
+        padding: 2.75rem 0;
+        margin-bottom: 2rem;
+    }
+
+    .plans-breadcrumb {
+        display: flex;
+        gap: .5rem;
+        align-items: center;
+        margin-bottom: 1rem;
+        color: var(--plans-muted);
+        font-size: .92rem;
+    }
+
+    .plans-breadcrumb a {
+        color: var(--plans-primary);
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .plans-hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .section-kicker {
+        color: var(--plans-primary);
+        font-size: .78rem;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .plans-hero h1 {
+        color: var(--plans-text);
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 800;
+        letter-spacing: 0;
+        margin: .35rem 0 .8rem;
+    }
+
+    .plans-hero p {
+        color: var(--plans-muted);
+        font-size: 1.05rem;
+        max-width: 760px;
+        margin: 0;
+    }
+
+    .plans-hero-panel {
+        background: #fff;
+        border: 1px solid var(--plans-border);
+        border-radius: 8px;
+        padding: 1.25rem;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+    }
+
+    .plans-hero-panel strong {
+        display: block;
+        color: var(--plans-primary);
+        font-size: 2.25rem;
+        line-height: 1;
+    }
+
+    .plans-hero-panel span,
+    .plans-hero-panel small {
+        display: block;
+        color: var(--plans-muted);
+        margin-top: .4rem;
+    }
+
+    .plans-page {
+        padding-bottom: 3rem;
+    }
+
+    .plans-toolbar {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .plans-toolbar h2 {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: .25rem;
+    }
+
+    .plans-toolbar p {
+        color: var(--plans-muted);
+        margin: 0;
+    }
+
+    .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+
+    .plan-card {
+        background: #fff;
+        border: 1px solid var(--plans-border);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, .06);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .plan-media {
+        background: var(--plans-soft);
+        border-bottom: 1px solid var(--plans-border);
+        padding: 1rem;
+        height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .plan-media img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .plan-card-body {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: .9rem;
+        flex: 1;
+    }
+
+    .plan-card-heading {
+        display: flex;
+        justify-content: space-between;
+        gap: .75rem;
+        align-items: start;
+    }
+
+    .plan-category {
+        color: var(--plans-muted);
+        font-size: .82rem;
+        font-weight: 700;
+    }
+
+    .plan-card h3 {
+        color: var(--plans-text);
+        font-size: 1.22rem;
+        font-weight: 800;
+        margin: .15rem 0 0;
+    }
+
+    .plan-badge {
+        border-radius: 999px;
+        padding: .3rem .65rem;
+        font-size: .76rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .plan-badge.free {
+        color: #0f5132;
+        background: #d1e7dd;
+    }
+
+    .plan-badge.paid {
+        color: #084298;
+        background: #cfe2ff;
+    }
+
+    .plan-description {
+        color: var(--plans-muted);
+        margin: 0;
+        min-height: 3rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .plan-price {
+        color: var(--plans-primary);
+        font-size: 1.75rem;
+        font-weight: 800;
+    }
+
+    .plan-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .65rem;
+    }
+
+    .plan-summary-grid div,
+    .details-grid div,
+    .points-grid div {
+        background: var(--plans-soft);
+        border: 1px solid var(--plans-border);
+        border-radius: 8px;
+        padding: .75rem;
+        min-width: 0;
+    }
+
+    .plan-summary-grid span,
+    .details-grid span,
+    .points-grid span {
+        display: block;
+        color: var(--plans-muted);
+        font-size: .78rem;
+        font-weight: 700;
+        margin-bottom: .25rem;
+    }
+
+    .plan-summary-grid strong,
+    .details-grid strong,
+    .points-grid strong {
+        color: var(--plans-text);
+        font-size: .95rem;
+    }
+
+    .points-grid small {
+        color: var(--plans-muted);
+        display: block;
+        margin-top: .2rem;
+    }
+
+    .plan-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .6rem;
+        margin-top: auto;
+    }
+
+    .plan-actions .btn {
+        min-height: 42px;
+    }
+
+    .plan-modal .modal-content {
+        border: 0;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .plan-modal .modal-header {
+        background: #fff;
+        border-bottom: 1px solid var(--plans-border);
+    }
+
+    .plan-modal .modal-title {
+        color: var(--plans-text);
+        font-weight: 800;
+        margin-top: .15rem;
+    }
+
+    .plan-modal-layout {
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr);
+        gap: 1.25rem;
+    }
+
+    .plan-modal-summary {
+        background: var(--plans-soft);
+        border: 1px solid var(--plans-border);
+        border-radius: 8px;
+        padding: 1rem;
+        align-self: start;
+        position: sticky;
+        top: 1rem;
+    }
+
+    .plan-modal-summary img {
+        width: 100%;
+        height: 150px;
+        object-fit: contain;
+        background: #fff;
+        border: 1px solid var(--plans-border);
+        border-radius: 8px;
+        padding: .75rem;
+        margin-bottom: 1rem;
+    }
+
+    .plan-modal-summary h3 {
+        color: var(--plans-primary);
+        font-weight: 800;
+        margin-bottom: .25rem;
+    }
+
+    .plan-modal-summary p {
+        color: var(--plans-muted);
+        margin-bottom: 1rem;
+    }
+
+    .status-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+        margin-bottom: 1rem;
+    }
+
+    .plan-modal-details {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .details-section {
+        border: 1px solid var(--plans-border);
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    .details-section h4 {
+        color: var(--plans-text);
+        font-size: 1rem;
+        font-weight: 800;
+        margin-bottom: .75rem;
+    }
+
+    .details-grid,
+    .points-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .65rem;
+    }
+
+    .points-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .details-note {
+        color: var(--plans-muted);
+        margin: .75rem 0 0;
+        font-size: .9rem;
+    }
+
+    .bonus-list {
+        display: grid;
+        gap: .65rem;
+    }
+
+    .bonus-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        background: var(--plans-soft);
+        border: 1px solid var(--plans-border);
+        border-radius: 8px;
+        padding: .75rem;
+    }
+
+    .bonus-item p {
+        color: var(--plans-muted);
+        margin: .2rem 0 0;
+    }
+
+    .bonus-item span {
+        color: var(--plans-primary);
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .empty-inline,
+    .empty-state {
+        background: var(--plans-soft);
+        border: 1px solid var(--plans-border);
+        border-radius: 8px;
+        color: var(--plans-muted);
+        padding: 1rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 1rem;
+    }
+
+    .empty-state i {
+        color: var(--plans-primary);
+        font-size: 3rem;
+    }
+
+    .plans-note {
+        display: flex;
+        gap: .75rem;
+        align-items: start;
+        background: #f8fbff;
+        border: 1px solid #dbeafe;
+        border-radius: 8px;
+        color: var(--plans-muted);
+        padding: 1rem;
+        margin-top: 2rem;
+    }
+
+    .plans-note i {
+        color: var(--plans-primary);
+        font-size: 1.25rem;
+    }
+
+    .plans-note p {
+        margin: 0;
+    }
+
+    @@media (max-width: 991.98px) {
+        .plans-hero-grid,
+        .plan-modal-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .plan-modal-summary {
+            position: static;
+        }
+    }
+
+    @@media (max-width: 767.98px) {
+        .plans-hero {
+            padding: 1.75rem 0;
+            margin-bottom: 1rem;
+        }
+
+        .plans-hero h1 {
+            font-size: 1.8rem;
+            line-height: 1.12;
+        }
+
+        .plans-toolbar {
+            flex-direction: column;
+        }
+
+        .plans-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .plan-summary-grid,
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .plan-actions,
+        .plan-modal .modal-footer {
+            grid-template-columns: 1fr;
+            display: grid;
+        }
+
+        .plan-modal .modal-dialog {
+            margin: .5rem;
+        }
+
+        .bonus-item {
+            flex-direction: column;
+        }
+    }
+</style>

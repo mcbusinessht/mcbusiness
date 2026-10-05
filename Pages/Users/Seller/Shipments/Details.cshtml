@@ -1,0 +1,129 @@
+﻿@page "{id:int}"
+@model MCBusiness.Pages.Users.Seller.Shipments.DetailsModel
+@using MCBusiness.Models;
+@{
+    ViewData["Title"] = "Détails Livraison";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-3 d-none d-lg-block border-end">
+            <partial name="_SideBarPartial"/>
+        </div>
+         <button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+                    style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+                    data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+
+            
+        <div class="col-lg-9">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="h5 mb-0">
+                        <i class="bi bi-info-circle me-2"></i>@ViewData["Title"]
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">N° Suivi</dt>
+                        <dd class="col-sm-8">@Model.Shipment.TrackingNumber</dd>
+                        
+                        <dt class="col-sm-4">Commande</dt>
+                        <dd class="col-sm-8">Commande #@Model.Shipment.OrderProduct?.OrderId</dd>
+                        
+                        <dt class="col-sm-4">Produit</dt>
+                        <dd class="col-sm-8">@Model.Shipment.OrderProduct?.ProductVariant?.Product?.Name</dd>
+                        
+                        <dt class="col-sm-4">Livreur</dt>
+                        <dd class="col-sm-8">@Model.Shipment.DeliveryPerson?.Name</dd>
+                        
+                        <dt class="col-sm-4">Date Expédition</dt>
+                        <dd class="col-sm-8">@LocalTime.Format(Model.Shipment.ShippingDate, "dd/MM/yyyy HH:mm")</dd>
+                        
+                        <dt class="col-sm-4">Date Livraison</dt>
+                        <dd class="col-sm-8">
+                            @(Model.Shipment.DeliveryDate.HasValue ? LocalTime.Format(Model.Shipment.DeliveryDate.Value, "dd/MM/yyyy HH:mm") : "Non livré")
+                        </dd>
+                        
+                        <dt class="col-sm-4">Statut</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @GetStatusBadgeClass(Model.Shipment.Status)">
+                                @Model.Shipment.Status
+                            </span>
+                        </dd>
+                    </dl>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a asp-page="Index" class="btn btn-secondary">Retour</a>
+                        <a asp-page="Edit" asp-route-id="@Model.Shipment.Id" class="btn btn-primary">Modifier</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Offcanvas Sidebar Mobile -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title">Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <partial name="_SideBarPartial"/>
+        </div>
+    </div>
+    <!-- Bouton menu mobile -->
+    <button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+            style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+            data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+        <i class="bi bi-list fs-4"></i>
+    </button>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle sidebar groups
+            document.querySelectorAll('.sidebar-group').forEach(group => {
+                const item = group.querySelector('.sidebar-item');
+                const submenu = group.querySelector('.sidebar-submenu');
+                
+                // Open if contains active item
+                if (submenu.querySelector('.active')) {
+                    group.classList.add('active');
+                }
+                
+                item.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A') return;
+                    group.classList.toggle('active');
+                });
+            });
+            
+            // Toggle sidebar subgroups
+            document.querySelectorAll('.sidebar-subgroup').forEach(group => {
+                const item = group.querySelector('.sidebar-subitem');
+                const submenu = group.querySelector('.sidebar-subsubmenu');
+                
+                // Open if contains active item
+                if (submenu.querySelector('.active')) {
+                    group.classList.add('active');
+                }
+                
+                item.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A') return;
+                    group.classList.toggle('active');
+                });
+            });
+        });
+    </script>
+@functions {
+    string GetStatusBadgeClass(ShipmentStatus status)
+    {
+        return status switch
+        {
+            ShipmentStatus.Pending => "bg-warning",
+            ShipmentStatus.InTransit => "bg-primary",
+            ShipmentStatus.Delivered => "bg-success",
+            ShipmentStatus.Canceled => "bg-secondary",
+            _ => "bg-light text-dark"
+        };
+    }
+}

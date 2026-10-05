@@ -1,0 +1,171 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Products.Brands.CreateModel
+@{
+    ViewData["Title"] = "Nouvelle Marque";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-plus-circle me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <h5 class="border-bottom pb-2 mb-3"><i class="bi bi-card-heading me-2"></i>Informations de base</h5>
+                                    
+                                    <div class="mb-3">
+                                        <label asp-for="Brand.Name" class="form-label">
+                                            Nom <span class="text-danger">*</span>
+                                        </label>
+                                        <input asp-for="Brand.Name" class="form-control" placeholder="Ex: Nike, Adidas..." required />
+                                        <small class="text-muted">Le nom officiel de la marque</small>
+                                        <span asp-validation-for="Brand.Name" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="Brand.Description" class="form-label">Description</label>
+                                        <textarea asp-for="Brand.Description" class="form-control" rows="3" placeholder="Description de la marque..."></textarea>
+                                        <small class="text-muted">Une brève description de la marque</small>
+                                        <span asp-validation-for="Brand.Description" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="Brand.Country" class="form-label">Pays d'origine</label>
+                                        <input asp-for="Brand.Country" class="form-control" placeholder="Ex: France, USA..." />
+                                        <small class="text-muted">Le pays d'origine de la marque</small>
+                                        <span asp-validation-for="Brand.Country" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <h5 class="border-bottom pb-2 mb-3"><i class="bi bi-globe me-2"></i>Informations en ligne</h5>
+                                    
+                                    <div class="mb-3">
+                                        <label asp-for="Brand.UrlLogo" class="form-label">URL du logo</label>
+                                        <input asp-for="Brand.UrlLogo" class="form-control" placeholder="https://example.com/logo.png" type="url" />
+                                        <small class="text-muted">Lien vers l'image du logo</small>
+                                        <span asp-validation-for="Brand.UrlLogo" class="text-danger small"></span>
+                                        <div class="mt-2 text-center" id="logoPreviewContainer" style="display:none;">
+                                            <img id="logoPreview" src="#" alt="Aperçu du logo" class="img-thumbnail" style="max-height: 100px;" />
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="Brand.WebSite" class="form-label">Site web</label>
+                                        <input asp-for="Brand.WebSite" class="form-control" placeholder="https://example.com" type="url" />
+                                        <small class="text-muted">Le site web officiel de la marque</small>
+                                        <span asp-validation-for="Brand.WebSite" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-page="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i> Créer la marque
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Activation du style de validation Bootstrap
+        (function () {
+            'use strict'
+
+            var forms = document.querySelectorAll('.needs-validation')
+
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })();
+
+        // Aperçu du logo
+        document.getElementById('Brand_UrlLogo').addEventListener('input', function() {
+            const previewContainer = document.getElementById('logoPreviewContainer');
+            const preview = document.getElementById('logoPreview');
+            
+            if (this.value) {
+                preview.src = this.value;
+                previewContainer.style.display = 'block';
+                
+                // Vérifier si l'image existe
+                preview.onerror = function() {
+                    previewContainer.style.display = 'none';
+                }
+            } else {
+                previewContainer.style.display = 'none';
+            }
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        
+        .img-thumbnail {
+            padding: 0.25rem;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .text-muted {
+            font-size: 0.85rem;
+            color: #6c757d !important;
+        }
+    </style>
+}

@@ -1,0 +1,178 @@
+﻿@page
+@model MCBusiness.Pages.Companies.IndexModel
+
+@{
+    ViewData["Title"] = "Nos partenaires commerciaux";
+}
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4">Nos partenaires</h1>
+        <p class="lead text-muted">Découvrez les entreprises qui proposent leurs produits sur notre plateforme</p>
+    </div>
+
+    <div class="row">
+        @foreach (var item in Model.Company)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                        @if (!string.IsNullOrEmpty(item.UrlLogo))
+                        {
+                            <img src="@item.UrlLogo" alt="@item.Name logo" class="img-fluid p-3" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                        }
+                        else
+                        {
+                            <i class="bi bi-building" style="font-size: 3rem; color: #6c757d;"></i>
+                        }
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Name</h5>
+                        
+                        <!-- Correction : Affichage des secteurs -->
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            @if (item.CompanySectors?.Any() == true)
+                            {
+                                var primarySector = item.CompanySectors.FirstOrDefault(cs => cs.IsPrimary)?.Category;
+                                if (primarySector != null)
+                                {
+                                    @primarySector.Name
+                                }
+                                else
+                                {
+                                    @item.CompanySectors.First().Category.Name
+                                }
+                                
+                                @if (item.CompanySectors.Count > 1)
+                                {
+                                    <small class="text-muted">+ @(item.CompanySectors.Count - 1) autre(s)</small>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">Aucun secteur</span>
+                            }
+                        </h6>
+                        
+                        <p class="card-text text-truncate-3" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                            @item.Description
+                        </p>
+                        
+                        <!-- Correction : Affichage des secteurs détaillés -->
+                        @if (item.CompanySectors?.Any() == true)
+                        {
+                            <div class="mt-2">
+                                @foreach (var sector in item.CompanySectors.Take(3))
+                                {
+                                    <span class="badge bg-light text-dark border me-1 mb-1">@sector.Category.Name</span>
+                                }
+                                @if (item.CompanySectors.Count > 3)
+                                {
+                                    <span class="badge bg-secondary">+@(item.CompanySectors.Count - 3)</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <!-- Correction : Affichage de l'adresse depuis la table Address -->
+                        @if (item.PrimaryAddress != null)
+                        {
+                            <li class="list-group-item">
+                                <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+                                @item.PrimaryAddress.City?.Name, @item.PrimaryAddress.Country?.Name
+                            </li>
+                        }
+                        else if (item.Addresses?.Any() == true)
+                        {
+                            <li class="list-group-item">
+                                <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+                                @item.Addresses.First().City?.Name, @item.Addresses.First().Country?.Name
+                            </li>
+                        }
+                        
+                        @if (!string.IsNullOrEmpty(item.WebSite))
+                        {
+                            <li class="list-group-item">
+                                <i class="bi bi-globe text-primary me-2"></i>
+                                <a href="@item.WebSite" target="_blank" class="text-decoration-none">Site web</a>
+                            </li>
+                        }
+                    </ul>
+                    <div class="card-footer bg-white text-center">
+                        <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-outline-primary">
+                            <i class="bi bi-info-circle"></i> Plus de détails
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Message si aucune compagnie -->
+    @if (!Model.Company.Any())
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-building" style="font-size: 4rem; color: #6c757d;"></i>
+            <h3 class="mt-3">Aucun partenaire pour le moment</h3>
+            <p class="text-muted">Revenez plus tard pour découvrir nos partenaires commerciaux.</p>
+        </div>
+    }
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 10px;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .card-img-top {
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .text-truncate-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .list-group-item {
+            padding: 0.75rem 1.25rem;
+        }
+        
+        .badge {
+            font-size: 0.7rem;
+            padding: 0.3em 0.6em;
+        }
+        
+        @@keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        /* Animation delay for cards */
+        .col-md-6:nth-child(odd) .card {
+            animation-delay: 0.1s;
+        }
+        .col-md-6:nth-child(even) .card {
+            animation-delay: 0.2s;
+        }
+        .col-lg-4:nth-child(3n+1) .card {
+            animation-delay: 0.1s;
+        }
+        .col-lg-4:nth-child(3n+2) .card {
+            animation-delay: 0.2s;
+        }
+        .col-lg-4:nth-child(3n) .card {
+            animation-delay: 0.3s;
+        }
+    </style>
+}

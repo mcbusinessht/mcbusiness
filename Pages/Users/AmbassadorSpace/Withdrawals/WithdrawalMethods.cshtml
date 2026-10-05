@@ -1,0 +1,129 @@
+﻿@page
+@model MCBusiness.Pages.Users.AmbassadorSpace.Withdrawals.WithdrawalMethods
+@{
+    ViewData["Title"] = "Méthodes de Retrait";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="row">      
+        <div class="col-md-8 mx-auto shadow p-4">             
+            <h2 class="mb-4 text-center text-primary">Choisissez votre méthode de retrait</h2>
+            <div class="row">
+                <!-- Retrait MonCash -->
+                <div class="col-md-6 mb-4">                         
+                    <a asp-page="MonCash" class="text-decoration-none ">
+                        <div class="card payment-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <img src="~/image/MON-Cash-Haiti-logo.png" alt="MonCash" style="height: 40px;">
+                                    <div class="ms-3">
+                                        <h5>MonCash</h5>
+                                        <p class="text-muted">Retrait vers votre compte MonCash</p>
+                                        <div class="badge bg-success  text-success">
+                                            <i class="bi bi-check-circle-fill"></i> Disponible | Instantané
+                                        </div> 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Virement Bancaire -->
+                <div class="col-md-6 mb-4">
+                    <a asp-page="Bank" class="text-decoration-none">
+                        <div class="card payment-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-bank fs-3 text-success"></i>
+                                    <div class="ms-3">
+                                        <h5>Virement Bancaire</h5>
+                                        <p class="text-muted">Transfert direct vers votre banque</p>
+                                        <div class="badge bg-success  text-success">                      
+                                            <i class="bi bi-check-circle-fill"></i> Disponible (24-72h)
+                                        </div> 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Western Union -->
+                <div class="col-md-6 mb-4">
+                    <a asp-page="WesternUnionWithdrawal" class="text-decoration-none">
+                        <div class="card payment-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-globe fs-3 text-primary"></i>
+                                    <div class="ms-3">
+                                        <h5>Paypal</h5>
+                                        <p class="text-muted">Retrait sur votre compte Paypal</p>
+                                        <div class="badge bg-danger bg-opacity-10 text-danger">
+                                            <i class="bi bi-check-circle-fill"></i> Indisponible
+                                        </div> 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Retrait en Espèces -->
+                <div class="col-md-6 mb-4">
+                    <a asp-page="CashWithdrawal" class="text-decoration-none">
+                        <div class="card payment-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-cash-coin fs-3 text-warning"></i>
+                                    <div class="ms-3">
+                                        <h5>Retrait sur carte</h5>
+                                        <p class="text-muted">Retrait sur votre carte (mastercard/visa)</p>
+                                        <div class="badge bg-danger bg-opacity-10 text-danger">
+                                            <i class="bi bi-check-circle-fill"></i> Indisponible
+                                        </div> 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a asp-page="../Dashboard" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Retour
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .payment-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        
+        .payment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-color: var(--bs-primary);
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .badge {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .text-muted {
+            font-size: 0.9rem;
+        }
+    </style>
+}

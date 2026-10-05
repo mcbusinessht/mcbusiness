@@ -1,0 +1,53 @@
+﻿@page
+@model MCBusiness.Pages.Users.EmployeeSpace.NoEmployee
+@{
+    ViewData["Title"] = "Espace Employé Non Disponible";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card border-0 shadow-lg rounded-4 p-4 mt-5">
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#0d6efd" class="bi bi-person-x-fill" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm6.146-2.854a.5.5 0 0 1 .708 0L14 6.293l1.146-1.147a.5.5 0 0 1 .708.708L14.707 7l1.147 1.146a.5.5 0 0 1-.708.708L14 7.707l-1.146 1.147a.5.5 0 0 1-.708-.708L13.293 7l-1.147-1.146a.5.5 0 0 1 0-.708z"/>
+                        </svg>
+                    </div>
+                    
+                    <h2 class="fw-bold text-primary mb-3">Espace Employé Non Disponible</h2>
+                    
+                    <p class="lead mb-4">
+                        Votre compte employé n'a pas encore été créé.
+                    </p>
+                    
+                    <div class="alert alert-info mb-4">
+                        <p class="mb-0">
+                            Si vous voyez ce message, c'est que vous n'avez pas encore de compte employé enregistré dans notre système.
+                            <br>
+                            Veuillez contacter l'administration de MCBusiness pour régulariser votre situation.
+                        </p>
+                    </div>
+                    
+                    <div class="d-grid gap-2 col-md-6 mx-auto">
+                        <a asp-page="/Contact" class="btn btn-primary btn-lg rounded-pill px-4">
+                            <i class="bi bi-envelope me-2"></i>Contacter l'administration
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        transition: transform 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .rounded-4 {
+        border-radius: 1rem !important;
+    }
+</style>

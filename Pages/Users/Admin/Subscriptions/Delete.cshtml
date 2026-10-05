@@ -1,0 +1,156 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Subscriptions.DeleteModel
+
+@{
+    ViewData["Title"] = "Supprimer Abonnement";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-danger text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-trash me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="./Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour à la liste
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="alert alert-warning" role="alert">
+                        <h5 class="alert-heading">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Attention !
+                        </h5>
+                        <p>Êtes-vous certain de vouloir supprimer cet abonnement ? Cette action est irréversible.</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5 class="fw-bold text-primary mb-3">
+                                    <i class="bi bi-person-badge me-2"></i>Utilisateur
+                                </h5>
+                                <div class="ps-4">
+                                    <p class="mb-2">
+                                        <span class="fw-semibold">Nom :</span> 
+                                        @Model.Subscription.User?.UserName
+                                    </p>
+                                    <p class="mb-2">
+                                        <span class="fw-semibold">Email :</span> 
+                                        @Model.Subscription.User?.Email
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5 class="fw-bold text-primary mb-3">
+                                    <i class="bi bi-card-checklist me-2"></i>Plan
+                                </h5>
+                                <div class="ps-4">
+                                    <p class="mb-2">
+                                        <span class="fw-semibold">Nom :</span> 
+                                        @Model.Subscription.Plan?.Name
+                                    </p>
+                                    <p class="mb-2">
+                                        <span class="fw-semibold">Description :</span> 
+                                        @Model.Subscription.Plan?.Description
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5 class="fw-bold text-primary mb-3">
+                                    <i class="bi bi-calendar-range me-2"></i>Période
+                                </h5>
+                                <div class="ps-4">
+                                    <p class="mb-2">
+                                        <span class="fw-semibold">Date début :</span> 
+                                        @Model.Subscription.StartDate.ToString("dd/MM/yyyy HH:mm")
+                                    </p>
+                                    <p class="mb-2">
+                                        <span class="fw-semibold">Date fin :</span> 
+                                        @Model.Subscription.EndDate.ToString("dd/MM/yyyy HH:mm")
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5 class="fw-bold text-primary mb-3">
+                                    <i class="bi bi-info-circle me-2"></i>Statut
+                                </h5>
+                                <div class="ps-4">
+                                    @{
+                                        var statusBadgeClass = Model.Subscription.Status switch
+                                        {
+                                            MCBusiness.Models.SubscriptionStatus.Active => "bg-success",
+                                            MCBusiness.Models.SubscriptionStatus.Inactive => "bg-secondary",
+                                            MCBusiness.Models.SubscriptionStatus.Cancelled => "bg-danger",
+                                            _ => "bg-warning"
+                                        };
+                                    }
+                                    <span class="badge @statusBadgeClass">@Model.Subscription.Status</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" class="mt-4">
+                        <input type="hidden" asp-for="Subscription.Id" />
+                        <div class="d-flex justify-content-center gap-3">
+                            <button type="submit" class="btn btn-danger px-4">
+                                <i class="bi bi-trash me-1"></i> Confirmer la suppression
+                            </button>
+                            <a asp-page="./Index" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-x-circle me-1"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .fw-semibold {
+            font-weight: 600;
+        }
+        .badge {
+            font-size: 0.9em;
+            padding: 0.4em 0.75em;
+        }
+        .bg-success {
+            background-color: #28a745 !important;
+        }
+        .bg-danger {
+            background-color: #dc3545 !important;
+        }
+        .bg-warning {
+            background-color: #ffc107 !important;
+            color: #212529;
+        }
+        .bg-secondary {
+            background-color: #6c757d !important;
+        }
+        .alert-warning {
+            border-left: 4px solid #ffc107;               
+        }
+    </style>
+}

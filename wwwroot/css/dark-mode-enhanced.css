@@ -1,0 +1,364 @@
+/* === AMÉLIORATIONS MODERNES DU MODE SOMBRE FRIKOB === */
+
+/* Variables CSS améliorées - PALETTE MCBUSINESS */
+[data-theme="dark"] {
+    /* Couleurs MCBusiness (déjà définies dans dark-mode.css mais redondance pour compatibilité) */
+    --accent-primary: #1a8cff;        /* Bleu MCBusiness éclairci */
+    --accent-secondary: #7ed957;      /* Vert MCBusiness éclairci */
+    --accent-success: #22c55e;
+    --accent-warning: #f59e0b;
+    --accent-danger: #ef4444;
+    
+    /* Arrière-plans avec effet glassmorphism MCBusiness */
+    --glass-bg: rgba(21, 27, 35, 0.1);
+    --glass-border: rgba(26, 140, 255, 0.1);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --shadow-glow: rgba(26, 140, 255, 0.2);
+}
+
+/* === ANIMATIONS ET TRANSITIONS FLUIDES === */
+
+/* Animation d'entrée pour les cartes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* === AMÉLIORATIONS DU GLASSMORPHISM === */
+
+/* Dropdown ultra-moderne avec couleurs MCBusiness */
+[data-theme="dark"] .dropdown-menu {
+    background: rgba(21, 27, 35, 1) !important;  /* 100% opaque - SUPPRESSION TRANSPARENCE */
+    backdrop-filter: none !important;  /* SUPPRESSION DU BLUR pour éviter cumul */
+    border: 1px solid rgba(26, 140, 255, 0.3) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(26, 140, 255, 0.1) !important;
+    animation: slideIn 0.2s ease-out;
+    overflow: hidden;
+    position: absolute !important;  /* Position absolue pour échapper au contexte parent */
+    z-index: 99999 !important;  /* Z-INDEX LE PLUS ÉLEVÉ - au-dessus de tout */
+    transform: translateZ(100px) !important;  /* Contexte 3D pour forcer au premier plan */
+    will-change: transform;
+}
+
+/* La navbar nav-main-links doit être SOUS les dropdowns */
+[data-theme="dark"] .nav-main-links {
+    position: relative;
+    z-index: 50 !important;
+}
+
+[data-theme="dark"] .dropdown-item {
+    color: #f0f4f8 !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px !important;
+    margin: 2px 4px !important;
+    background: transparent;
+}
+
+[data-theme="dark"] .dropdown-item:hover {
+    background: rgba(26, 140, 255, 0.15) !important;
+    color: #1a8cff !important;
+    transform: translateX(4px);
+}
+
+[data-theme="dark"] .dropdown-item:focus,
+[data-theme="dark"] .dropdown-item:active {
+    background: rgba(26, 140, 255, 0.2) !important;
+    color: #1a8cff !important;
+}
+
+/* === OFFCANVAS MODERNE === */
+[data-theme="dark"] .offcanvas {
+    background: rgba(21, 27, 35, 0.98) !important;
+    backdrop-filter: blur(20px) saturate(150%) !important;
+    border-left: 1px solid rgba(26, 140, 255, 0.2);
+    z-index: 10000 !important;
+}
+
+[data-theme="dark"] .offcanvas-backdrop {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    z-index: 9999 !important;
+}
+
+/* === SCROLL BAR PERSONNALISÉE MCBUSINESS === */
+[data-theme="dark"] ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: #151b23;
+    border-radius: 10px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #1a8cff, #0066cc);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #0066cc, #1a8cff);
+    box-shadow: 0 0 10px rgba(26, 140, 255, 0.5);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-corner {
+    background: #151b23;
+}
+
+/* === TABLES MODERNES === */
+[data-theme="dark"] .table {
+    color: #f8fafc !important;
+    border-color: rgba(100, 116, 139, 0.2) !important;
+}
+
+[data-theme="dark"] .table > :not(caption) > * > * {
+    border-bottom-color: rgba(100, 116, 139, 0.2) !important;
+}
+
+[data-theme="dark"] .table-hover > tbody > tr:hover > * {
+    background-color: rgba(26, 140, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: rgba(21, 27, 35, 0.3) !important;
+}
+
+/* === PAGINATION AMÉLIORÉE MCBUSINESS === */
+[data-theme="dark"] .page-link {
+    background: rgba(21, 27, 35, 0.8) !important;
+    border: 1px solid rgba(26, 140, 255, 0.2) !important;
+    color: #f0f4f8 !important;
+    border-radius: 8px !important;
+    margin: 0 2px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px) !important;
+}
+
+[data-theme="dark"] .page-link:hover {
+    background: #1a8cff !important;
+    border-color: #1a8cff !important;
+    color: white !important;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(26, 140, 255, 0.3) !important;
+}
+
+[data-theme="dark"] .page-item.active .page-link {
+    background: linear-gradient(135deg, #1a8cff, #0066cc) !important;
+    border-color: #1a8cff !important;
+    box-shadow: 0 0 15px rgba(26, 140, 255, 0.4) !important;
+}
+
+/* === BADGES AVEC EFFET GLOW === */
+[data-theme="dark"] .badge {
+    backdrop-filter: blur(10px) !important;
+    border-radius: 6px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 12px currentColor;
+}
+
+[data-theme="dark"] .badge-primary {
+    background: linear-gradient(135deg, #1a8cff, #0066cc) !important;
+    box-shadow: 0 0 10px rgba(26, 140, 255, 0.5) !important;
+}
+
+[data-theme="dark"] .badge-success {
+    background: linear-gradient(135deg, #22c55e, #16a34a) !important;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.5) !important;
+}
+
+[data-theme="dark"] .badge-warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5) !important;
+}
+
+[data-theme="dark"] .badge-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5) !important;
+}
+
+/* === ALERTS MODERNES === */
+[data-theme="dark"] .alert {
+    backdrop-filter: blur(15px) !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    animation: fadeInUp 0.5s ease-out;
+}
+
+[data-theme="dark"] .alert-primary {
+    background: rgba(26, 140, 255, 0.15) !important;
+    border-color: rgba(26, 140, 255, 0.3) !important;
+    color: #7dd3fc !important;
+}
+
+[data-theme="dark"] .alert-success {
+    background: rgba(34, 197, 94, 0.15) !important;
+    border-color: rgba(34, 197, 94, 0.3) !important;
+    color: #86efac !important;
+}
+
+[data-theme="dark"] .alert-warning {
+    background: rgba(245, 158, 11, 0.15) !important;
+    border-color: rgba(245, 158, 11, 0.3) !important;
+    color: #fcd34d !important;
+}
+
+[data-theme="dark"] .alert-danger {
+    background: rgba(239, 68, 68, 0.15) !important;
+    border-color: rgba(239, 68, 68, 0.3) !important;
+    color: #fca5a5 !important;
+}
+
+/* === MODALS GLASSMORPHISM MCBUSINESS === */
+[data-theme="dark"] .modal-content {
+    background: rgba(10, 14, 20, 0.98) !important;
+    backdrop-filter: blur(30px) saturate(180%) !important;
+    border: 1px solid rgba(26, 140, 255, 0.2) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+    animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] .modal-backdrop {
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(5px) !important;
+}
+
+[data-theme="dark"] .modal-header {
+    border-bottom: 1px solid rgba(26, 140, 255, 0.2) !important;
+}
+
+[data-theme="dark"] .modal-footer {
+    border-top: 1px solid rgba(26, 140, 255, 0.2) !important;
+}
+
+/* === LIST GROUP MODERNE MCBUSINESS === */
+[data-theme="dark"] .list-group-item {
+    background: rgba(21, 27, 35, 0.6) !important;
+    border: 1px solid rgba(26, 140, 255, 0.2) !important;
+    color: #f0f4f8 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px) !important;
+}
+
+[data-theme="dark"] .list-group-item:hover {
+    background: rgba(30, 39, 50, 0.8) !important;
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+[data-theme="dark"] .list-group-item.active {
+    background: linear-gradient(135deg, #1a8cff, #0066cc) !important;
+    border-color: #1a8cff !important;
+    box-shadow: 0 0 15px rgba(26, 140, 255, 0.4) !important;
+}
+
+/* === BREADCRUMB MODERNE MCBUSINESS === */
+[data-theme="dark"] .breadcrumb {
+    background: rgba(21, 27, 35, 0.6) !important;
+    border-radius: 10px !important;
+    border: 1px solid rgba(26, 140, 255, 0.2) !important;
+    backdrop-filter: blur(10px) !important;
+    position: relative;
+    z-index: 10 !important;  /* En dessous des dropdowns */
+}
+
+[data-theme="dark"] .breadcrumb-modern {
+    position: relative;
+    z-index: 10 !important;  /* En dessous des dropdowns */
+}
+
+[data-theme="dark"] .breadcrumb-item a {
+    color: #b8c5d6 !important;
+    transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .breadcrumb-item a:hover {
+    color: #1a8cff !important;
+    text-decoration: none !important;
+}
+
+[data-theme="dark"] .breadcrumb-item.active {
+    color: #f0f4f8 !important;
+}
+
+/* === PROGRESS BARS MCBUSINESS === */
+[data-theme="dark"] .progress {
+    background: rgba(21, 27, 35, 0.6) !important;
+    border-radius: 10px !important;
+    backdrop-filter: blur(10px) !important;
+    overflow: hidden;
+}
+
+[data-theme="dark"] .progress-bar {
+    background: linear-gradient(135deg, #1a8cff, #0066cc) !important;
+    box-shadow: 0 0 10px rgba(26, 140, 255, 0.5) !important;
+}
+
+/* === NAVBAR AMÉLIORATION === */
+[data-theme="dark"] .navbar {
+    backdrop-filter: blur(12px) saturate(150%) !important;  /* Réduit de 25px → 12px */
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(100, 116, 139, 0.1) !important;
+    position: relative;
+    z-index: 100 !important;  /* En dessous des dropdowns */
+}
+
+[data-theme="dark"] .navbar-collapse,
+[data-theme="dark"] #mainNav {
+    position: relative;
+    z-index: 100 !important;  /* En dessous des dropdowns */
+}
+
+[data-theme="dark"] .navbar-nav {
+    position: relative;
+    z-index: 1 !important;  /* Très bas pour ne pas interférer avec les dropdowns */
+}
+
+[data-theme="dark"] .nav-item {
+    position: relative;
+    z-index: 1 !important;  /* Très bas */
+}
+
+/* LE PARENT .dropdown DOIT AVOIR UN Z-INDEX TRÈS ÉLEVÉ */
+[data-theme="dark"] .dropdown {
+    position: relative !important;
+    z-index: 99998 !important;
+}
+
+[data-theme="dark"] .dropdown.show {
+    z-index: 99998 !important;
+}
+
+/* === TEXT SELECTION MCBUSINESS === */
+[data-theme="dark"] ::selection {
+    background: rgba(26, 140, 255, 0.3) !important;
+    color: #f0f4f8 !important;
+}
+
+[data-theme="dark"] ::-moz-selection {
+    background: rgba(26, 140, 255, 0.3) !important;
+    color: #f0f4f8 !important;
+}
+
+/* === FOCUS VISIBLE POUR L'ACCESSIBILITÉ === */
+[data-theme="dark"] *:focus-visible {
+    outline: 2px solid #1a8cff !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 4px rgba(26, 140, 255, 0.2) !important;
+}

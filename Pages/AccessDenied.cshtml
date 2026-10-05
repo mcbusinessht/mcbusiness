@@ -1,0 +1,28 @@
+﻿@page
+@model MCBusiness.Pages.AccessDenied
+@{
+    ViewData["Title"] = "Access Denied";
+}
+
+
+<div class="row">
+    <div class="col-6 mx-auto">
+        <h4 id="countdown" class="fw-bold mt-2 mb-3 text-center text-danger">Redirection dans <span id="seconds">5</span> secondes...</h4>
+        <img src="~/image/AccessDenied.png" alt="AccessDenied" width="100%">
+    </div>
+    
+</div>
+<script>
+        let seconds = 5; // Temps avant la redirection
+        const countdownElement = document.getElementById("seconds");
+
+        const interval = setInterval(() => {
+            seconds--;
+            countdownElement.textContent = seconds;
+
+            if (seconds <= 0) {
+                clearInterval(interval);
+                window.location.href = "/Index"; // Remplacez par votre URL cible
+            }
+        }, 1000);
+</script>

@@ -1,0 +1,52 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_Addresses_Neighborhoods.EditModel
+
+@{
+    ViewData["Title"] = "Modifier un Quartier";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark py-3 d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Modifier un Quartier</h4>
+                    <a asp-page="Index" class="btn btn-sm btn-dark">
+                        <i class="bi bi-arrow-left me-1"></i> Retour
+                    </a>
+                </div>
+
+                <div class="card-body">
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <input type="hidden" asp-for="Neighborhood.Id" />
+
+                        <div class="mb-3">
+                            <label asp-for="Neighborhood.Name" class="form-label fw-bold"></label>
+                            <input asp-for="Neighborhood.Name" class="form-control" />
+                            <span asp-validation-for="Neighborhood.Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Neighborhood.CityId" class="form-label fw-bold">Ville</label>
+                            <select asp-for="Neighborhood.CityId" class="form-select" asp-items="ViewBag.CityId"></select>
+                            <span asp-validation-for="Neighborhood.CityId" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-save me-1"></i> Enregistrer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

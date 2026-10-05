@@ -1,0 +1,248 @@
+@page
+@model MCBusiness.Pages.HelpUs
+@{
+    ViewData["Title"] = "Centre d'Aide";
+}
+
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-md-10 col-12">
+            <div class="card border-0 shadow-lg overflow-hidden" id="helpCard">
+                <div class="card-header bg-primary text-white py-4 position-relative overflow-hidden">
+                    <div class="position-absolute w-100 h-100 top-0 start-0" style="background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%);"></div>
+                    <h2 class="text-center mb-0 position-relative">Centre d'aide MC Business</h2>
+                </div>
+
+                <div class="card-body p-5">
+                    <div class="help-content">
+                        <div class="text-center mb-5">
+                            <p class="lead">
+                                Retrouvez les informations pratiques sur les achats, paiements, livraisons, vendeurs, ambassadeurs et retraits.
+                            </p>
+                        </div>
+
+                        <div class="accordion" id="helpAccordion">
+                            <div class="accordion-item mb-3 border-0 rounded-3 overflow-hidden">
+                                <h3 class="accordion-header" id="headingOne">
+                                    <button class="accordion-button bg-light bg-opacity-10 text-primary fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                        <i class="bi bi-question-circle-fill me-2"></i>Qu'est-ce que MC Business ?
+                                    </button>
+                                </h3>
+                                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#helpAccordion">
+                                    <div class="accordion-body">
+                                        <p>MC Business est une plateforme e-commerce multivendeur. Elle permet aux clients d'acheter des produits, aux vendeurs de gérer leurs boutiques et aux ambassadeurs de recommander la plateforme selon un programme de commissions.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item mb-3 border-0 rounded-3 overflow-hidden">
+                                <h3 class="accordion-header" id="headingTwo">
+                                    <button class="accordion-button collapsed bg-light bg-opacity-10 text-primary fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                        <i class="bi bi-cart-check me-2"></i>Comment acheter un produit ?
+                                    </button>
+                                </h3>
+                                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#helpAccordion">
+                                    <div class="accordion-body">
+                                        <ol class="list-steps">
+                                            <li>Connectez-vous ou créez un compte.</li>
+                                            <li>Recherchez un produit ou parcourez le magasin.</li>
+                                            <li>Ajoutez le produit au panier et ajustez la quantité.</li>
+                                            <li>Vérifiez le total, les paliers de prix et les frais de livraison.</li>
+                                            <li>Créez la commande, puis procédez au paiement.</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item mb-3 border-0 rounded-3 overflow-hidden">
+                                <h3 class="accordion-header" id="headingThree">
+                                    <button class="accordion-button collapsed bg-light bg-opacity-10 text-primary fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                        <i class="bi bi-wallet2 me-2"></i>Quels moyens de paiement sont utilisés ?
+                                    </button>
+                                </h3>
+                                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#helpAccordion">
+                                    <div class="accordion-body">
+                                        <p>Les commandes se paient avec le portefeuille MC Business. Selon les options disponibles sur votre compte, vous pouvez alimenter ce portefeuille via MonCash ou virement bancaire. Les virements peuvent nécessiter une validation administrative avant que le solde soit disponible.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item mb-3 border-0 rounded-3 overflow-hidden">
+                                <h3 class="accordion-header" id="headingFour">
+                                    <button class="accordion-button collapsed bg-light bg-opacity-10 text-primary fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                        <i class="bi bi-truck me-2"></i>Comment se passe la livraison ?
+                                    </button>
+                                </h3>
+                                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#helpAccordion">
+                                    <div class="accordion-body">
+                                        <p>Les options et frais de livraison dépendent du vendeur, de la zone et des produits commandés. Le vendeur prépare l'expédition après confirmation du paiement. Vous pouvez suivre l'état de la commande depuis votre espace client.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item mb-3 border-0 rounded-3 overflow-hidden">
+                                <h3 class="accordion-header" id="headingFive">
+                                    <button class="accordion-button collapsed bg-light bg-opacity-10 text-primary fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                        <i class="bi bi-check2-circle me-2"></i>Comment confirmer la réception d'une commande ?
+                                    </button>
+                                </h3>
+                                <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#helpAccordion">
+                                    <div class="accordion-body">
+                                        <p>Lorsque les produits sont livrés, vous pouvez confirmer la réception depuis la page de vos commandes. Cette confirmation aide à clôturer le suivi et à sécuriser le traitement des paiements vendeurs.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item mb-3 border-0 rounded-3 overflow-hidden">
+                                <h3 class="accordion-header" id="headingSix">
+                                    <button class="accordion-button collapsed bg-light bg-opacity-10 text-primary fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                                        <i class="bi bi-shop-window me-2"></i>Comment devenir vendeur ?
+                                    </button>
+                                </h3>
+                                <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#helpAccordion">
+                                    <div class="accordion-body">
+                                        <p>Soumettez une demande vendeur depuis la page de candidature. Après validation, vous pourrez gérer vos produits, variantes, commandes, livraisons et paiements depuis votre espace vendeur.</p>
+                                        <a href="/SellerApplication/Create" class="btn btn-outline-primary btn-sm">Créer une demande vendeur</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item mb-3 border-0 rounded-3 overflow-hidden">
+                                <h3 class="accordion-header" id="headingSeven">
+                                    <button class="accordion-button collapsed bg-light bg-opacity-10 text-primary fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
+                                        <i class="bi bi-star me-2"></i>Comment fonctionne le programme ambassadeur ?
+                                    </button>
+                                </h3>
+                                <div id="collapseSeven" class="accordion-collapse collapse" aria-labelledby="headingSeven" data-bs-parent="#helpAccordion">
+                                    <div class="accordion-body">
+                                        <p>Un ambassadeur peut recommander MC Business et gagner des commissions sur des ventes qualifiées. Les commissions dépendent du plan actif, des règles de validation, des plafonds et du statut des commandes concernées.</p>
+                                        <a href="/Plans" class="btn btn-outline-primary btn-sm">Voir les plans ambassadeurs</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item mb-3 border-0 rounded-3 overflow-hidden">
+                                <h3 class="accordion-header" id="headingEight">
+                                    <button class="accordion-button collapsed bg-light bg-opacity-10 text-primary fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEight" aria-expanded="false" aria-controls="collapseEight">
+                                        <i class="bi bi-cash-coin me-2"></i>Puis-je retirer mon solde ?
+                                    </button>
+                                </h3>
+                                <div id="collapseEight" class="accordion-collapse collapse" aria-labelledby="headingEight" data-bs-parent="#helpAccordion">
+                                    <div class="accordion-body">
+                                        <p>Les retraits sont possibles selon le solde disponible, la méthode activée et les validations nécessaires. Une demande peut passer par MonCash ou virement bancaire selon les options proposées dans votre espace.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item mb-3 border-0 rounded-3 overflow-hidden">
+                                <h3 class="accordion-header" id="headingNine">
+                                    <button class="accordion-button collapsed bg-light bg-opacity-10 text-primary fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNine" aria-expanded="false" aria-controls="collapseNine">
+                                        <i class="bi bi-shield-lock me-2"></i>Mes données et paiements sont-ils protégés ?
+                                    </button>
+                                </h3>
+                                <div id="collapseNine" class="accordion-collapse collapse" aria-labelledby="headingNine" data-bs-parent="#helpAccordion">
+                                    <div class="accordion-body">
+                                        <p>MC Business utilise l'authentification, la validation email, le 2FA lorsque vous l'activez et des contrôles financiers pour limiter les incohérences. Consultez aussi notre <a href="/Privacy" class="text-primary">politique de confidentialité</a>.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light bg-opacity-10 border-0 text-center py-4">
+                    <div class="contact-box p-4 rounded-3 bg-white">
+                        <h4 class="text-primary mb-4">
+                            <i class="bi bi-headset me-2"></i>Besoin d'aide supplémentaire ?
+                        </h4>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded-3 h-100">
+                                    <i class="bi bi-telephone-fill text-primary fs-4 mb-2"></i>
+                                    <h5>Téléphone</h5>
+                                    <p class="mb-0">+(509) 34 73 4465</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded-3 h-100">
+                                    <i class="bi bi-envelope-fill text-primary fs-4 mb-2"></i>
+                                    <h5>Email</h5>
+                                    <p class="mb-0">support@mcbusinessht.com</p>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="/Contact" class="btn btn-primary mt-4">Contacter le support</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        #helpCard {
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #helpCard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .help-content p {
+            font-size: 1.05rem;
+            line-height: 1.75;
+            margin-bottom: 1rem;
+            color: #495057;
+        }
+
+        .help-content .lead {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #212529;
+        }
+
+        .list-steps {
+            counter-reset: step-counter;
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .list-steps li {
+            counter-increment: step-counter;
+            margin-bottom: 1rem;
+            padding-left: 2.5rem;
+            position: relative;
+        }
+
+        .list-steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background-color: #0d6efd;
+            color: white;
+            width: 1.8rem;
+            height: 1.8rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .accordion-button:not(.collapsed) {
+            background-color: rgba(13, 110, 253, 0.15) !important;
+            color: #0d6efd !important;
+        }
+
+        .contact-box {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(13, 110, 253, 0.2);
+        }
+    </style>
+}

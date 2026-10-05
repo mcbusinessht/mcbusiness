@@ -1,0 +1,151 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Subscriptions.DetailsModel
+
+@{
+    ViewData["Title"] = "Détails de l'Abonnement";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-credit-card me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <div>
+                            <a asp-page="./Index" class="btn btn-sm btn-light">
+                                <i class="bi bi-arrow-left me-1"></i> Retour à la liste
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5 class="fw-bold text-primary mb-3">
+                                    <i class="bi bi-person-badge me-2"></i>Informations Utilisateur
+                                </h5>
+                                <div class="ps-4">
+                                    <p class="mb-2">
+                                        <span class="fw-semibold">Nom :</span> 
+                                        @Model.Subscription.User?.UserName
+                                    </p>
+                                    <p class="mb-2">
+                                        <span class="fw-semibold">Email :</span> 
+                                        @Model.Subscription.User?.Email
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <h5 class="fw-bold text-primary mb-3">
+                                    <i class="bi bi-card-checklist me-2"></i>Détails du Plan
+                                </h5>
+                                <div class="ps-4">
+                                    <p class="mb-2">
+                                        <span class="fw-semibold">Nom du plan :</span> 
+                                        @Model.Subscription.Plan?.Name
+                                    </p>
+                                    <p class="mb-2">
+                                        <span class="fw-semibold">Description :</span> 
+                                        @Model.Subscription.Plan?.Description
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5 class="fw-bold text-primary mb-3">
+                                    <i class="bi bi-calendar-range me-2"></i>Période d'Abonnement
+                                </h5>
+                                <div class="ps-4">
+                                    <p class="mb-2">
+                                        <span class="fw-semibold">Date de début :</span> 
+                                        @Model.Subscription.StartDate.ToString("dd/MM/yyyy HH:mm")
+                                    </p>
+                                    <p class="mb-2">
+                                        <span class="fw-semibold">Date de fin :</span> 
+                                        @Model.Subscription.EndDate.ToString("dd/MM/yyyy HH:mm")
+                                    </p>
+                                    <p class="mb-2">
+                                        <span class="fw-semibold">Durée restante :</span> 
+                                        @{
+                                            var remaining = Model.Subscription.EndDate - DateTimeOffset.UtcNow;
+                                            <span>@remaining.Days jours, @remaining.Hours heures</span>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <h5 class="fw-bold text-primary mb-3">
+                                    <i class="bi bi-info-circle me-2"></i>Statut
+                                </h5>
+                                <div class="ps-4">
+                                    @{
+                                        var statusBadgeClass = Model.Subscription.Status switch
+                                        {
+                                            MCBusiness.Models.SubscriptionStatus.Active => "bg-success",
+                                            MCBusiness.Models.SubscriptionStatus.Inactive => "bg-secondary",
+                                            MCBusiness.Models.SubscriptionStatus.Cancelled => "bg-danger",
+                                            _ => "bg-warning"
+                                        };
+                                    }
+                                    <span class="badge @statusBadgeClass">@Model.Subscription.Status</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-end">
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-page="./Edit" asp-route-id="@Model.Subscription.Id" class="btn btn-primary me-2">
+                                <i class="bi bi-pencil me-1"></i> Modifier
+                            </a>
+                        }
+                        <a asp-page="./Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-list-ul me-1"></i> Retour à la liste
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .fw-semibold {
+            font-weight: 600;
+        }
+        .badge {
+            font-size: 0.9em;
+            padding: 0.4em 0.75em;
+        }
+        .bg-success {
+            background-color: #28a745 !important;
+        }
+        .bg-danger {
+            background-color: #dc3545 !important;
+        }
+        .bg-warning {
+            background-color: #ffc107 !important;
+            color: #212529;
+        }
+        .bg-secondary {
+            background-color: #6c757d !important;
+        }
+    </style>
+}

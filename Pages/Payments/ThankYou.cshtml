@@ -1,0 +1,30 @@
+﻿@page
+@model MCBusiness.Pages.Payments.ThankYouModel
+@{
+    ViewData["Title"] = "Thank You";
+}
+
+
+<div class="row">
+    <div class="col mx-auto">
+        <h4 class="text-center"> Votre Depot a ete fait avec succes sur votre compte, vous allez etre rediriger vers votre Dashboard</h4>
+        <div class="text-center">
+            <img src="@Url.Content("~/image/Check-mark.png")" class="text-center" alt="" width="200px">
+        </div>
+        <h4 id="countdown" class="fw-bold mt-2 mb-3 text-center">Redirection dans <span id="seconds">5</span> secondes...</h4>
+    </div>  
+</div>
+<script>
+        let seconds = 10; // Temps avant la redirection
+        const countdownElement = document.getElementById("seconds");
+
+        const interval = setInterval(() => {
+            seconds--;
+            countdownElement.textContent = seconds;
+
+            if (seconds <= 0) {
+                clearInterval(interval);
+                window.location.href = "../Users/User/Dashboard"; // Remplacez par votre URL cible
+            }
+        }, 1000);
+</script>

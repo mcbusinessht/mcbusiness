@@ -1,0 +1,213 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Currencies.DetailsModel
+@using MCBusiness.Models
+
+@{
+    ViewData["Title"] = "Détails de la devise";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-info-circle me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="./Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Menu latéral -->
+                        <div class="col-md-3 mb-4 mb-md-0">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-currency-exchange me-2"></i>Menu Devises
+                                    </h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="list-group list-group-flush">
+                                        <a asp-page="./Index" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-list-ul me-2"></i>Liste des devises
+                                        </a>
+                                        <a asp-page="./Create" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-plus-circle me-2"></i>Ajouter une devise
+                                        </a>
+                                        <a asp-page="./Details" class="list-group-item list-group-item-action active">
+                                            <i class="bi bi-info-circle me-2"></i>Détails devise
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Détails de la devise -->
+                        <div class="col-md-9">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <div class="text-center mb-4">
+                                        <span class="display-4">
+                                            @{
+                                                var symbol = Model.Currency.CurrencyBase switch
+                                                {
+                                                    CurrencyCode.EUR => "€",
+                                                    CurrencyCode.USD => "$",
+                                                    CurrencyCode.HTG => "HTG",
+                                                    CurrencyCode.CAD => "CA$",
+                                                    CurrencyCode.DOP => "RD$",
+                                                    CurrencyCode.GBP => "£",
+                                                    _ => Model.Currency.CurrencyBase.ToString()
+                                                };
+                                            }
+                                            <span class="badge bg-primary p-3">@symbol</span>
+                                        </span>
+                                        <h3 class="mt-3">@Model.Currency.CurrencyBase</h3>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="card mb-4">
+                                                <div class="card-header bg-light">
+                                                    <h5 class="mb-0">
+                                                        <i class="bi bi-info-square me-2"></i>Informations générales
+                                                    </h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <dl class="row">
+                                                        <dt class="col-sm-4 fw-bold">Code :</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span class="badge bg-info">@Model.Currency.CurrencyBase</span>
+                                                        </dd>
+
+                                                        <dt class="col-sm-4 fw-bold">Taux de change :</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span class="badge bg-success">
+                                                                1 HTG = @Model.Currency.RateToBase.ToString("N4") @Model.Currency.CurrencyBase
+                                                            </span>
+                                                        </dd>
+                                                    </dl>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="card-header bg-light">
+                                                    <h5 class="mb-0">
+                                                        <i class="bi bi-clock-history me-2"></i>Historique
+                                                    </h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <dl class="row">
+                                                        <dt class="col-sm-4 fw-bold">Dernière mise à jour :</dt>
+                                                        <dd class="col-sm-8">
+                                                            @Model.Currency.LastUpdated.ToString("dd/MM/yyyy HH:mm")
+                                                        </dd>
+
+                                                        <dt class="col-sm-4 fw-bold">Statut :</dt>
+                                                        <dd class="col-sm-8">
+                                                            @if (Model.Currency.IsDeleted)
+                                                            {
+                                                                <span class="badge bg-danger">Supprimée</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="badge bg-success">Active</span>
+                                                            }
+                                                        </dd>
+                                                    </dl>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end mt-4">
+                                        <a asp-page="./Index" class="btn btn-outline-secondary me-2">
+                                            <i class="bi bi-list-ul me-1"></i> Retour à la liste
+                                        </a>
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <a asp-page="./Edit" asp-route-id="@Model.Currency.Id" class="btn btn-primary">
+                                                <i class="bi bi-pencil me-1"></i> Modifier
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .list-group-item {
+            border-left: 0;
+            border-right: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .list-group-item:first-child {
+            border-top: 0;
+        }
+        
+        .list-group-item:last-child {
+            border-bottom: 0;
+        }
+        
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+        
+        .list-group-item.active:hover {
+            background-color: #0d6efd;
+            transform: none;
+        }
+        
+        .badge {
+            font-size: 0.85em;
+            padding: 0.5em 0.75em;
+        }
+        
+        .card {
+            border-radius: 0.5rem;
+        }
+        
+        .card-header {
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        dt {
+            color: #6c757d;
+        }
+        
+        dd {
+            padding: 8px 0;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .btn {
+            transition: all 0.2s ease;
+        }
+        
+        .display-4 .badge {
+            font-size: 2rem;
+            padding: 1rem;
+        }
+    </style>
+}

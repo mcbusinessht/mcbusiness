@@ -1,0 +1,157 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_Promotions_PromoCampaigns.CreateModel
+@{
+    ViewData["Title"] = "Nouvelle Campagne Promotionnelle";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-plus-circle me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="./Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <h5 class="border-bottom pb-2 mb-3"><i class="bi bi-card-heading me-2"></i>Informations de base</h5>
+                                    
+                                    <div class="mb-3">
+                                        <label asp-for="PromoCampaign.Name" class="form-label">
+                                            Nom de la campagne <span class="text-danger">*</span>
+                                        </label>
+                                        <input asp-for="PromoCampaign.Name" class="form-control" placeholder="Ex: Soldes d'été 2023" required />
+                                        <small class="text-muted">Donnez un nom clair et explicite à votre campagne</small>
+                                        <span asp-validation-for="PromoCampaign.Name" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" role="switch" asp-for="PromoCampaign.IsActive" checked />
+                                        <label class="form-check-label" asp-for="PromoCampaign.IsActive">Activer la campagne</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <h5 class="border-bottom pb-2 mb-3"><i class="bi bi-calendar-range me-2"></i>Période</h5>
+                                    
+                                    <div class="mb-3">
+                                        <label asp-for="PromoCampaign.StartDate" class="form-label">Date de début</label>
+                                        <input asp-for="PromoCampaign.StartDate" class="form-control" type="DateTimeOffset-local" 
+                                               value="@LocalTime.Format(DateTimeOffset.UtcNow, "yyyy-MM-ddTHH:mm")" />
+                                        <small class="text-muted">Date à laquelle la campagne devient active</small>
+                                        <span asp-validation-for="PromoCampaign.StartDate" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="PromoCampaign.EndDate" class="form-label">Date de fin</label>
+                                        <input asp-for="PromoCampaign.EndDate" class="form-control" type="DateTimeOffset-local" 
+                                               value="@LocalTime.ToLocal(DateTimeOffset.UtcNow).AddDays(7).ToString("yyyy-MM-ddTHH:mm")" />
+                                        <small class="text-muted">Date à laquelle la campagne se termine</small>
+                                        <span asp-validation-for="PromoCampaign.EndDate" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-page="./Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i> Créer la campagne
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Activation du style de validation Bootstrap
+        (function () {
+            'use strict'
+
+            var forms = document.querySelectorAll('.needs-validation')
+
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })();
+
+        // Validation des dates
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const startDate = new Date(document.getElementById('PromoCampaign_StartDate').value);
+            const endDate = new Date(document.getElementById('PromoCampaign_EndDate').value);
+            
+            if (startDate >= endDate) {
+                alert('La date de fin doit être postérieure à la date de début');
+                e.preventDefault();
+            }
+        });
+
+        // Définir la date de fin par défaut à +7 jours
+        document.getElementById('PromoCampaign_StartDate').addEventListener('change', function() {
+            const startDate = new Date(this.value);
+            const endDateInput = document.getElementById('PromoCampaign_EndDate');
+            
+            if (!endDateInput.value) {
+                const defaultEndDate = new Date(startDate);
+                defaultEndDate.setDate(startDate.getDate() + 7);
+                endDateInput.value = defaultEndDate.toISOString().slice(0, 16);
+            }
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+    </style>
+}

@@ -1,0 +1,246 @@
+﻿@page
+@using Microsoft.AspNetCore.Html
+@model MCBusiness.Pages_Users_Seller_Shipments_ShippingFees.DetailsModel
+@{
+    ViewData["Title"] = "Détails du Tarif de Livraison";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-3 d-none d-lg-block border-end">
+            <partial name="_SideBarPartial"/>
+        </div>
+        
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="display-6 fw-bold text-primary">
+                        <i class="bi bi-info-circle me-2"></i>@ViewData["Title"]
+                    </h1>
+                    <p class="text-muted mb-0">Détails complets du tarif de livraison</p>
+                </div>
+                <div>
+                    <a asp-page="./Edit" asp-route-id="@Model.ShippingFee.Id" class="btn btn-outline-primary me-2">
+                        <i class="bi bi-pencil me-2"></i>Modifier
+                    </a>
+                    <a asp-page="./Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Retour à la liste
+                    </a>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <div class="details-grid">
+                        <section class="details-section">
+                            <h5 class="text-primary mb-3">
+                                <i class="bi bi-building me-2"></i>Compagnie
+                            </h5>
+                            <dl class="details-list">
+                                <dt>Compagnie</dt>
+                                <dd>@ValueOrDash(Model.ShippingFee.Company?.Name)</dd>
+                                <dt>ID compagnie</dt>
+                                <dd>@Model.ShippingFee.CompanyId</dd>
+                                <dt>Adresse compagnie</dt>
+                                <dd>@ValueOrDash(Model.ShippingFee.Company?.Address)</dd>
+                            </dl>
+                        </section>
+
+                        <section class="details-section">
+                            <h5 class="text-primary mb-3">
+                                <i class="bi bi-geo-alt me-2"></i>Zone de livraison
+                            </h5>
+                            <dl class="details-list">
+                                <dt>Pays</dt>
+                                <dd>@ValueOrDash(Model.ShippingFee.Country?.Name) <span class="text-muted">(#@Model.ShippingFee.CountryId)</span></dd>
+                                <dt>Region / Etat</dt>
+                                <dd>@ValueOrDash(Model.ShippingFee.State?.Name) <span class="text-muted">(#@Model.ShippingFee.StateId)</span></dd>
+                                <dt>Ville</dt>
+                                <dd>@ValueOrDash(Model.ShippingFee.City?.Name) <span class="text-muted">(#@Model.ShippingFee.CityId)</span></dd>
+                                <dt>Quartier</dt>
+                                <dd>
+                                    @ValueOrDash(Model.ShippingFee.Neighborhood?.Name)
+                                    @if (Model.ShippingFee.NeighborhoodId.HasValue)
+                                    {
+                                        <span class="text-muted">(#@Model.ShippingFee.NeighborhoodId)</span>
+                                    }
+                                </dd>
+                            </dl>
+                        </section>
+
+                        <section class="details-section">
+                            <h5 class="text-primary mb-3">
+                                <i class="bi bi-cash-coin me-2"></i>Tarification
+                            </h5>
+                            <dl class="details-list">
+                                <dt>Prix historique</dt>
+                                <dd class="fw-semibold">@Money(Model.ShippingFee.Price)</dd>
+                                <dt>Prix de base</dt>
+                                <dd class="fw-semibold">@Money(Model.ShippingFee.BasePrice)</dd>
+                                <dt>Devise</dt>
+                                <dd>@ValueOrDash(Model.ShippingFee.Currency?.Code) @ValueOrDash(Model.ShippingFee.Currency?.Symbol) <span class="text-muted">(#@Model.ShippingFee.CurrencyBase)</span></dd>
+                                <dt>Type de colis</dt>
+                                <dd>@Model.ShippingFee.PackageType</dd>
+                                <dt>Tarif actif</dt>
+                                <dd>@StatusBadge(Model.ShippingFee.IsActive, "Actif", "Inactif")</dd>
+                                <dt>Devis requis</dt>
+                                <dd>@StatusBadge(Model.ShippingFee.QuoteRequired, "Oui", "Non")</dd>
+                            </dl>
+                        </section>
+
+                        <section class="details-section">
+                            <h5 class="text-primary mb-3">
+                                <i class="bi bi-calculator me-2"></i>Regles de calcul
+                            </h5>
+                            <dl class="details-list">
+                                <dt>Supplement par autre article</dt>
+                                <dd>@Money(Model.ShippingFee.AdditionalItemPrice)</dd>
+                                <dt>Supplement par unite additionnelle</dt>
+                                <dd>@Money(Model.ShippingFee.AdditionalUnitPrice)</dd>
+                                <dt>Prix par kg</dt>
+                                <dd>@MoneyOrDash(Model.ShippingFee.PricePerKg)</dd>
+                                <dt>Minimum</dt>
+                                <dd>@MoneyOrDash(Model.ShippingFee.MinPrice)</dd>
+                                <dt>Maximum</dt>
+                                <dd>@MoneyOrDash(Model.ShippingFee.MaxPrice)</dd>
+                            </dl>
+                        </section>
+
+                        <section class="details-section details-section-wide">
+                            <h5 class="text-primary mb-3">
+                                <i class="bi bi-database me-2"></i>Informations systeme
+                            </h5>
+                            <dl class="details-list details-list-wide">
+                                <dt>ID tarif</dt>
+                                <dd>@Model.ShippingFee.Id</dd>
+                                <dt>Version</dt>
+                                <dd>@Model.ShippingFee.Version</dd>
+                                <dt>Supprime logiquement</dt>
+                                <dd>@StatusBadge(Model.ShippingFee.IsDeleted, "Oui", "Non")</dd>
+                                <dt>Cree le</dt>
+                                <dd>@FormatDate(Model.ShippingFee.CreatedAt)</dd>
+                                <dt>Cree par</dt>
+                                <dd>@ValueOrDash(Model.ShippingFee.CreatedBy)</dd>
+                                <dt>Modifie le</dt>
+                                <dd>@FormatDate(Model.ShippingFee.ModifiedAt)</dd>
+                                <dt>Modifie par</dt>
+                                <dd>@ValueOrDash(Model.ShippingFee.ModifiedBy)</dd>
+                            </dl>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Menu mobile -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <partial name="_SideBarPartial"/>
+    </div>
+</div>
+
+<button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+        style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+        data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+    <i class="bi bi-list fs-4"></i>
+</button>
+
+@section Styles {
+    <style>
+        .card {
+            border: none;
+            box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.05);
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1.25rem;
+        }
+        .details-section {
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            background: #fff;
+        }
+        .details-section-wide {
+            grid-column: 1 / -1;
+        }
+        .details-list {
+            display: grid;
+            grid-template-columns: minmax(9rem, 0.42fr) 1fr;
+            gap: 0;
+            margin: 0;
+        }
+        .details-list dt,
+        .details-list dd {
+            padding: 0.65rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        .details-list dt {
+            color: #6c757d;
+            font-weight: 600;
+        }
+        .details-list dd {
+            margin: 0;
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+        .details-list dt:nth-last-of-type(1),
+        .details-list dd:nth-last-of-type(1) {
+            border-bottom: 0;
+        }
+        @@media (max-width: 767.98px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+            .details-list {
+                grid-template-columns: 1fr;
+            }
+            .details-list dt {
+                padding-bottom: 0.2rem;
+                border-bottom: 0;
+            }
+            .details-list dd {
+                padding-top: 0;
+            }
+        }
+    </style>
+}
+
+@functions {
+    private string ValueOrDash(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "-" : value;
+    }
+
+    private string Money(decimal value)
+    {
+        var symbol = Model.ShippingFee.Currency?.Symbol;
+        var code = Model.ShippingFee.Currency?.Code;
+        var prefix = string.IsNullOrWhiteSpace(symbol) ? code : symbol;
+        return string.IsNullOrWhiteSpace(prefix) ? value.ToString("N2") : $"{prefix} {value:N2}";
+    }
+
+    private string MoneyOrDash(decimal? value)
+    {
+        return value.HasValue ? Money(value.Value) : "-";
+    }
+
+    private string FormatDate(DateTimeOffset value)
+    {
+        return value == default ? "-" : LocalTime.Format(value, "yyyy-MM-dd HH:mm");
+    }
+
+    private IHtmlContent StatusBadge(bool value, string trueText, string falseText)
+    {
+        var css = value ? "bg-success" : "bg-secondary";
+        var text = value ? trueText : falseText;
+        return new HtmlString($"<span class=\"badge {css}\">{text}</span>");
+    }
+}

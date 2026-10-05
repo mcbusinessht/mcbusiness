@@ -1,0 +1,144 @@
+<div class="text-center mb-4">
+    <img src="@(string.IsNullOrEmpty(Model.CurrentUser?.ProfilePictureUrl) 
+        ? Url.Content("~/image/vector-illustration-depicting-ma.png") 
+        : Model.CurrentUser.ProfilePictureUrl)"
+        class="profile-pic mb-2" />
+
+    <h6 class="fw-bold mb-0">
+        @(Model.CurrentUser != null ? $"{Model.CurrentUser.FirstName} {Model.CurrentUser.LastName}" : "Utilisateur")
+    </h6>
+    <small class="text-muted">@Model.CurrentUser?.Email</small>
+</div>
+
+<hr />
+
+<nav class="nav flex-column sidebar-nav">
+    <!-- Dashboard Principal -->
+    <a asp-page="./Dashboard" class="nav-link"><i class="bi bi-speedometer2"></i> Dashboard Ambassadeur</a>
+    
+    <!-- Section Gains & Commissions -->
+    <div class="nav-section-header">
+        <small class="text-muted fw-bold px-3">GAINS & COMMISSIONS</small>
+    </div>
+    <a asp-page="./AmbassadorCommissions" class="nav-link"><i class="bi bi-currency-dollar"></i> Mes Commissions</a>
+    <a asp-page="./Withdrawals/WithdrawalMethods" class="nav-link"><i class="bi bi-bank"></i> Retrait</a>
+    <a asp-page="./Transaction" class="nav-link"><i class="bi bi-arrow-left-right"></i> Transactions</a>
+
+    <!-- Section Réseau -->
+    <div class="nav-section-header">
+        <small class="text-muted fw-bold px-3">RÉSEAU</small>
+    </div>
+    <a asp-page="./AmbassadorNetwork" class="nav-link"><i class="bi bi-people"></i> Mon Réseau</a>
+    <a asp-page="./AmbassadorLinks" class="nav-link"><i class="bi bi-link-45deg"></i> Liens de Parrainage</a>
+    <a class="nav-link" data-bs-toggle="modal" data-bs-target="#lienParrainageSmall">
+        <i class="bi bi-share"></i> Partager mon Code
+    </a>
+
+    <!-- Section Outils -->
+    <div class="nav-section-header">
+        <small class="text-muted fw-bold px-3">OUTILS</small>
+    </div>
+    <a asp-page="../../Deposit/PaymentMethods" class="nav-link"><i class="bi bi-cash-coin"></i> Dépôt</a>
+    <a asp-page="./Conversations/Chat" class="nav-link"><i class="bi bi-chat-dots"></i> Messagerie</a>
+    <a asp-page="./Notifications" class="nav-link"><i class="bi bi-bell"></i> Notifications</a>
+
+    <!-- Section Compte -->
+    <div class="nav-section-header">
+        <small class="text-muted fw-bold px-3">COMPTE</small>
+    </div>
+    <a asp-page="./Profil" class="nav-link"><i class="bi bi-person"></i> Profil</a>
+
+    @if (Model.ActiveSubscription != null)
+    {
+        <a asp-page="/Plans/Index" class="nav-link"><i class="bi bi-arrow-repeat"></i> Changer de plan</a>
+        <a class="nav-link text-warning" data-bs-toggle="modal" data-bs-target="#deletePlan">
+            <i class="bi bi-x-circle"></i> Désactiver le plan
+        </a>
+    }
+    else
+    {
+        <a asp-page="/Plans/Index" class="nav-link text-primary fw-bold"><i class="bi bi-cart-plus"></i> Acheter un plan</a>
+    }
+
+    <a asp-page="/HelpUs" class="nav-link"><i class="bi bi-question-circle"></i> Support</a>
+
+    <hr />
+
+    <a asp-page="/Account/Login" asp-page-handler="LogOut" class="nav-link text-danger">
+        <i class="bi bi-box-arrow-right"></i> Déconnexion
+    </a>
+</nav>
+<style>
+    .sidebar-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 1.5rem;
+        box-shadow: 0 8px 20px rgba(0,0,0,.08);
+    }
+
+    .profile-pic {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #f1f1f1;
+    }
+
+    .sidebar-nav .nav-link {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        padding: .7rem .9rem;
+        border-radius: 8px;
+        color: #212529;
+        transition: .2s;
+    }
+
+    .sidebar-nav .nav-link:hover {
+        background: rgba(31,72,117,.1);
+        color: #1f4875;
+    }
+
+    .sidebar-nav .nav-link i {
+        font-size: 1.1rem;
+    }
+
+    .sidebar-mobile {
+        max-width: 280px;
+    }
+
+    .nav-section-header {
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .nav-section-header small {
+        font-size: 0.7rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: #6c757d;
+    }
+
+    /* Dark mode adaptations */
+    [data-theme="dark"] .sidebar-card {
+        background: #1e2732 !important;
+        box-shadow: 0 8px 20px rgba(0,0,0,.3) !important;
+    }
+
+    [data-theme="dark"] .profile-pic {
+        border-color: rgba(26, 140, 255, 0.15) !important;
+    }
+
+    [data-theme="dark"] .sidebar-nav .nav-link {
+        color: #f0f4f8 !important;
+    }
+
+    [data-theme="dark"] .sidebar-nav .nav-link:hover {
+        background: #2a3441 !important;
+        color: #1a8cff !important;
+    }
+
+    [data-theme="dark"] .nav-section-header small {
+        color: #94a3b8 !important;
+    }
+</style>

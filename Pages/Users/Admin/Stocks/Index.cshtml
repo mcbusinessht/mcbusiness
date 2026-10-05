@@ -1,0 +1,48 @@
+﻿@page
+@model             MCBusiness.Pages.Users.Admin.Stocks.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<div class="row">
+    <div class="col table-responsive">
+
+        <table class="table table-striped">
+            <thead class="bg-primary">
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Stock[0].Quantity)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Stock[0].ProductVariant)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+        @foreach (var item in Model.Stock) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Quantity)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ProductVariant.Sku)
+                    </td>
+                    <td>
+                        <a asp-page="./Details" asp-route-id="@item.Id"><i   class="bi bi-ticket-detailed text-dark"></i> |</a>
+                        @if (User.IsInRole("Admin")){
+                            <a asp-page="./Edit" asp-route-id="@item.Id"><i   class="bi bi-pencil-square text-dark"></i> |</a> 
+                            <a asp-page="./Delete" asp-route-id="@item.Id"><i   class="bi bi-trash text-dark"></i></a>
+                        }
+                    </td>
+                </tr>
+        }
+            </tbody>
+        </table>
+    </div>
+</div>

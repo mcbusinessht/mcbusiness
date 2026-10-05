@@ -1,0 +1,96 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Users.DeleteModel
+@{
+    ViewData["Title"] = "Désactiver l'utilisateur";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial"/>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-warning text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-exclamation-triangle me-2"></i>Désactiver l'utilisateur
+                        </h5>
+                        <span class="badge bg-light text-dark fs-6">
+                            @Model.ApplicationUser.FirstName @Model.ApplicationUser.LastName
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h4 class="alert-heading text-center fw-bold">
+                            <i class="bi bi-exclamation-octagon"></i> Attention!
+                        </h4>
+                        <p class="text-center">
+                            Êtes-vous sûr de vouloir désactiver cet utilisateur ?<br>
+                            L'utilisateur ne pourra plus se connecter mais ses données seront conservées.
+                        </p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="bi bi-person-circle me-2"></i>Informations personnelles</h6>
+                                </div>
+                                <div class="card-body">
+                                    <dl class="row">
+                                        <dt class="col-sm-4">Nom complet</dt>
+                                        <dd class="col-sm-8">@Model.ApplicationUser.FirstName @Model.ApplicationUser.LastName</dd>
+                                        
+                                        <dt class="col-sm-4">Genre</dt>
+                                        <dd class="col-sm-8">@Model.ApplicationUser.Gender</dd>
+                                        
+                                        <dt class="col-sm-4">Photo</dt>
+                                        <dd class="col-sm-8">
+                                            <img src="@Model.ApplicationUser.ProfilePictureUrl" class="rounded-circle" width="60" height="60" alt="Photo profil">
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="bi bi-envelope me-2"></i>Contact</h6>
+                                </div>
+                                <div class="card-body">
+                                    <dl class="row">
+                                        <dt class="col-sm-4">Email</dt>
+                                        <dd class="col-sm-8">@Model.ApplicationUser.Email</dd>
+                                        
+                                        <dt class="col-sm-4">Téléphone</dt>
+                                        <dd class="col-sm-8">@Model.ApplicationUser.PhoneNumber</dd>
+                                        
+                                        <dt class="col-sm-4">Nom d'utilisateur</dt>
+                                        <dd class="col-sm-8">@Model.ApplicationUser.UserName</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                        <form method="post">
+                            <input type="hidden" asp-for="ApplicationUser.Id" />
+                            <button type="submit" class="btn btn-danger me-md-2 px-4">
+                                <i class="bi bi-person-x me-2"></i>Confirmer la désactivation
+                            </button>
+                            <a asp-page="./Index" class="btn btn-secondary px-4">
+                                <i class="bi bi-arrow-left me-2"></i>Annuler
+                            </a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

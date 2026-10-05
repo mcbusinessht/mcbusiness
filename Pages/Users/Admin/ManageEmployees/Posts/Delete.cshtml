@@ -1,0 +1,113 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_ManageEmployees_Posts.DeleteModel
+=
+@{
+    ViewData["Title"] = "Supprimer un poste";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-danger text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-exclamation-triangle me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Annuler
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="alert alert-warning" role="alert">
+                        <h5 class="alert-heading">
+                            <i class="bi bi-exclamation-octagon-fill me-2"></i>Attention !
+                        </h5>
+                        <p>
+                            Vous êtes sur le point de supprimer définitivement ce poste. Cette action est irréversible.
+                            Veuillez vérifier que ce poste n'est plus utilisé avant de continuer.
+                        </p>
+                        <hr>
+                        <p class="mb-0">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Poste à supprimer : <strong>@Model.Post.Name</strong>
+                        </p>
+                    </div>
+
+                    <div class="card mb-4 border-danger">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="bi bi-briefcase me-2"></i>Détails du poste
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-3 text-muted">Nom du poste</dt>
+                                <dd class="col-sm-9">@Html.DisplayFor(model => model.Post.Name)</dd>
+
+                                <!-- Vous pouvez ajouter d'autres informations ici -->
+                                <!--
+                                <dt class="col-sm-3 text-muted">Employés associés</dt>
+                                <dd class="col-sm-9">
+                                    <span class="badge bg-warning text-dark">3 employés</span>
+                                </dd>
+                                -->
+                            </dl>
+                        </div>
+                    </div>
+
+                    <form method="post" class="mt-4">
+                        <input type="hidden" asp-for="Post.Id" />
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-page="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Retour à la liste
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash3 me-1"></i> Confirmer la suppression
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer bg-light">
+                    <div class="small text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        ID du poste: @Model.Post.Id | 
+                        Dernière vérification: @LocalTime.Format(DateTimeOffset.UtcNow, "dd/MM/yyyy HH:mm")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 0.5rem;
+        }
+        
+        .btn {
+            border-radius: 0.25rem;
+        }
+        
+        .alert-warning {
+            border-left: 4px solid #ffc107;
+        }
+        
+        .border-danger {
+            border-left: 4px solid #dc3545 !important;
+        }
+        
+        dt.text-muted {
+            font-weight: 500;
+        }
+    </style>
+}

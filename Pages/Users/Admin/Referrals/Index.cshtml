@@ -1,0 +1,254 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Referrals.IndexModel
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+@{
+    ViewData["Title"] = "Gestion des Parrainages";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-people-fill me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <div>
+                            <a asp-page="./../Dashboard" class="btn btn-sm btn-light me-2">
+                                <i class="bi bi-arrow-left me-1"></i> Dashboard
+                            </a>
+                            <a asp-page="Create" class="btn btn-sm btn-light">
+                                <i class="bi bi-plus-circle me-1"></i> Nouveau Parrainage
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                                <input type="text" id="searchInput" class="form-control" placeholder="Rechercher un parrainage...">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="bonusFilter">
+                                <option value="">Tous les montants</option>
+                                <option value="10">10 € et plus</option>
+                                <option value="20">20 € et plus</option>
+                                <option value="50">50 € et plus</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex justify-content-end">
+                            <button class="btn btn-outline-secondary" id="resetFilters">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="referralsTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="sortable" data-sort="referrer">
+                                        <i class="bi bi-person-plus me-1"></i>
+                                        Parrain
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-sort="referred">
+                                        <i class="bi bi-person-check me-1"></i>
+                                        Filleul
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-sort="date">
+                                        <i class="bi bi-calendar me-1"></i>
+                                        Date
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-sort="bonus">
+                                        <i class="bi bi-currency-euro me-1"></i>
+                                        Bonus
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="text-end">
+                                        <i class="bi bi-gear me-1"></i>
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Referral)
+                                {
+                                    <tr data-bonus="0"> @* BonusAmount supprimé *@
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-primary me-2">@item.Referrer?.UserName</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-success me-2">@item.Referred?.UserName</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @item.ReferredDate.ToString("dd/MM/yyyy")
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-warning text-dark">0,00 €</span> @* BonusAmount supprimé *@
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="btn-group" role="group">
+                                                <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Détails">
+                                                    <i class="bi bi-info-circle"></i>
+                                                </a>
+                                                @if (User.IsInRole("Admin"))
+                                                {
+                                                    <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Modifier">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Supprimer">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="small text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <span id="totalCount">@Model.Referral.Count</span> parrainages enregistrés
+                        </div>
+                        <a asp-page="Create" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-circle me-1"></i> Ajouter un parrainage
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Filtrage par recherche
+            $('#searchInput').keyup(function() {
+                const searchText = $(this).val().toLowerCase();
+                filterTable(searchText);
+            });
+
+            // Filtrage par bonus
+            $('#bonusFilter').change(function() {
+                const minBonus = $(this).val();
+                filterTable('', minBonus);
+            });
+
+            // Réinitialisation des filtres
+            $('#resetFilters').click(function() {
+                $('#searchInput').val('');
+                $('#bonusFilter').val('');
+                filterTable('', '');
+            });
+
+            // Tri des colonnes
+            $('.sortable').click(function() {
+                const sortBy = $(this).data('sort');
+                // Implémentez la logique de tri ici
+                console.log('Tri par: ' + sortBy);
+            });
+
+            function filterTable(searchText = '', minBonus = '') {
+                let visibleCount = 0;
+                
+                $('#referralsTable tbody tr').each(function() {
+                    const referrer = $(this).find('td:first').text().toLowerCase();
+                    const referred = $(this).find('td:nth-child(2)').text().toLowerCase();
+                    const rowBonus = parseFloat($(this).data('bonus'));
+                    const matchSearch = searchText === '' || 
+                                      referrer.includes(searchText) || 
+                                      referred.includes(searchText);
+                    const matchBonus = minBonus === '' || rowBonus >= parseFloat(minBonus);
+                    
+                    if (matchSearch && matchBonus) {
+                        $(this).show();
+                        visibleCount++;
+                    } else {
+                        $(this).hide();
+                    }
+                });
+                
+                $('#totalCount').text(visibleCount);
+            }
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .sort-icon {
+            font-size: 0.8em;
+            opacity: 0.5;
+            margin-left: 5px;
+        }
+        
+        .sortable:hover .sort-icon {
+            opacity: 1;
+        }
+        
+        .badge {
+            font-size: 0.85em;
+            padding: 0.35em 0.65em;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .btn-group .btn {
+            border-radius: 0.25rem !important;
+        }
+        
+        .input-group-text {
+            background-color: #f8f9fa;
+        }
+        
+        .card-header {
+            border-bottom: none;
+        }
+        
+        /* Style pour les badges */
+ 
+        .bg-success {
+            background-color: #198754 !important;
+        }
+        .bg-warning {
+            background-color: #ffc107 !important;
+            color: #212529 !important;
+        }
+    </style>
+}

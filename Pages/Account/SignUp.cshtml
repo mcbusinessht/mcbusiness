@@ -1,0 +1,575 @@
+﻿@page
+@model MCBusiness.Pages.Account.SignUpModel
+@{
+    ViewData["Title"] = "Inscription";
+    Layout = "/Pages/Shared/_MinimalLayout.cshtml";
+}            
+
+<div class="container-fluid d-flex align-items-center justify-content-center min-vh-100  py-4">
+    <div class="col-xl-5 col-lg-6 col-md-8 col-sm-10 col-12">  
+        <div class="card border-0 shadow-lg overflow-hidden" id="signupCard">
+            <!-- Card Header with Gradient Background -->
+            <div class="card-header bg-primary text-white py-4 position-relative overflow-hidden">
+                <div class="position-absolute w-100 h-100 top-0 start-0" style="background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%);"></div>
+                <h4 class="text-center mb-0 position-relative">Créer votre compte MC Business</h4>
+                <p class="text-center mb-0 position-relative small mt-2">Commencez à acheter, vendre et gérer votre business en toute simplicité.</p>
+            </div>
+            
+            <!-- Card Body -->
+            <div class="card-body p-4">
+                <form id="signUpForm" method="post" onsubmit="return validateFinalForm()">
+                    
+                    <!-- ===== SECTION 1 - ESSENTIEL (VISIBLE PAR DÉFAUT) ===== -->
+                    <div id="section1" class="signup-section">
+                        <!-- Progress Indicator -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <span class="badge bg-primary rounded-pill px-3 py-2">
+                                    <i class="bi bi-person-plus me-2"></i>Étape 1/2
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Email Field -->
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Email" type="email" class="form-control" required placeholder="monexemple@gmail.com" />
+                            <label asp-for="Input.Email">Adresse e-mail<span class="text-danger">*</span></label>
+                            @if(ModelState.ContainsKey("ErrorEmailKey")){
+                                <span class="text-danger small">@ModelState["ErrorEmailKey"].Errors[0].ErrorMessage</span>
+                            }
+                        </div>
+
+                        <!-- Phone Number Field -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Numéro de téléphone<span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <select asp-for="Input.CodeNumber" 
+                                        class="form-select" 
+                                        style="max-width: 100px;" 
+                                        id="countryCodeSelect" 
+                                        name="Input.CodeNumber">
+                                    <option value="">Chargement...</option>
+                                </select>
+                                <input asp-for="Input.PhoneNumber" type="number" class="form-control" required placeholder="30 00 0000" />
+                            </div>
+                            <span asp-validation-for="Input.PhoneNumber" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-floating mb-3 position-relative">
+                            <input asp-for="Input.Password" id="password" type="password" class="form-control" required placeholder="Mot de passe" onkeyup="validatePassword()" />
+                            <label asp-for="Input.Password">Mot de passe<span class="text-danger">*</span></label>
+                            <button class="btn btn-outline-secondary position-absolute end-0 top-50 translate-middle-y me-2 toggle-password" type="button" tabindex="-1">
+                                <i class="bi bi-eye-fill"></i>
+                            </button>
+                            <div id="passwordError" class="invalid-feedback d-block"></div>
+                        </div>
+
+                        <!-- Password Indicators -->
+                        <div class="mb-3">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <span id="length" class="badge d-flex align-items-center"><span class="indicator-icon me-2">🔴</span> 8 caractères</span>
+                                </div>
+                                <div class="col-6">
+                                    <span id="uppercase" class="badge d-flex align-items-center"><span class="indicator-icon me-2">🔴</span> Majuscule</span>
+                                </div>
+                                <div class="col-6">
+                                    <span id="lowercase" class="badge d-flex align-items-center"><span class="indicator-icon me-2">🔴</span> Minuscule</span>
+                                </div>
+                                <div class="col-6">
+                                    <span id="number" class="badge d-flex align-items-center"><span class="indicator-icon me-2">🔴</span> Chiffre</span>
+                                </div>
+                                <div class="col-6">
+                                    <span id="specialChar" class="badge d-flex align-items-center"><span class="indicator-icon me-2">🔴</span> Spécial</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.ConfirmPassword" id="confirmPassword" type="password" class="form-control" required placeholder="Confirmation de mot de passe" onkeyup="validatePasswordMatch()" />
+                            <label asp-for="Input.ConfirmPassword">Confirmation du mot de passe<span class="text-danger">*</span></label>
+                            <div id="confirmPasswordError" class="text-danger small"></div>
+                            <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Continuer Button -->
+                        <div class="d-grid mb-3">
+                            <button type="button" class="btn btn-primary btn-lg rounded-pill py-2 fw-bold" id="continueButton" onclick="showSection2()">
+                                Continuer
+                                <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ===== SECTION 2 - INFORMATIONS PERSONNELLES ===== -->
+                    <div id="section2" class="signup-section" style="display: none;">
+                        <!-- Progress Indicator -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <span class="badge bg-success rounded-pill px-3 py-2">
+                                    <i class="bi bi-check-circle me-2"></i>Étape 2/2
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Name Fields -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="Input.FirstName" class="form-control" required placeholder="Prénom" />
+                                    <label asp-for="Input.FirstName">Prénom<span class="text-danger">*</span></label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="Input.LastName" class="form-control" required placeholder="Nom" />
+                                    <label asp-for="Input.LastName">Nom<span class="text-danger">*</span></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Username Field (Optional) -->
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.UserName" class="form-control" oninput="this.value = this.value.replace(/\s/g, '')" id="usernameField" placeholder="Nom d'utilisateur (optionnel)" />
+                            <label for="usernameField">Nom d'utilisateur <span class="text-muted small">(optionnel)</span></label>
+                            <div id="userNameError" class="invalid-feedback d-block"></div>
+                            @if(ModelState.ContainsKey("CustomErrorKey1")){
+                                <span class="text-danger small">@ModelState["CustomErrorKey1"].Errors[0].ErrorMessage</span>
+                            }
+                            <span asp-validation-for="Input.UserName" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Gender Field (Optional) -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Sexe <span class="text-muted small">(optionnel)</span></label>
+                            <div class="d-flex justify-content-between bg-light p-3 rounded">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" asp-for="Input.Gender" value="M" id="genderMale">
+                                    <label class="form-check-label" for="genderMale">Masculin</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" asp-for="Input.Gender" value="F" id="genderFemale">
+                                    <label class="form-check-label" for="genderFemale">Féminin</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" asp-for="Input.Gender" value="O" id="genderOther">
+                                    <label class="form-check-label" for="genderOther">Autre</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" asp-for="Input.Gender" value="" id="genderNone" checked>
+                                    <label class="form-check-label" for="genderNone">Ne pas préciser</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lien Code Parrainage -->
+                        <div class="text-center mb-3">
+                            <a href="#" class="text-decoration-none text-muted small" onclick="toggleReferralSection(); return false;">
+                                <i class="bi bi-gift me-1"></i>Vous avez un code de parrainage ?
+                            </a>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-secondary w-100" onclick="showSection1()">
+                                    <i class="bi bi-arrow-left me-2"></i>Retour
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-primary w-100" onclick="proceedToFinal()">
+                                    Finaliser
+                                    <i class="bi bi-check me-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== SECTION 3 - CODE PARRAINAGE (MASQUÉE PAR DÉFAUT) ===== -->
+                    <div id="section3" class="signup-section" style="display: none;">
+                        <div class="mb-3">
+                            <h6 class="text-center mb-3">
+                                <i class="bi bi-gift text-primary me-2"></i>Code de parrainage
+                            </h6>
+                        </div>
+
+                        <!-- Referral Code Field -->
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.ReferralCode" id="referrerC" class="form-control" placeholder="exemple: AAA1234" value="@(string.IsNullOrEmpty(Model.ReferralCode) ? null : Model.ReferralCode)" />
+                            <label for="referrerC">Code de parrainage (Optionnel)</label>
+                            @if(ModelState.ContainsKey("ErrorCodeParrainageKey")){
+                                <span class="text-danger small">@ModelState["ErrorCodeParrainageKey"].Errors[0].ErrorMessage</span>
+                            }
+                            <div class="form-text">Laissez ce champ vide si vous n'avez pas de code de parrainage</div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-outline-primary" onclick="toggleReferralSection()">
+                                <i class="bi bi-check me-2"></i>Valider
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ===== SECTION FINALE - VALIDATION ===== -->
+                    <div id="sectionFinal" class="signup-section" style="display: none;">
+                        <!-- Progress Indicator -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <span class="badge bg-success rounded-pill px-3 py-2">
+                                    <i class="bi bi-shield-check me-2"></i>Finalisation
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="TM" required>
+                                <label class="form-check-label" for="TM">J'accepte les <a asp-page="/TermsAndConditions">termes et conditions</a></label>
+                            </div>
+                        </div>
+
+                        <!-- reCAPTCHA -->
+                        <div class="g-recaptcha mb-2" data-sitekey="@Model.ReCaptchaSiteKey"></div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-secondary w-100" onclick="showSection2()">
+                                    <i class="bi bi-arrow-left me-2"></i>Retour
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button type="submit" class="btn btn-success btn-lg w-100" id="signupButton">
+                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                    <i class="bi bi-check-circle me-2"></i>Finaliser l'inscription
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Login Link -->
+                        <div class="text-center">
+                            <a asp-page="../Account/Login" class="text-decoration-none">Vous avez déjà un compte ?</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css"/>
+    <style>
+        /* Custom styles */
+        #signupCard {
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        #signupCard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .card-header {
+            border-radius: 0 !important;
+        }
+        
+        .form-floating label {
+            color: #6c757d;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        
+        .badge {
+            padding: 0.35em 0.65em;
+            font-weight: 500;
+            background-color: #6c757d;
+            color: #ffffff;
+            width: 100%;
+            border: 2px solid #6c757d;
+        }
+        
+        .badge.text-success {
+            background-color: #198754 !important;
+            color: #ffffff !important;
+            border-color: #198754;
+        }
+        
+        .badge.text-danger {
+            background-color: #dc3545 !important;
+            color: #ffffff !important;
+            border-color: #dc3545;
+        }
+        
+        .indicator-icon {
+            transition: all 0.3s ease;
+        }
+        
+        /* Password indicators */
+        .text-success .indicator-icon {
+            content: "🟢";
+            color: #198754;
+        }
+        
+        .text-danger .indicator-icon {
+            content: "🔴";
+            color: #dc3545;
+        }
+        
+        /* Radio button styling */
+        .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        
+        /* Animation for invalid fields */
+        .is-invalid {
+            animation: shake 0.5s;
+        }
+        
+        @@keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        
+        /* Terms and conditions scrollbar */
+        .form-control::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .form-control::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        .form-control::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        .form-control::-webkit-scrollbar-thumb:hover {
+            background: #555;                         
+        }
+    </style>
+}
+
+@section Scripts {
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script src="~/js/signup-validation.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialiser le code de parrainage depuis l'URL
+    handleReferralCodeFromURL();
+    // ---- Toggle mot de passe ----
+    const togglePassword = document.querySelector('.toggle-password');
+    const password = document.querySelector('#password');
+    if (togglePassword && password) {
+        togglePassword.addEventListener('click', function() {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('bi-eye-fill');
+            this.querySelector('i').classList.toggle('bi-eye-slash-fill');
+        });
+    }
+
+    // ---- Remplir les codes pays ----
+    const select = document.getElementById('countryCodeSelect');
+    if (select) {
+        fetch('https://restcountries.com/v3.1/all')
+        .then(res => res.json())
+        .then(data => {
+            select.innerHTML = '';
+
+            // Pays à mettre en tête
+            const defaultCountries = [
+                { name: "Haiti", code: "+509" },
+                { name: "United States", code: "+1" },
+                { name: "France", code: "+33" }
+            ];
+
+            // Construire la liste
+            const countries = data
+                .filter(c => c.idd && c.idd.root)
+                .flatMap(c =>
+                    (c.idd.suffixes || [""]).map(suffix => ({
+                        name: c.name.common,
+                        code: `${c.idd.root}${suffix}`
+                    }))
+                )
+                .filter(c => c.code !== "+")
+                .sort((a, b) => a.name.localeCompare(b.name));
+
+            // Ajouter les 3 pays obligatoires en tête
+            defaultCountries.reverse().forEach(dc => {
+                if (!countries.some(c => c.code === dc.code)) {
+                    countries.unshift(dc);
+                } else {
+                    // même s'ils existent, on les remet en tête
+                    countries.unshift(dc);
+                }
+            });
+
+            // Remplissage du select
+            countries.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.code.replace('+', '');
+                opt.textContent = `${c.name} (${c.code})`;
+                select.appendChild(opt);
+            });
+        })
+        .catch(err => {
+            console.error('Erreur chargement codes:', err);
+            select.innerHTML = `
+                <option value="509">Haïti (+509)</option>
+                <option value="1">États-Unis/Canada (+1)</option>
+                <option value="33">France (+33)</option>
+            `;
+            document.getElementById('countryCodeError').classList.remove('d-none');
+        });
+    }
+
+    // ---- Préremplir ReferralCode si présent dans l’URL ----
+    const urlParams = new URLSearchParams(window.location.search);
+    const referralCode = urlParams.get('referralCode');
+    if (referralCode) {
+        const referrerInput = document.getElementById("referrerC");
+        if (referrerInput) referrerInput.value = referralCode;
+    }
+
+    // ---- Init validation password ----
+    validatePassword();
+});
+
+// ---- Validation formulaire ----
+// Validation finale lors de la soumission du formulaire
+function validateFinalForm() {
+    // Vérifier que toutes les sections sont valides
+    if (!validateSection1() || !validateSection2()) {
+        alert('Veuillez compléter toutes les informations requises.');
+        return false;
+    }
+    
+    // Validation reCAPTCHA
+    @* const recaptchaResponse = grecaptcha.getResponse();
+    if (!recaptchaResponse) {
+        alert('Veuillez valider le reCAPTCHA.');
+        return false;
+    } *@
+    
+    // Validation termes et conditions
+    const termsAccepted = document.getElementById('TM').checked;
+    if (!termsAccepted) {
+        alert('Veuillez accepter les termes et conditions.');
+        return false;
+    }
+    
+    return true;
+}
+
+// Ancienne fonction de validation (conservée pour compatibilité)
+function validateForm() {
+    let isValid = true;
+    document.getElementById("userNameError").innerText = "";
+    document.getElementById("passwordError").innerText = "";
+
+    const userName = document.getElementById("usernameField").value;
+    const password = document.querySelector('input[name="Input.Password"]').value;
+
+    if (!isPasswordStrong(password)) {
+        document.getElementById("passwordError").innerText = "Le mot de passe ne respecte pas les exigences de sécurité.";
+        isValid = false;
+    }
+
+    checkUserName(userName).then(exists => {
+        if (exists) {
+            document.getElementById("userNameError").innerText = "Ce nom d'utilisateur est déjà pris.";
+            isValid = false;
+        }
+    });
+
+    if (isValid) {
+        const button = document.getElementById("signupButton");
+        const spinner = button.querySelector('.spinner-border');
+        spinner.classList.remove('d-none');
+        button.disabled = true;
+    }
+
+    return isValid;
+}
+
+// ---- Vérification mot de passe fort ----
+function isPasswordStrong(password) {
+    return password.length >= 8 && 
+           /[a-z]/.test(password) && 
+           /[A-Z]/.test(password) && 
+           /\d/.test(password) &&
+           /[^a-zA-Z0-9]/.test(password);
+}
+
+// ---- Vérification username dispo ----
+async function checkUserName(userName) {
+    const response = await fetch(`/api/check-username?username=${userName}`);
+    const data = await response.json();
+    return data.exists;
+}
+
+// ---- Validation en live mot de passe ----
+function validatePassword() {
+    let password = document.getElementById("password").value;
+    updateIndicator("length", password.length >= 8);
+    updateIndicator("uppercase", /[A-Z]/.test(password));
+    updateIndicator("lowercase", /[a-z]/.test(password));
+    updateIndicator("number", /[0-9]/.test(password));
+    updateIndicator("specialChar", /[^a-zA-Z0-9]/.test(password));
+    
+    // Vérifier également la correspondance si confirmation déjà saisie
+    validatePasswordMatch();
+}
+
+// ---- Validation correspondance mot de passe en temps réel ----
+function validatePasswordMatch() {
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    const errorDiv = document.getElementById('confirmPasswordError');
+    const confirmField = document.getElementById("confirmPassword");
+
+    if (confirmPassword && password !== confirmPassword) {
+        errorDiv.textContent = '❌ Les mots de passe ne correspondent pas.';
+        errorDiv.style.color = '#dc3545';
+        confirmField.classList.add('is-invalid');
+    } else if (confirmPassword && password === confirmPassword) {
+        errorDiv.textContent = '✅ Les mots de passe correspondent.';
+        errorDiv.style.color = '#198754';
+        confirmField.classList.remove('is-invalid');
+    } else {
+        errorDiv.textContent = '';
+        confirmField.classList.remove('is-invalid');
+    }
+}
+
+function updateIndicator(id, isValid) {
+    let element = document.getElementById(id);
+    if (element) {
+        const icon = element.querySelector('.indicator-icon');
+        if (isValid) {
+            element.classList.remove("text-danger");
+            element.classList.add("text-success");
+            icon.textContent = "🟢";
+        } else {
+            element.classList.remove("text-success");
+            element.classList.add("text-danger");
+            icon.textContent = "🔴";
+        }
+    }
+}
+</script>
+}

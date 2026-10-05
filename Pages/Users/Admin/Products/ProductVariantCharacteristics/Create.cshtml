@@ -1,0 +1,46 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Products.ProductVariantCharacteristics.CreateModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>ProductVariantCharacteristic</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ProductVariantCharacteristic.Id" class="control-label"></label>
+                <input asp-for="ProductVariantCharacteristic.Id" class="form-control" />
+                <span asp-validation-for="ProductVariantCharacteristic.Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProductVariantCharacteristic.ProductVariantId" class="control-label"></label>
+                <select asp-for="ProductVariantCharacteristic.ProductVariantId" class ="form-control" asp-items="ViewBag.ProductVariantId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProductVariantCharacteristic.CharacteristicId" class="control-label"></label>
+                <select asp-for="ProductVariantCharacteristic.CharacteristicId" class ="form-control" asp-items="ViewBag.CharacteristicId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProductVariantCharacteristic.CharacteristicValueId" class="control-label"></label>
+                <select asp-for="ProductVariantCharacteristic.CharacteristicValueId" class ="form-control" asp-items="ViewBag.CharacteristicValueId"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

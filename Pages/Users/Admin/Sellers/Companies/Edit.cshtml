@@ -1,0 +1,366 @@
+@page
+@model MCBusiness.Pages.Users.Admin.Sellers.Companies.EditModel
+@{
+    ViewData["Title"] = "Modifier l'entreprise";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-pencil-square me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="./Details" asp-route-id="@Model.Company.Id" class="btn btn-sm btn-light">
+                            <i class="bi bi-eye me-1"></i> Voir détails
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        <input type="hidden" asp-for="Company.Id" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row g-4">
+                            <!-- Colonne 1 -->
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <select asp-for="Company.SellerId" class="form-select" asp-items="ViewBag.FournisseurId" required>
+                                        <option value="">Sélectionnez un fournisseur</option>
+                                    </select>
+                                    <label asp-for="Company.SellerId" class="form-label"></label>
+                                    <span asp-validation-for="Company.SellerId" class="text-danger small"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Company.Name" class="form-control" placeholder=" " required />
+                                    <label asp-for="Company.Name" class="form-label"></label>
+                                    <span asp-validation-for="Company.Name" class="text-danger small"></span>
+                                </div>
+
+                                <!-- Secteurs d'activité -->
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <span class="text-danger">*</span> Secteurs d'activité
+                                    </label>
+                                    <div class="card">
+                                        <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+                                            @{
+                                                var companySectorCategories = ViewData["CompanySectorCategories"] as List<MCBusiness.Models.Category>;
+                                            }
+                                            @if (companySectorCategories != null && companySectorCategories.Any())
+                                            {
+                                                @foreach (var category in companySectorCategories)
+                                                {
+                                                    <div class="form-check mb-2">
+                                                        <input class="form-check-input sector-checkbox" 
+                                                               type="checkbox" 
+                                                               name="SelectedCompanySectorIds" 
+                                                               value="@category.Id" 
+                                                               id="sector_@category.Id"
+                                                               @(Model.SelectedCompanySectorIds?.Contains(category.Id) == true ? "checked" : "") />
+                                                        <label class="form-check-label" for="sector_@category.Id">
+                                                            @category.Name
+                                                        </label>
+                                                    </div>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <p class="text-muted">Aucun secteur d'activité disponible. <a href="/Users/Admin/Categories/Create">Créer un secteur</a></p>
+                                            }
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="SelectedCompanySectorIds" class="text-danger small"></span>
+                                </div>
+
+                                <!-- Secteur primaire -->
+                                <div class="mb-3">
+                                    <label class="form-label">Secteur primaire (optionnel)</label>
+                                    <select asp-for="PrimarySectorId" class="form-select" id="primary-sector-select">
+                                        <option value="">Sélectionnez un secteur primaire</option>
+                                        @if (companySectorCategories != null)
+                                        {
+                                            @foreach (var category in companySectorCategories)
+                                            {
+                                                <option value="@category.Id" 
+                                                        style="display: none;" 
+                                                        data-sector-id="@category.Id"
+                                                        selected="@(Model.PrimarySectorId == category.Id)">
+                                                    @category.Name
+                                                </option>
+                                            }
+                                        }
+                                    </select>
+                                    <div class="form-text">Le secteur primaire doit être sélectionné parmi les secteurs cochés ci-dessus.</div>
+                                    <span asp-validation-for="PrimarySectorId" class="text-danger small"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Company.PhoneNumber" class="form-control" placeholder=" " required />
+                                    <label asp-for="Company.PhoneNumber" class="form-label"></label>
+                                    <span asp-validation-for="Company.PhoneNumber" class="text-danger small"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Company.Email" type="email" class="form-control" placeholder=" " required />
+                                    <label asp-for="Company.Email" class="form-label"></label>
+                                    <span asp-validation-for="Company.Email" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <!-- Colonne 2 -->
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="AddressLine1" class="form-control" placeholder=" " required />
+                                    <label asp-for="AddressLine1" class="form-label">Adresse</label>
+                                    <span asp-validation-for="AddressLine1" class="text-danger small"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <select asp-for="CountryId" class="form-select" id="countrySelect" required>
+                                        <option value="" disabled selected>Choisissez un pays</option>
+                                        @foreach (var country in Model.Countries)
+                                        {
+                                            <option value="@country.Id" selected="@(Model.CountryId == country.Id ? "selected" : null)">@country.Name</option>
+                                        }
+                                    </select>
+                                    <label asp-for="CountryId" class="form-label">Pays</label>
+                                    <span asp-validation-for="CountryId" class="text-danger small"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <select asp-for="StateId" class="form-select" id="stateSelect" required>
+                                        <option value="" disabled selected>Chargement...</option>
+                                    </select>
+                                    <label asp-for="StateId" class="form-label">État/Département</label>
+                                    <span asp-validation-for="StateId" class="text-danger small"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <select asp-for="CityId" class="form-select" id="citySelect" required>
+                                        <option value="" disabled selected>Chargement...</option>
+                                    </select>
+                                    <label asp-for="CityId" class="form-label">Ville</label>
+                                    <span asp-validation-for="CityId" class="text-danger small"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Company.WebSite" type="url" class="form-control" placeholder=" " />
+                                    <label asp-for="Company.WebSite" class="form-label"></label>
+                                    <span asp-validation-for="Company.WebSite" class="text-danger small"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Company.CreationDate" type="date" class="form-control" placeholder=" " />
+                                    <label asp-for="Company.CreationDate" class="form-label">Date de création</label>
+                                    <span asp-validation-for="Company.CreationDate" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-save me-2"></i> Enregistrer
+                            </button>
+                            <a asp-page="./Index" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-x-circle me-2"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .form-floating > .form-control:not(:placeholder-shown) ~ label,
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-select ~ label {
+            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+            opacity: 0.8;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 0.375rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.25);
+        }
+        
+        .card {
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+    </style>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Variables pour les éléments géographiques
+        const countrySelect = document.getElementById('countrySelect');
+        const stateSelect = document.getElementById('stateSelect');
+        const citySelect = document.getElementById('citySelect');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const initialCountryId = @Model.CountryId;
+            const initialStateId = @Model.StateId;
+            const initialCityId = @Model.CityId;
+
+            // Fonctions utilitaires pour les selects
+            function resetSelect(selectElement, placeholder) {
+                selectElement.innerHTML = `<option value="" disabled selected>${placeholder}</option>`;
+            }
+
+            function populateSelect(selectElement, items, placeholder, selectedId) {
+                selectElement.innerHTML = `<option value="" disabled selected>${placeholder}</option>`;
+                items.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.name;
+                    if (selectedId && Number(selectedId) === Number(item.id)) {
+                        option.selected = true;
+                    }
+                    selectElement.appendChild(option);
+                });
+            }
+
+            async function loadStates(countryId, selectedStateId) {
+                resetSelect(stateSelect, 'Chargement des états...');
+                resetSelect(citySelect, 'Sélectionnez d\'abord un état');
+                citySelect.disabled = true;
+
+                if (!countryId) {
+                    stateSelect.disabled = true;
+                    return;
+                }
+
+                const response = await fetch(`?handler=States&countryId=${countryId}`);
+                const states = await response.json();
+                populateSelect(stateSelect, states, 'Choisissez un état/département', selectedStateId);
+                stateSelect.disabled = false;
+            }
+
+            async function loadCities(stateId, selectedCityId) {
+                resetSelect(citySelect, 'Chargement des villes...');
+
+                if (!stateId) {
+                    citySelect.disabled = true;
+                    return;
+                }
+
+                const response = await fetch(`?handler=Cities&stateId=${stateId}`);
+                const cities = await response.json();
+                populateSelect(citySelect, cities, 'Choisissez une ville', selectedCityId);
+                citySelect.disabled = false;
+            }
+
+            // Events
+            countrySelect.addEventListener('change', async function() {
+                const countryId = this.value;
+                await loadStates(countryId, null);
+            });
+
+            stateSelect.addEventListener('change', async function() {
+                const stateId = this.value;
+                await loadCities(stateId, null);
+            });
+
+            // Initial load for edit
+            (async function initGeo() {
+                if (initialCountryId > 0) {
+                    await loadStates(initialCountryId, initialStateId);
+                    if (initialStateId > 0) {
+                        await loadCities(initialStateId, initialCityId);
+                    }
+                }
+            })();
+
+            // Validation côté client améliorée
+            (function () {
+                'use strict'
+                
+                const forms = document.querySelectorAll('.needs-validation')
+                
+                Array.from(forms).forEach(form => {
+                    form.addEventListener('submit', event => {
+                        // Vérifier qu'au moins un secteur est sélectionné
+                        const selectedSectors = document.querySelectorAll('.sector-checkbox:checked')
+                        if (selectedSectors.length === 0) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                            alert('Veuillez sélectionner au moins un secteur d\'activité.')
+                            return false
+                        }
+
+                        // Vérifier les champs géographiques
+                        if (!countrySelect.value || !stateSelect.value || !citySelect.value) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                            alert('Veuillez remplir tous les champs géographiques (pays, état, ville).')
+                            return false
+                        }
+                        
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+            })()
+            
+            // Gestion des secteurs d'activité
+            const sectorCheckboxes = document.querySelectorAll('.sector-checkbox')
+            const primarySectorSelect = document.getElementById('primary-sector-select')
+            
+            function updatePrimarySectorOptions() {
+                // Cacher toutes les options
+                const options = primarySectorSelect.querySelectorAll('option[data-sector-id]')
+                options.forEach(option => {
+                    option.style.display = 'none'
+                })
+                
+                // Afficher uniquement les secteurs cochés
+                const checkedSectors = document.querySelectorAll('.sector-checkbox:checked')
+                checkedSectors.forEach(checkbox => {
+                    const sectorId = checkbox.value
+                    const option = primarySectorSelect.querySelector(`option[data-sector-id="${sectorId}"]`)
+                    if (option) {
+                        option.style.display = 'block'
+                    }
+                })
+                
+                // Si le secteur primaire actuellement sélectionné n'est plus dans les secteurs cochés, le désélectionner
+                const currentPrimaryValue = primarySectorSelect.value
+                if (currentPrimaryValue) {
+                    const isStillSelected = Array.from(checkedSectors).some(cb => cb.value === currentPrimaryValue)
+                    if (!isStillSelected) {
+                        primarySectorSelect.selectedIndex = 0
+                    }
+                }
+            }
+            
+            sectorCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updatePrimarySectorOptions)
+            })
+            
+            updatePrimarySectorOptions()
+        });
+    </script>
+}                                                

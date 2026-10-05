@@ -1,0 +1,179 @@
+@page
+@model MCBusiness.Pages.Users.Admin.Sellers.IndexModel
+@{
+    ViewData["Title"] = "Fournisseurs";
+}
+
+<div class="container-fluid ">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial"/>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-truck me-2"></i>Gestion des Fournisseurs
+                        </h4>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Search and Add New -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <a asp-page="Create" class="btn btn-primary">
+                                <i class="bi bi-person-plus me-2"></i>Nouveau Fournisseur
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <form method="post" class="input-group">
+                                <select name="SearchType" class="form-select" style="max-width: 150px;">
+                                    <option value="LastName">Tous</option>
+                                    <option value="LastName">Nom</option>
+                                    <option value="FirstName">Prénom</option>
+                                    <option value="Email">Email</option>
+                                    <option value="PhoneNumber">Téléphone</option>
+                                </select>
+                                <input type="search" class="form-control" placeholder="Rechercher..." asp-for="ValueS">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Results Count -->
+                    <div class="alert alert-info py-2">
+                        <i class="bi bi-info-circle me-2"></i>
+                        @Model.ApplicationUser.Count() fournisseur(s) trouvé(s)
+                    </div>
+
+                    <!-- Sellers Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Photo</th>
+                                    <th>Nom</th>
+                                    <th>Entreprise</th>
+                                    <th>Contact</th>
+                                    <th>Inscription</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.ApplicationUser)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if(!string.IsNullOrEmpty(item.ProfilePictureUrl))
+                                            {
+                                                <img src="@item.ProfilePictureUrl" class="rounded-circle" width="40" height="40" alt="Photo profil">
+                                            }
+                                            else
+                                            {
+                                                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                    <i class="bi bi-person-fill"></i>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <strong>@item.FirstName @item.LastName</strong>
+                                            <div class="small text-muted">@item.UserName</div>
+                                        </td>
+                                        <td>
+                                            <!-- Placeholder for company info - you'll need to fetch actual company data -->
+                                            <span class="badge bg-light text-dark">Aucune entreprise</span>
+                                        </td>
+                                        <td>
+                                            <div>@item.Email</div>
+                                            <div class="small">@item.PhoneNumber</div>        
+                                        </td>
+                                        <td>@item.RegistrationDate.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            @if (item.LockoutEnabled && item.LockoutEnd > DateTimeOffset.UtcNow)
+                                            {
+                                                <span class="badge bg-danger">Bloqué</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">Actif</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                    <i class="bi bi-gear"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="./Companies/Create" asp-route-id="@item.Id">
+                                                            <i class="bi bi-building-add me-2"></i>Créer entreprise
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="./Companies/Index" asp-route-id="@item.Id">
+                                                            <i class="bi bi-buildings me-2"></i>Voir entreprises
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="./Details" asp-route-id="@item.Id">
+                                                            <i class="bi bi-eye-fill me-2"></i>Détails
+                                                        </a>
+                                                    </li>
+                                                    @if (User.IsInRole("Admin"))
+                                                    {
+                                                        <li>
+                                                            <a class="dropdown-item" asp-page="./Edit" asp-route-id="@item.Id">
+                                                                <i class="bi bi-pencil-fill me-2"></i>Modifier
+                                                            </a>
+                                                        </li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li>
+                                                            <a class="dropdown-item text-danger" asp-page="./Delete" asp-route-id="@item.Id">
+                                                                <i class="bi bi-trash-fill me-2"></i>Supprimer
+                                                            </a>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .dropdown-menu {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        
+        .badge {
+            font-size: 0.75em;
+            padding: 0.35em 0.65em;
+        }
+    </style>
+}

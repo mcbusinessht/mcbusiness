@@ -1,0 +1,180 @@
+﻿@page
+@model MCBusiness.Pages.Users.AmbassadorSpace.Withdrawals.BankModel
+@{
+    ViewData["Title"] = "Retrait Bancaire";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0 text-center"><i class="fas fa-university me-2"></i>Retrait Bancaire</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" id="bankWithdrawalForm">                       
+                        @Html.AntiForgeryToken()
+
+                        <!-- Messages d'état -->
+                        @if (Model.ErrorMessage != null)
+                        {
+                            <div class="alert alert-danger mb-4">
+                                <i class="fas fa-exclamation-triangle me-2"></i>@Model.ErrorMessage
+                            </div>
+                        }
+                        
+                        @if (Model.SuccessMessage != null)
+                        {
+                            <div class="alert alert-success mb-4">
+                                <i class="fas fa-check-circle me-2"></i>@Model.SuccessMessage
+                            </div>
+                        }
+
+                        <!-- Solde actuel -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Votre solde disponible</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-wallet text-primary"></i></span>
+                                <input type="text" class="form-control fw-bold text-success text-center" 
+                                       disabled value="@Model.CurrentBalance.ToString("N2") HTG" />
+                            </div>
+                        </div>
+
+                        <!-- Montant du retrait -->
+                        <div class="mb-4">
+                            <label asp-for="Input.Amount" class="form-label fw-bold">Montant à retirer (HTG)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-money-bill-wave text-primary"></i></span>
+                                <input asp-for="Input.Amount" class="form-control" 
+                                       min="100" max="@Model.CurrentBalance"
+                                       placeholder="Entrez le montant">
+                            </div>
+                            <small class="text-muted">Minimum: 100 HTG | Maximum: @Model.CurrentBalance.ToString("N2") HTG</small>
+                            <span asp-validation-for="Input.Amount" class="text-danger small d-block mt-1"></span>
+                        </div>
+
+                        <!-- Informations bancaires -->
+                        <div class="mb-4">
+                            <label asp-for="Input.BankName" class="form-label fw-bold">Nom de la banque</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-bank text-primary"></i></span>
+                                <select asp-for="Input.BankName" class="form-select">
+                                    <option value="" selected disabled>-- Sélectionnez votre banque --</option>
+                                    <option value="Sogebank">Sogebank</option>
+                                    <option value="Unibank">Unibank</option>
+                                    <option value="BUH">BUH (Banque de l'Union Haïtienne)</option>
+                                    <option value="BNC">BNC (Banque Nationale de Crédit)</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="Input.BankName" class="text-danger small d-block mt-1"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Input.AccountName" class="form-label fw-bold">Titulaire du compte</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-user text-primary"></i></span>
+                                <input asp-for="Input.AccountName" class="form-control" placeholder="Nom complet">
+                            </div>
+                            <span asp-validation-for="Input.AccountName" class="text-danger small d-block mt-1"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Input.AccountNumber" class="form-label fw-bold">Numéro de compte</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-credit-card text-primary"></i></span>
+                                <input asp-for="Input.AccountNumber" class="form-control" placeholder="Numéro de compte bancaire">
+                            </div>
+                            <span asp-validation-for="Input.AccountNumber" class="text-danger small d-block mt-1"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Input.TransferMethod" class="form-label fw-bold">Type de virement</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-exchange-alt text-primary"></i></span>
+                                <input type="hidden" value="Local" asp-for="Input.TransferMethod">
+                            </div>
+                            <span asp-validation-for="Input.TransferMethod" class="text-danger small d-block mt-1"></span>
+                        </div>
+
+                        <!-- Détails des frais -->
+                        <div class="mb-4 p-3 bg-light rounded-3">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-info-circle me-2"></i>Informations sur les frais</h6>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Frais de retrait:</span>
+                                <span class="text-danger">Gratuit</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Temps de traitement:</span>
+                                <span class="text-primary">24-48 heures</span>
+                            </div>
+                        </div>
+
+                        <!-- Mot de passe -->
+                        <div class="mb-4">
+                            <label asp-for="Input.Password" class="form-label fw-bold">Confirmez votre mot de passe</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-lock text-primary"></i></span>
+                                <input asp-for="Input.Password" type="password" class="form-control" 
+                                       placeholder="Votre mot de passe" required>
+                            </div>
+                            <span asp-validation-for="Input.Password" class="text-danger small d-block mt-1"></span>
+                        </div>
+
+                        <!-- Boutons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                            <button type="submit" class="btn btn-primary px-4 py-2 me-md-2">
+                                <i class="fas fa-paper-plane me-2"></i>Demander le retrait
+                            </button>
+                            <a asp-page="./WithdrawalMethods" class="btn btn-outline-secondary px-4 py-2">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            border-radius: 15px;
+            overflow: hidden;
+            border: none;
+        }
+        .card-header {
+            border-radius: 15px 15px 0 0 !important;
+        }
+        .input-group-text {
+            transition: all 0.3s;
+            min-width: 45px;
+            justify-content: center;
+        }
+        .input-group:focus-within .input-group-text {
+            background-color: #e9ecef;
+            color: #0d6efd;
+        }
+        .form-control, .form-select {
+            padding: 10px 15px;
+            border-left: none;
+        }
+        .form-control:focus, .form-select:focus {
+            box-shadow: none;
+            border-color: #dee2e6;
+        }
+
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            transform: translateY(-2px);
+        }
+    </style>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+}

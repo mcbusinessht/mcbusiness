@@ -1,0 +1,37 @@
+@model IndexModel
+
+<!-- Stats Section -->
+<section class="stats-section py-5">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-basket3"></i>
+                </div>
+                <div class="stat-value" data-count="@(Model.ProductList?.Count ?? 150)">0</div>
+                <div class="stat-label">Produits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="stat-value" data-count="1200">0</div>
+                <div class="stat-label">Clients Satisfaits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <div class="stat-value" data-count="@Model.plans.Count()">0</div>
+                <div class="stat-label">Plans Ambassadeurs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-laptop"></i>
+                </div>
+                <div class="stat-value" data-count="6">0</div>
+                <div class="stat-label">Services IT</div>
+            </div>
+        </div>
+    </div>
+</section>

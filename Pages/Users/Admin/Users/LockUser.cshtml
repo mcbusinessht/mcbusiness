@@ -1,0 +1,139 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Users.LockUserModel
+@{
+    ViewData["Title"] = "Gestion du compte utilisateur";
+}
+
+<div class="container-fluid px-4">
+    
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial"/>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-shield-lock me-2"></i>Gestion du compte  
+                    </h3>
+                </div>
+                
+                <div class="card-body">
+                    @if (Model.UserToManage != null)
+                    {
+                        <div class="user-info mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                @if (!string.IsNullOrEmpty(Model.UserToManage.ProfilePictureUrl))
+                                {
+                                    <img src="@Model.UserToManage.ProfilePictureUrl" 
+                                         class="rounded-circle me-3" 
+                                         width="80" height="80" 
+                                         alt="Photo de profil">
+                                }
+                                else
+                                {
+                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                         style="width: 80px; height: 80px;">
+                                        <i class="bi bi-person-fill text-muted" style="font-size: 2rem;"></i>
+                                    </div>
+                                }
+                                <div>
+                                    <h4 class="mb-0">@Model.UserToManage.UserName</h4>
+                                    <p class="text-muted mb-0">@Model.UserToManage.Email</p>
+                                </div>
+                            </div>
+
+                            <div class="status-indicator mb-4">
+                                <span class="badge rounded-pill bg-@(Model.IsLocked ? "danger" : "success") py-2 px-3">
+                                    <i class="bi bi-@(Model.IsLocked ? "lock-fill" : "unlock-fill") me-1"></i>
+                                    @(Model.IsLocked ? "COMPTE VERROUILLÉ" : "COMPTE ACTIF")
+                                </span>
+                            </div>
+
+                            <form method="post" class="text-center">
+                                <input type="hidden" name="id" value="@Model.UserToManage.Id" />
+                                <button type="submit" 
+                                        class="btn btn-lg btn-@(Model.IsLocked ? "success" : "danger") rounded-pill px-4">
+                                    <i class="bi bi-@(Model.IsLocked ? "unlock" : "lock") me-2"></i>
+                                    @(Model.IsLocked ? "Déverrouiller le compte" : "Verrouiller le compte")
+                                </button>
+                            </form>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center py-4">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Utilisateur non trouvé
+                        </div>
+                        <div class="text-center mt-3">
+                            <a asp-page="./Index" class="btn btn-outline-primary">
+                                <i class="bi bi-arrow-left me-1"></i> Retour à la liste
+                            </a>
+                        </div>
+                    }
+                </div>
+                
+                <div class="card-footer bg-light text-muted small">
+                    <i class="bi bi-info-circle me-1"></i> 
+                    Le verrouillage empêche l'utilisateur de se connecter au système
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            border-radius: 12px 12px 0 0 !important;
+        }
+        
+        .user-info {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+        
+        .status-indicator .badge {
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-lg {
+            min-width: 220px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-lg:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+}
+
+
+    <script>
+        // Le même script que dans le dashboard pour gérer le menu mobile
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('open');
+            document.getElementById('overlay').classList.add('show');
+        });
+
+        document.getElementById('closeSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('overlay').classList.remove('show');
+        });
+
+        document.getElementById('overlay').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('open');
+            this.classList.remove('show');
+        });
+    </script>

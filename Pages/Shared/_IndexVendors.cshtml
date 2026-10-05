@@ -1,0 +1,61 @@
+@model IndexModel
+
+<section class="vendors-section py-5 bg-white">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h6 class="section-subtitle">BOUTIQUES</h6>
+            <h2 class="section-title">Vendeurs et boutiques à découvrir</h2>
+            <p class="section-description">Achetez auprès de partenaires actifs sur MC Business.</p>
+        </div>
+
+        @if (Model.FeaturedCompanies?.Any() == true)
+        {
+            <div class="vendor-grid">
+                @foreach (var company in Model.FeaturedCompanies)
+                {
+                    <a asp-page="/Companies/Details" asp-route-id="@company.Id" class="vendor-card">
+                        <div class="vendor-logo">
+                            @if (!string.IsNullOrWhiteSpace(company.UrlLogo))
+                            {
+                                <img src="@company.UrlLogo" alt="@company.Name logo">
+                            }
+                            else
+                            {
+                                <i class="bi bi-shop"></i>
+                            }
+                        </div>
+                        <div class="vendor-body">
+                            <div class="d-flex align-items-center justify-content-between gap-2">
+                                <h3>@company.Name</h3>
+                                @if (company.IsVerified)
+                                {
+                                    <span class="verified-badge"><i class="bi bi-patch-check-fill"></i></span>
+                                }
+                            </div>
+                            <p>@(string.IsNullOrWhiteSpace(company.Description) ? "Boutique active sur MC Business." : company.Description)</p>
+                            <div class="vendor-meta">
+                                <span><i class="bi bi-box-seam"></i> @(Model.FeaturedCompanyProductCounts.TryGetValue(company.Id, out var productCount) ? productCount : 0) produit(s)</span>
+                                @if (company.CompanySectors?.Any() == true)
+                                {
+                                    <span><i class="bi bi-tags"></i> @company.CompanySectors.First().Category?.Name</span>
+                                }
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
+            <div class="text-center mt-4">
+                <a asp-page="/Companies/Index" class="btn btn-outline-primary">
+                    Voir toutes les boutiques <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state text-center">
+                <i class="bi bi-shop text-muted empty-state-icon"></i>
+                <h4>Boutiques bientôt disponibles</h4>
+            </div>
+        }
+    </div>
+</section>

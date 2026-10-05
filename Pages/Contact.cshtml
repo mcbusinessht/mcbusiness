@@ -1,0 +1,162 @@
+﻿@page
+@model MCBusiness.Pages.Contact
+@{
+    ViewData["Title"] = "Contactez nous";
+}
+
+<div class="container-fluid d-flex align-items-center justify-content-center min-vh-100 py-5 ">
+    <div class="col-lg-8 col-md-10">
+        <div class="card border-0 shadow-lg overflow-hidden rounded-3" id="contactCard">
+            <!-- Card Header with Gradient Background -->
+            <div class="card-header bg-primary text-white py-4 position-relative overflow-hidden">
+                <div class="position-absolute w-100 h-100 top-0 start-0 bg-white bg-opacity-10"></div>
+                <h3 class="text-center mb-0 position-relative fw-bold">Contactez MCBusiness Haiti</h3>
+            </div>
+            
+            <!-- Card Body -->
+            <div class="card-body p-4 p-md-5">
+                <!-- Contact Information Section -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="h-100 p-4 bg-white rounded-3 shadow-sm">
+                            <h4 class="text-success mb-4 fw-semibold">
+                                <i class="bi bi-headset me-2"></i>Service client
+                            </h4>
+                            <p class="mb-3">Pour toute demande liée à l'utilisation de la plateforme :</p>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="bi bi-telephone me-2 text-primary"></i> +(509) 48 07 6628</li>
+                                <li class="mb-2"><i class="bi bi-clock me-2 text-primary"></i> Disponible 7 jours sur 7</li>
+                                <li><i class="bi bi-envelope me-2 text-primary"></i> support@mcbusinessht.com</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="h-100 p-4 bg-white rounded-3 shadow-sm">
+                            <h4 class="text-success mb-4 fw-semibold">
+                                <i class="bi bi-briefcase me-2"></i>Partenariats
+                            </h4>
+                            <p class="mb-3">Vous êtes une entreprise et souhaitez proposer vos produits sur MC Business ?</p>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-envelope me-2 text-primary"></i> partenaires@MCBusinessht.com</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Media Section -->
+                <div class="text-center mb-4">
+                    <h4 class="text-success mb-4 fw-semibold">
+                        <i class="bi bi-people-fill me-2"></i>Nos réseaux sociaux
+                    </h4>
+                    <div class="d-flex justify-content-center flex-wrap gap-3 mb-4">
+                        <a href="https://www.instagram.com/MCBusinessht?igsh=MWRwMjE3YWhjczR1bA%3D%3D&utm_source=qr" 
+                           class="btn btn-outline-primary rounded-circle p-0 d-flex align-items-center justify-content-center" 
+                           style="width: 50px; height: 50px;" data-bs-toggle="tooltip" title="Instagram">
+                            <i class="bi bi-instagram fs-4"></i>
+                        </a>
+                        <a href="https://www.facebook.com/share/18VC2DsxN2/?mibextid=wwXIfr" 
+                           class="btn btn-outline-primary rounded-circle p-0 d-flex align-items-center justify-content-center" 
+                           style="width: 50px; height: 50px;" data-bs-toggle="tooltip" title="Facebook">
+                            <i class="bi bi-facebook fs-4"></i>
+                        </a>
+                        <a href="#" 
+                           class="btn btn-outline-primary rounded-circle p-0 d-flex align-items-center justify-content-center" 
+                           style="width: 50px; height: 50px;" data-bs-toggle="tooltip" title="Twitter">
+                            <i class="bi bi-twitter-x fs-4"></i>
+                        </a>
+                        <a href="mailto:support@mcbusinessht.com" 
+                           class="btn btn-outline-primary rounded-circle p-0 d-flex align-items-center justify-content-center" 
+                           style="width: 50px; height: 50px;" data-bs-toggle="tooltip" title="Email">
+                            <i class="bi bi-envelope fs-4"></i>
+                        </a>
+                    </div>
+                    <hr class="my-4">
+                </div>
+
+                <!-- Contact Form -->
+                <form method="post" id="contactForm" class="needs-validation" novalidate>
+                    <div class="mb-4">
+                        <label for="supportEmail" class="form-label">Email support de MCBusiness</label>
+                        <input type="text" class="form-control form-control-lg" id="supportEmail" value="support@mcbusinessht.com" disabled>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="userEmail" class="form-label">Votre email</label>
+                        <input type="email" class="form-control form-control-lg" id="userEmail" placeholder="exemple@gmail.com" required>
+                        <div class="invalid-feedback">Veuillez fournir une adresse email valide.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="userMessage" class="form-label">Votre message</label>
+                        <textarea class="form-control form-control-lg" id="userMessage" placeholder="Entrez votre message ici" style="height: 150px" required>Demande D'information</textarea>
+                        <div class="invalid-feedback">Veuillez écrire votre message.</div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg py-3 fw-bold" id="submitBtn">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            Envoyer <i class="bi bi-send ms-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Minimal custom CSS */
+        #contactCard {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        #contactCard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+        }
+        
+        .btn-outline-primary:hover i {
+            color: white !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    <!-- Bootstrap validation script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enable Bootstrap validation
+            (function() {
+                'use strict'
+                
+                const forms = document.querySelectorAll('.needs-validation')
+                
+                Array.from(forms).forEach(form => {
+                    form.addEventListener('submit', function(event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        } else {
+                            const submitBtn = document.getElementById('submitBtn');
+                            const spinner = submitBtn.querySelector('.spinner-border');
+                            
+                            // Show loading spinner
+                            spinner.classList.remove('d-none');
+                            submitBtn.disabled = true;
+                        }
+                        
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+            })()
+            
+            // Initialize tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+    </script>
+}

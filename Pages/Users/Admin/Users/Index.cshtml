@@ -1,0 +1,237 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Users.IndexModel
+@{
+    ViewData["Title"] = "Gestion des Utilisateurs";
+}
+
+<div class="container-fluid px-4">
+    
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial"/>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-people-fill me-2"></i>Gestion des Utilisateurs
+                        </h4>
+                        <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#filterModal">
+                            <i class="bi bi-funnel-fill"></i> Filtres Avancés
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Barre de recherche rapide -->
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <form method="post" class="input-group">
+                                <input type="text" class="form-control" placeholder="Rechercher..." asp-for="ValueS">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="bi bi-search"></i> Rechercher
+                                </button>
+                            </form>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <span class="badge bg-secondary">
+                                @Model.ApplicationUser.Count() utilisateur(s) trouvé(s)
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Tableau des utilisateurs -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Photo</th>
+                                    <th>Nom</th>
+                                    <th>Email</th>
+                                    <th>Téléphone</th>
+                                    <th>Solde</th>
+                                    <th>Inscription</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in Model.ApplicationUser)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if(user.ProfilePictureUrl != null){
+                                                <img src="@user.ProfilePictureUrl "      
+                                                 class="rounded-circle" width="40" height="40" alt="Photo profil">
+                                            }else{   
+                                                <i class="bi bi-person fs-2"></i>
+                                            }
+                                            </td>
+                                        <td>
+                                            <strong>@user.FirstName @user.LastName</strong>  
+                                            <div class="small text-muted">@user.UserName</div>
+                                            @if(user.IsDeleted){
+                                                <small class="badge bg-danger">Supprimer</small>
+                                            }
+                                            
+                                            @if (user.LockoutEnabled && user.LockoutEnd > DateTimeOffset.UtcNow)
+                                            {
+                                                <span class="badge bg-danger">Bloqué</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">Actif</span>
+                                            }
+                                        </td>    
+                                        <td>
+                                            @user.Email
+                                            @if (user.EmailConfirmed)
+                                            {
+                                                <span class="badge bg-success ms-2">Confirmé</span>
+                                            }
+                                        </td>
+                                        <td>@user.PhoneNumber</td>
+                                        <td class="fw-bold">@user.Balance.ToString("C")</td>
+                                        <td>@user.RegistrationDate.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                                        type="button" data-bs-toggle="dropdown">
+                                                    Actions
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="./Details" asp-route-id="@user.Id">
+                                                            <i class="bi bi-eye-fill me-2"></i>Détails
+                                                        </a>
+                                                    </li>
+                                                    @if (User.IsInRole("Admin"))
+                                                    {
+                                                        <li>
+                                                            <a class="dropdown-item" asp-page="./Edit" asp-route-id="@user.Id">
+                                                                <i class="bi bi-pencil-fill me-2"></i>Modifier
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item text-warning" asp-page="./LockUser" asp-route-id="@user.Id">
+                                                                <i class="bi bi-lock-fill me-2"></i>Bloquer
+                                                            </a>
+                                                        </li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li>
+                                                            <a class="dropdown-item text-danger" asp-page="./Delete" asp-route-id="@user.Id">
+                                                                <i class="bi bi-trash-fill me-2"></i>Supprimer
+                                                            </a>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Précédent</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Suivant</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ <!-- Overlay pour mobile menu (identique au dashboard) -->
+    <div class="overlay" id="overlay"></div>
+
+<!-- Modal Filtres Avancés -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Filtres Avancés</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Statut Email</label>
+                            <select class="form-select" asp-for="EmailStatusFilter">                       
+                                <option value="">Tous</option>
+                                <option value="confirmed">Confirmés</option>
+                                <option value="unconfirmed">Non confirmés</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Date d'inscription</label>
+                            <select class="form-select" asp-for="RegistrationDateFilter">
+                                <option value="">Toutes</option>
+                                <option value="today">Aujourd'hui</option>      
+                                <option value="week">Cette semaine</option>
+                                <option value="month">Ce mois</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Solde minimum</label>
+                            <input type="number" class="form-control" asp-for="MinBalanceFilter" placeholder="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Solde maximum</label>
+                            <input type="number" class="form-control" asp-for="MaxBalanceFilter" placeholder="100000">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Appliquer les filtres</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        
+        
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+        
+        
+        
+        .badge {
+            font-size: 0.75em;
+            padding: 0.35em 0.65em;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>                                                                  
+        // Initialisation des tooltips Bootstrap
+        document.addEventListener('DOMContentLoaded', function() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+    
+}

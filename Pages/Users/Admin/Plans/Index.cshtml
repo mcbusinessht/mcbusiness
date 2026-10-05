@@ -1,0 +1,181 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Plans.IndexModel
+@{
+    ViewData["Title"] = "Gestion des Plans";
+}
+
+@functions {
+    public static string TruncateDescription(string description, int maxLength = 30)
+    {
+        if (string.IsNullOrEmpty(description)) return string.Empty;
+        return description.Length <= maxLength ? description : description.Substring(0, maxLength) + "...";
+    }
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-layers me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="Create" class="btn btn-sm btn-light">
+                            <i class="bi bi-plus-circle me-1"></i> Nouveau Plan
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Prix</th>
+                                    <th>Durée</th>
+                                    <th>Catégorie</th>
+                                    <th>💰 Commissions</th>
+                                    <th>🎯 Points Fidélité</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Plan)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@item.Name</strong>
+                                            @if (!string.IsNullOrEmpty(item.Description))
+                                            {
+                                                <div class="small text-muted">@TruncateDescription(item.Description)</div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">@item.Price.ToString("N0") HTG</span>
+                                        </td>
+                                        <td>
+                                            @item.DurationInDays jours
+                                        </td>
+                                        <td>
+                                            @if (item.Category != null)
+                                            {
+                                                <span class="badge bg-info">@item.Category.Name</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Aucune</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success fs-6">@item.AmbassadorCommissionPercentage.ToString("P2")</span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex flex-column small">
+                                                <span class="text-success">G1: @item.PointsGeneration1 pts</span>
+                                                <span class="text-info">G2: @item.PointsGeneration2 pts</span>
+                                                <span class="text-warning">G3: @item.PointsGeneration3 pts</span>
+                                                @if (item.WelcomeBonusPoints > 0)
+                                                {
+                                                    <span class="text-primary mt-1"><i class="bi bi-gift"></i> Bienvenue: @item.WelcomeBonusPoints pts</span>
+                                                }
+                                                @if (item.MonthlyPointsLimit > 0)
+                                                {
+                                                    <span class="text-muted mt-1"><i class="bi bi-exclamation-circle"></i> Plafond: @item.MonthlyPointsLimit pts/mois</span>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                                        type="button" id="dropdownMenu-@item.Id" 
+                                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu-@item.Id">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="./Details" asp-route-id="@item.Id">
+                                                            <i class="bi bi-eye me-2"></i>Détails
+                                                        </a>
+                                                    </li>
+                                                    @if (User.IsInRole("Admin"))
+                                                    {
+                                                        <li>
+                                                            <a class="dropdown-item" asp-page="./Edit" asp-route-id="@item.Id">
+                                                                <i class="bi bi-pencil me-2"></i>Modifier
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item text-danger" asp-page="./Delete" asp-route-id="@item.Id">
+                                                                <i class="bi bi-trash me-2"></i>Supprimer
+                                                            </a>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="small text-muted">
+                            <i class="bi bi-info-circle me-1"></i> @Model.Plan.Count plans disponibles
+                        </div>
+                        <a asp-page="Create" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-circle me-1"></i> Ajouter un plan
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge {
+            font-size: 0.85em;
+            padding: 0.35em 0.65em;
+        }
+        
+        .dropdown-menu {
+            min-width: 200px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+        
+        .dropdown-item {
+            padding: 0.5rem 1.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(3px);
+        }
+        
+        .dropdown-item.text-danger:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+    </style>
+}

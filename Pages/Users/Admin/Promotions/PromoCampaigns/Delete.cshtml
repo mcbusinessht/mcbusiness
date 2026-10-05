@@ -1,0 +1,175 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_Promotions_PromoCampaigns.DeleteModel
+@{
+    ViewData["Title"] = "Supprimer la Campagne";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-danger text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-trash me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="./Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <h5 class="alert-heading">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>Action irréversible
+                        </h5>
+                        <p class="mb-0">
+                            Vous êtes sur le point de supprimer définitivement cette campagne promotionnelle 
+                            @if (Model.PromoCampaign.PromoCodes?.Count > 0)
+                            {
+                                <span> ainsi que les <strong>@Model.PromoCampaign.PromoCodes.Count codes promo</strong> qui y sont associés.</span>
+                            }
+                        </p>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-4">
+                                    <div class="bg-danger text-white rounded-3 p-3 text-center" style="width: 80px;">
+                                        <i class="bi bi-megaphone fs-2"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h2 class="mb-1">@Model.PromoCampaign.Name</h2>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @if (Model.PromoCampaign.IsActive)
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        }
+                                        @if (Model.PromoCampaign.StartDate > DateTimeOffset.UtcNow)
+                                        {
+                                            <span class="badge bg-info">À venir</span>
+                                        }
+                                        else if (Model.PromoCampaign.EndDate < DateTimeOffset.UtcNow)
+                                        {
+                                            <span class="badge bg-warning text-dark">Terminée</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-primary">En cours</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <small class="text-muted">Période</small>
+                                            <h5 class="mb-0">@Model.PromoCampaign.StartDate.ToString("dd/MM/yyyy") - @Model.PromoCampaign.EndDate?.ToString("dd/MM/yyyy")</h5>
+                                        </div>
+                                        <div class="text-end">
+                                            <small class="text-muted">Codes promo</small>
+                                            <h5 class="mb-0">@(Model.PromoCampaign.PromoCodes?.Count ?? 0)</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="confirmDelete" required>
+                            <label class="form-check-label fw-bold" for="confirmDelete">
+                                Je confirme vouloir supprimer définitivement cette campagne
+                            </label>
+                        </div>
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i> Cette action ne peut pas être annulée.
+                        </small>
+                    </div>
+
+                    <form method="post" class="needs-validation" novalidate>
+                        <input type="hidden" asp-for="PromoCampaign.Id" />
+                        <div class="d-flex justify-content-between">
+                            <a asp-page="./Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-danger" id="deleteButton" disabled>
+                                <i class="bi bi-trash me-1"></i> Supprimer définitivement
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Activer le bouton de suppression seulement si la case est cochée
+        document.getElementById('confirmDelete').addEventListener('change', function() {
+            document.getElementById('deleteButton').disabled = !this.checked;
+        });
+
+        // Validation du formulaire
+        (function () {
+            'use strict'
+
+            var forms = document.querySelectorAll('.needs-validation')
+
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+}
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .badge {
+            font-size: 0.85em;
+            padding: 0.35em 0.65em;
+            font-weight: 500;
+        }
+        
+        .flex-shrink-0 {
+            flex-shrink: 0;
+        }
+        
+        .flex-grow-1 {
+            flex-grow: 1;
+        }
+    </style>
+}

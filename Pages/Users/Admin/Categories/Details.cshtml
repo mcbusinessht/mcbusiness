@@ -1,0 +1,384 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_Categories.DetailsModel
+@using MCBusiness.Models
+
+@{
+    ViewData["Title"] = "Détails de la Catégorie";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-info text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-eye me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row justify-content-center">
+                        <div class="col-md-10">
+                            <!-- En-tête avec logo et nom -->
+                            <div class="text-center mb-5">
+                                @if (!string.IsNullOrEmpty(Model.Category.UrlLogo))
+                                {
+                                    <img src="@Model.Category.UrlLogo" alt="Logo de la catégorie" 
+                                         class="rounded-circle shadow mb-3" 
+                                         style="width: 100px; height: 100px; object-fit: cover;">
+                                }
+                                else
+                                {
+                                    <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center shadow mb-3" 
+                                         style="width: 100px; height: 100px;">
+                                        <i class="bi bi-folder text-white fs-1"></i>
+                                    </div>
+                                }
+                                <h2 class="fw-bold">@Model.Category.Name</h2>
+                                <div class="d-flex justify-content-center gap-2 mt-2">
+                                    <span class="badge bg-info fs-6">@Model.Category.Type</span>
+                                    @if (Model.Category.IsDeleted)
+                                    {
+                                        <span class="badge bg-danger fs-6">
+                                            <i class="bi bi-x-circle me-1"></i>Désactivée
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success fs-6">
+                                            <i class="bi bi-check-circle me-1"></i>Active
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Cartes d'informations -->
+                            <div class="row">
+                                <!-- Informations principales -->
+                                <div class="col-md-6 mb-4">
+                                    <div class="card border-0 h-100">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0">
+                                                <i class="bi bi-info-circle me-2"></i>Informations principales
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="fw-bold text-muted small">NOM DE LA CATÉGORIE</label>
+                                                <div class="fs-5">@Model.Category.Name</div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="fw-bold text-muted small">TYPE</label>
+                                                <div>
+                                                    <span class="badge bg-info">@Model.Category.Type</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="fw-bold text-muted small">CATÉGORIE PARENTE</label>
+                                                <div>
+                                                    @if (Model.Category.ParentCategory != null)
+                                                    {
+                                                        <span class="text-muted">
+                                                            <i class="bi bi-diagram-2 me-1"></i>@Model.Category.ParentCategory.Name
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-primary">
+                                                            <i class="bi bi-star me-1"></i>Catégorie principale
+                                                        </span>
+                                                    }
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="fw-bold text-muted small">STATUT</label>
+                                                <div>
+                                                    @if (Model.Category.IsDeleted)
+                                                    {
+                                                        <span class="badge bg-danger">
+                                                            <i class="bi bi-x-circle me-1"></i>Désactivée
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-success">
+                                                            <i class="bi bi-check-circle me-1"></i>Active
+                                                        </span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Métadonnées -->
+                                <div class="col-md-6 mb-4">
+                                    <div class="card border-0 h-100">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0">
+                                                <i class="bi bi-calendar me-2"></i>Métadonnées
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="fw-bold text-muted small">ID</label>
+                                                <div class="text-muted">
+                                                    <i class="bi bi-hash me-1"></i>@Model.Category.Id
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="fw-bold text-muted small">DATE DE CRÉATION</label>
+                                                <div class="text-muted">
+                                                    <i class="bi bi-calendar-plus me-1"></i>
+                                                    @LocalTime.Format(Model.Category.CreatedAt, "dd/MM/yyyy à HH:mm")
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="fw-bold text-muted small">LOGO</label>
+                                                <div>
+                                                    @if (!string.IsNullOrEmpty(Model.Category.UrlLogo))
+                                                    {
+                                                        <div class="d-flex align-items-center">
+                                                            <img src="@Model.Category.UrlLogo" alt="Logo" 
+                                                                 class="rounded me-2" 
+                                                                 style="width: 50px; height: 50px; object-fit: cover;">
+                                                            <span class="badge bg-success">Logo présent</span>
+                                                        </div>
+                                                        <small class="text-muted d-block mt-1">@Model.Category.UrlLogo</small>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary">Aucun logo</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="fw-bold text-muted small">HIÉRARCHIE</label>
+                                                <div>
+                                                    @if (Model.Category.ParentCategoryId == null)
+                                                    {
+                                                        <span class="badge bg-primary">
+                                                            <i class="bi bi-diagram-2 me-1"></i>Niveau racine
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-warning text-dark">
+                                                            <i class="bi bi-diagram-2 me-1"></i>Sous-catégorie
+                                                        </span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Statistiques supplémentaires -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card border-0">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0">
+                                                <i class="bi bi-graph-up me-2"></i>Statistiques
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row text-center">
+                                                <div class="col-md-3 mb-3">
+                                                    <div class="border rounded p-3">
+                                                        <i class="bi bi-diagram-3 fs-1 text-primary"></i>
+                                                        <h4 class="my-2">@(Model.Category.SubCategories?.Count ?? 0)</h4>
+                                                        <small class="text-muted">Sous-catégories</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <div class="border rounded p-3">
+                                                        <i class="bi bi-box fs-1 text-success"></i>
+                                                        <h4 class="my-2">@(Model.Category.Products?.Count ?? 0)</h4>
+                                                        <small class="text-muted">Produits associés</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <div class="border rounded p-3">
+                                                        <i class="bi bi-clock-history fs-1 text-warning"></i>
+                                                        <h4 class="my-2">
+                                                            @{
+                                                                var daysSinceCreation = (DateTimeOffset.UtcNow - Model.Category.CreatedAt.ToUniversalTime()).Days;
+                                                            }
+                                                            @daysSinceCreation
+                                                        </h4>
+                                                        <small class="text-muted">Jours d'existence</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <div class="border rounded p-3">
+                                                        <i class="bi bi-check-circle fs-1 text-info"></i>
+                                                        <h4 class="my-2">@LocalTime.Format(Model.Category.CreatedAt, "yyyy")</h4>
+                                                        <small class="text-muted">Année de création</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="d-flex justify-content-between mt-4">
+                                <a asp-page="Index" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left me-1"></i> Retour à la liste
+                                </a>
+                                <div>
+                                    <a asp-page="./Edit" asp-route-id="@Model.Category.Id" class="btn btn-warning me-2">
+                                        <i class="bi bi-pencil me-1"></i> Modifier
+                                    </a>
+                                    <a asp-page="./Delete" asp-route-id="@Model.Category.Id" class="btn btn-outline-danger">
+                                        <i class="bi bi-trash me-1"></i> Supprimer
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animation des cartes au survol
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.transition = 'all 0.3s ease';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Animation des boutons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+            border: none;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            border-radius: 1rem 1rem 0 0 !important;
+            background: linear-gradient(135deg, #0dcaf0 0%, #0ba8c7 100%);
+            border-bottom: none;
+        }
+        
+        .card .card-header.bg-light {
+            background: #f8f9fa !important;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .btn {
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #e6a400 100%);
+            border: none;
+            color: #000;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .badge {
+            border-radius: 0.375rem;
+            font-weight: 500;
+            padding: 0.5em 0.75em;
+        }
+        
+        .rounded-circle {
+            border: 4px solid #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .border.rounded {
+            border-radius: 0.75rem !important;
+            transition: all 0.3s ease;
+        }
+        
+        .border.rounded:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+        
+        .bi {
+            font-size: 1.1em;
+        }
+        
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .card-body {
+                padding: 1.5rem;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            .d-flex.justify-content-between {
+                flex-direction: column;
+            }
+            
+            .d-flex.justify-content-between > div {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .text-center .d-flex {
+                justify-content: center;
+            }
+        }
+    </style>
+}

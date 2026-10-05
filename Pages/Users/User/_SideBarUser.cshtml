@@ -1,0 +1,132 @@
+<div class="text-center mb-4">
+    <img src="@(string.IsNullOrEmpty(Model.CurrentUser?.ProfilePictureUrl) 
+        ? Url.Content("~/image/vector-illustration-depicting-ma.png") 
+        : Model.CurrentUser.ProfilePictureUrl)"
+        class="profile-pic mb-2" />
+
+    <h6 class="fw-bold mb-0">
+        @(Model.CurrentUser != null ? $"{Model.CurrentUser.FirstName} {Model.CurrentUser.LastName}" : "Utilisateur")
+    </h6>
+    <small class="text-muted">@Model.CurrentUser?.Email</small>
+</div>
+
+<hr />
+
+<nav class=" flex-column sidebar-nav">
+    <a asp-page="/Users/User/Dashboard" class="nav-link"><i class="bi bi-speedometer2"></i> Tableau de bord</a>
+    <a asp-page="./Profil" class="nav-link"><i class="bi bi-person"></i> Profil</a>
+    <a asp-page="/Payments/PaymentMethods" class="nav-link"><i class="bi bi-cash-coin"></i> Dépôt</a>
+    @* <a asp-page="./Transfer" class="nav-link"><i class="bi bi-send"></i> Transfert</a> *@
+    @* <a asp-page="./Withdrawals/WithdrawalMethods" class="nav-link"><i class="bi bi-bank"></i> Retrait</a> *@
+    <a asp-page="./Transaction" class="nav-link"><i class="bi bi-arrow-left-right"></i> Transactions</a>
+
+    <hr />
+
+    @if (Model.ActiveSubscription != null)
+    {
+        <a asp-page="/Plans/Index" class="nav-link"><i class="bi bi-arrow-repeat"></i> Changer de plan</a>
+        <a class="nav-link text-danger" data-bs-toggle="modal" data-bs-target="#deletePlan">
+            <i class="bi bi-x-circle"></i> Désactiver le plan
+        </a>
+    }
+    else
+    {
+        <a asp-page="/Plans/Index" class="nav-link"><i class="bi bi-cart-plus"></i> Acheter un plan</a>
+    }
+
+    <a class="nav-link" data-bs-toggle="modal" data-bs-target="#lienParrainageSmall">
+        <i class="bi bi-share"></i> Lien de parrainage
+    </a>
+
+    <a asp-page="./Conversations/Chat" class="nav-link"><i class="bi bi-chat-dots"></i> Messagerie</a>
+    <a asp-page="./Notifications" class="nav-link"><i class="bi bi-bell"></i> Notifications</a>
+    <a asp-page="/HelpUs" class="nav-link"><i class="bi bi-question-circle"></i> Aidez-nous</a>
+
+    <hr />
+
+    <a asp-page="/Account/Login" asp-page-handler="LogOut" class="nav-link text-danger">
+        <i class="bi bi-box-arrow-right"></i> Déconnexion
+    </a>
+</nav>
+<style>
+    /* MODE CLAIR - Styles par défaut */
+    .sidebar-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 1.5rem;
+        box-shadow: 0 8px 20px rgba(0,0,0,.08);
+    }
+
+    .profile-pic {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #f1f1f1;
+    }
+
+    .sidebar-nav .nav-link {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        padding: .7rem .9rem;
+        border-radius: 8px;
+        color: #212529;
+        transition: all .2s ease;
+    }
+
+    .sidebar-nav .nav-link:hover {
+        background: rgba(31,72,117,.1);
+        color: #1f4875;
+        transform: translateX(4px);
+    }
+
+    .sidebar-nav .nav-link i {
+        font-size: 1.1rem;
+        transition: transform .2s ease;
+    }
+
+    .sidebar-nav .nav-link:hover i {
+        transform: scale(1.1);
+    }
+
+    .sidebar-mobile {
+        max-width: 280px;
+    }
+
+    /* MODE SOMBRE UNIQUEMENT */
+    [data-theme="dark"] .sidebar-card {
+        background: #212529 !important;
+        box-shadow: 0 8px 20px rgba(0,0,0,.4) !important;
+        color: #f0f4f8 !important;
+    }
+
+    [data-theme="dark"] .profile-pic {
+        border-color: #495057 !important;
+    }
+
+    [data-theme="dark"] .sidebar-card h6 {
+        color: #f0f4f8 !important;
+    }
+
+    [data-theme="dark"] .sidebar-card .text-muted {
+        color: #94a3b8 !important;
+    }
+
+    [data-theme="dark"] .sidebar-nav .nav-link {
+        color: #f0f4f8 !important;
+    }
+
+    [data-theme="dark"] .sidebar-nav .nav-link:hover {
+        background: rgba(26, 140, 255, 0.15) !important;
+        color: #1a8cff !important;
+    }
+
+    [data-theme="dark"] .sidebar-nav .nav-link.text-danger {
+        color: #ff6b6b !important;
+    }
+
+    [data-theme="dark"] .sidebar-nav .nav-link.text-danger:hover {
+        color: #ff5252 !important;
+    }
+</style>

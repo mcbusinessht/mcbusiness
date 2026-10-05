@@ -1,0 +1,140 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Subscriptions.CreateModel
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+@{
+    ViewData["Title"] = "Nouvel Abonnement";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-plus-circle me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="./Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row justify-content-center">
+                        <div class="col-md-8 col-lg-6">
+                            <form method="post" class="needs-validation" novalidate>
+                                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                                <div class="mb-4">
+                                    <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">
+                                        <i class="bi bi-person-plus me-2"></i>Utilisateur
+                                    </h5>
+                                    <div class="form-group mb-3">
+                                        <label asp-for="Subscription.UserId" class="form-label fw-semibold"></label>
+                                        <select asp-for="Subscription.UserId" class="form-select">
+                                            <option value="">-- Sélectionner un utilisateur --</option>
+                                            @foreach(var user in Model.ApplicationUser)
+                                            {
+                                                <option value="@user.Id">@user.FirstName @user.LastName (@user.UserName)</option>
+                                            }
+                                        </select>
+                                        <span asp-validation-for="Subscription.UserId" class="text-danger small"></span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">
+                                        <i class="bi bi-card-checklist me-2"></i>Plan d'Abonnement
+                                    </h5>
+                                    <div class="form-group mb-3">
+                                        <label asp-for="Subscription.PlanId" class="form-label fw-semibold"></label>
+                                        <select asp-for="Subscription.PlanId" class="form-select">
+                                            <option value="">-- Sélectionner un plan --</option>
+                                            @foreach(var plan in Model.Plan)
+                                            {
+                                                <option value="@plan.Id">@plan.Name - @plan.Description</option>
+                                            }
+                                        </select>
+                                        <span asp-validation-for="Subscription.PlanId" class="text-danger small"></span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">
+                                        <i class="bi bi-calendar-plus me-2"></i>Date de Début
+                                    </h5>
+                                    <div class="form-group mb-3">
+                                        <label asp-for="Subscription.StartDate" class="form-label fw-semibold"></label>
+                                        <input asp-for="Subscription.StartDate" class="form-control" type="DateTimeOffset-local" />
+                                        <span asp-validation-for="Subscription.StartDate" class="text-danger small"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mt-4 text-center">
+                                    <button type="submit" class="btn btn-primary px-4 me-2">
+                                        <i class="bi bi-save me-1"></i> Créer
+                                    </button>
+                                    <a asp-page="./Index" class="btn btn-outline-secondary px-4">
+                                        <i class="bi bi-x-circle me-1"></i> Annuler
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            // Initialiser la date/heure actuelle si vide
+            if (!$('#Subscription_StartDate').val()) {
+                const now = new Date();
+                const formatted = now.toISOString().slice(0, 16);
+                $('#Subscription_StartDate').val(formatted);
+            }
+
+            // Validation améliorée
+            $('.needs-validation').on('submit', function(event) {
+                if (!this.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                $(this).addClass('was-validated');
+            });
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .form-label {
+            margin-bottom: 0.5rem;
+        }
+        .form-select, .form-control {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+        }
+        .fw-semibold {
+            font-weight: 600;
+        }
+        .border-bottom {
+            border-bottom: 2px solid #dee2e6 !important;
+        }
+        .needs-validation .form-control:invalid,
+        .needs-validation .form-select:invalid {
+            border-color: #dc3545;
+        }
+    </style>
+}

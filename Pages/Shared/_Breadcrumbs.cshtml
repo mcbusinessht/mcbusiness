@@ -1,0 +1,169 @@
+@using System.Reflection
+@inject Microsoft.AspNetCore.Mvc.Routing.IUrlHelperFactory UrlHelperFactory
+@inject Microsoft.AspNetCore.Mvc.Infrastructure.IActionContextAccessor ActionContextAccessor
+
+@{
+    var urlHelper = UrlHelperFactory.GetUrlHelper(ActionContextAccessor.ActionContext);
+    var currentPagePath = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+    var segments = currentPagePath.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+    var breadcrumbs = new List<(string Url, string Title)>();
+    var accumulated = "";
+
+    foreach (var segment in segments)
+    {
+        accumulated = string.Concat(accumulated, "/", segment);
+        var pagePath = accumulated.TrimStart('/');            // ex "Admin" then "Admin/Users"
+        var title = await GetPageTitleAsync(pagePath, currentPagePath);
+
+        if (title != null)
+        {
+            // on essaie d'abord la page razor directe "/Segment1/Segment2"
+            var pageUrl = urlHelper.Page("/" + pagePath);
+            if (pageUrl == null)
+            {
+                // si elle n'existe pas, on pointe vers "/Segment1/Segment2/Index"
+                pageUrl = urlHelper.Page("/" + pagePath + "/Index");
+            }
+
+            if (pageUrl != null)
+            {
+                breadcrumbs.Add((pageUrl, title));
+            }
+        }
+    }
+}
+
+<nav aria-label="Fil d’Ariane" class="breadcrumb-modern">
+    <ol class="breadcrumb ps-3">
+        <li class="breadcrumb-item">
+            <a asp-page="/Index" class="breadcrumb-link">
+                <i class="bi bi-house-door"></i>
+            </a>
+        </li>
+
+        @for (int i = 0; i < breadcrumbs.Count; i++)
+        {
+            var (url, title) = breadcrumbs[i];
+            if (i < breadcrumbs.Count - 1)
+            {
+                <li class="breadcrumb-item">
+                    <a href="@url" class="breadcrumb-link">@title</a>
+                </li>
+            }
+            else
+            {
+                <li class="breadcrumb-item active" aria-current="page">@title</li>
+            }
+        }
+    </ol>
+</nav>
+
+@functions {
+    private async Task<string> GetPageTitleAsync(string pagePath, string currentPage)
+    {
+        if (pagePath.Equals(currentPage.TrimStart('/'), StringComparison.OrdinalIgnoreCase))
+        {
+            return ViewData["Title"]?.ToString()
+                ?? Model?.GetType().GetProperty("Title")?.GetValue(Model)?.ToString()
+                ?? Humanize(pagePath.Split('/').Last());
+        }
+
+        var pageType = Assembly.GetExecutingAssembly()
+            .GetTypes()
+            .FirstOrDefault(t => t.Name.Equals($"{pagePath.Replace("/", "")}Model", StringComparison.OrdinalIgnoreCase));
+        if (pageType != null)
+        {
+            var prop = pageType.GetProperty("Title");
+            if (prop != null)
+            {
+                var instance = Activator.CreateInstance(pageType);
+                var onGet = pageType.GetMethod("OnGet");
+                if (onGet != null) await (Task)onGet.Invoke(instance, null);
+                return prop.GetValue(instance)?.ToString() ?? Humanize(pagePath.Split('/').Last());
+            }
+        }
+
+        return Humanize(pagePath.Split('/').Last());
+    }
+
+    private string Humanize(string text) =>
+        System.Text.RegularExpressions.Regex.Replace(
+            text.Replace("-", " "),
+            @"\b\p{Ll}",
+            m => m.Value.ToUpper()
+        );
+}
+
+<style>
+    .breadcrumb-modern {
+        --primary-color: #005fac;
+        --active-color: #000000;
+        --hover-color: #005fac;
+        @* padding: 0.75rem 1.5rem; *@
+        background-color: #f8f9fa;
+        border-radius: 0 0 8px 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .breadcrumb {
+        margin-bottom: 0;
+        font-size: 0.9rem;
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        padding: 0;
+        background-color: #dbe6f1 ; 
+    }
+
+    .breadcrumb-item {
+        display: flex;
+        align-items: center;
+        transition: all 0.2s ease;
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "›";
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        padding: 0 0.5rem;
+    }
+
+    .breadcrumb-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        transition: all 0.2s ease;
+    }
+
+    .breadcrumb-link:hover {
+        color: var(--hover-color);
+        transform: translateX(2px);
+    }   
+
+    .breadcrumb-item.active {
+        color: var(--active-color);
+        text-overflow: ellipsis;
+        font-weight: 500;
+    }
+
+    .bi-house-door {
+        font-size: 1.1rem;
+        margin-top: -2px;
+    }
+
+    @@media (max-width: 768px) {
+        .breadcrumb-modern {
+            padding: 0.5rem 1rem;
+            border-radius: 0;
+        }
+        
+        .breadcrumb-item {
+            max-width: 120px;
+        }
+    }
+</style>

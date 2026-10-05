@@ -1,0 +1,39 @@
+@model IndexModel
+
+<section class="newsletter-section py-5">
+    <div class="container">
+        <div class="newsletter-card">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h2 class="newsletter-title">Restez informé</h2>
+                    <p class="newsletter-text">
+                        Abonnez-vous à notre newsletter pour recevoir les dernières actualités, offres spéciales et conseils utiles.
+                    </p>
+                </div>
+                <div class="col-lg-6">
+                    <form method="post" class="newsletter-form">
+                        <div class="input-group">
+                            <input asp-for="email" type="email" class="form-control" placeholder="Votre email" required>
+                            <button class="btn btn-light" type="submit">
+                                S'abonner <i class="bi bi-send ms-2"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="email" class="text-danger small"></span>
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success mt-3">
+                                @TempData["SuccessMessage"]
+                            </div>
+                        }
+                        @if (TempData["InfoMessage"] != null)
+                        {
+                            <div class="alert alert-info mt-3">
+                                @TempData["InfoMessage"]
+                            </div>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

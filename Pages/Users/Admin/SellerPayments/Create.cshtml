@@ -1,0 +1,284 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_SellerPayments.CreateModel
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+@{
+    ViewData["Title"] = "Nouveau Paiement Fournisseur";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-credit-card me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row g-3 mb-4">
+                            <!-- Section Informations de base -->
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">
+                                            <i class="bi bi-info-circle me-2"></i>Informations principales
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-floating mb-3">
+                                            <select asp-for="SellerPayment.CompanyId" class="form-select" asp-items="ViewBag.CompanyId" required>
+                                                <option value="">Sélectionnez un fournisseur</option>
+                                            </select>
+                                            <label asp-for="SellerPayment.CompanyId" class="form-label">
+                                                <i class="bi bi-building me-1"></i> Fournisseur
+                                            </label>
+                                            <span asp-validation-for="SellerPayment.CompanyId" class="text-danger small"></span>
+                                        </div>
+
+                                        <div class="form-floating mb-3">
+                                            <select asp-for="SellerPayment.OrderId" class="form-select" asp-items="ViewBag.OrderId" required>
+                                                <option value="">Sélectionnez une commande</option>
+                                            </select>
+                                            <label asp-for="SellerPayment.OrderId" class="form-label">
+                                                <i class="bi bi-cart me-1"></i> Commande
+                                            </label>
+                                            <span asp-validation-for="SellerPayment.OrderId" class="text-danger small"></span>
+                                        </div>
+
+                                        <div class="form-floating mb-3">
+                                            <input asp-for="SellerPayment.PaymentDate" class="form-control" type="date" required />
+                                            <label asp-for="SellerPayment.PaymentDate" class="form-label">
+                                                <i class="bi bi-calendar me-1"></i> Date de paiement
+                                            </label>
+                                            <span asp-validation-for="SellerPayment.PaymentDate" class="text-danger small"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section Montants -->
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">
+                                            <i class="bi bi-cash-stack me-2"></i>Détails financiers
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-floating mb-3">
+                                            <select asp-for="SellerPayment.CurrencyBase" class="form-select" asp-items="ViewBag.CurrencyBase" required>
+                                                <option value="">Sélectionnez une devise</option>
+                                            </select>
+                                            <label asp-for="SellerPayment.CurrencyBase" class="form-label">
+                                                <i class="bi bi-currency-exchange me-1"></i> Devise
+                                            </label>
+                                            <span asp-validation-for="SellerPayment.CurrencyBase" class="text-danger small"></span>
+                                        </div>
+
+                                        <div class="form-floating mb-3">
+                                            <input asp-for="SellerPayment.ProductTotal" class="form-control" type="number" step="0.01" required />
+                                            <label asp-for="SellerPayment.ProductTotal" class="form-label">
+                                                <i class="bi bi-box-seam me-1"></i> Total produits
+                                            </label>
+                                            <span asp-validation-for="SellerPayment.ProductTotal" class="text-danger small"></span>
+                                        </div>
+
+                                        <div class="form-floating mb-3">
+                                            <input asp-for="SellerPayment.DeliveryFee" class="form-control" type="number" step="0.01" required />
+                                            <label asp-for="SellerPayment.DeliveryFee" class="form-label">
+                                                <i class="bi bi-truck me-1"></i> Frais de livraison
+                                            </label>
+                                            <span asp-validation-for="SellerPayment.DeliveryFee" class="text-danger small"></span>
+                                        </div>
+
+                                        <div class="form-floating mb-3">
+                                            <input asp-for="SellerPayment.SalesCommission" class="form-control" type="number" step="0.01" required />
+                                            <label asp-for="SellerPayment.SalesCommission" class="form-label">
+                                                <i class="bi bi-percent me-1"></i> Commission
+                                            </label>
+                                            <span asp-validation-for="SellerPayment.SalesCommission" class="text-danger small"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section Paiement -->
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">
+                                            <i class="bi bi-credit-card me-2"></i>Informations de paiement
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-floating mb-3">
+                                            <select asp-for="SellerPayment.PaymentMethod" class="form-select" required>
+                                                <option value="">Sélectionnez une méthode</option>
+                                                <option value="BankTransfer">Virement bancaire</option>
+                                                <option value="Check">Chèque</option>
+                                                <option value="Electronic">Paiement électronique</option>
+                                            </select>
+                                            <label asp-for="SellerPayment.PaymentMethod" class="form-label">
+                                                <i class="bi bi-credit-card me-1"></i> Méthode de paiement
+                                            </label>
+                                            <span asp-validation-for="SellerPayment.PaymentMethod" class="text-danger small"></span>
+                                        </div>
+
+                                        <div class="form-floating mb-3">
+                                            <input asp-for="SellerPayment.ExternalTransactionId" class="form-control" placeholder=" " />
+                                            <label asp-for="SellerPayment.ExternalTransactionId" class="form-label">
+                                                <i class="bi bi-receipt me-1"></i> Référence transaction
+                                            </label>
+                                        </div>
+
+                                        <div class="form-floating mb-3">
+                                            <select asp-for="SellerPayment.Status" class="form-select" required>
+                                                <option value="Pending">En attente</option>
+                                                <option value="Completed">Complété</option>
+                                                <option value="Failed">Échoué</option>
+                                            </select>
+                                            <label asp-for="SellerPayment.Status" class="form-label">
+                                                <i class="bi bi-info-circle me-1"></i> Statut
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section Options -->
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">
+                                            <i class="bi bi-gear me-2"></i>Options
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" asp-for="SellerPayment.IsPaidToSeller" />
+                                            <label class="form-check-label" asp-for="SellerPayment.IsPaidToSeller">
+                                                Paiement effectué au vendeur
+                                            </label>
+                                        </div>
+
+                                        <div class="form-floating mb-3" id="paidToSellerAtGroup" style="display: none;">
+                                            <input asp-for="SellerPayment.PaidToSellerAt" class="form-control" type="DateTimeOffset-local" />
+                                            <label asp-for="SellerPayment.PaidToSellerAt" class="form-label">
+                                                <i class="bi bi-calendar-check me-1"></i> Date de paiement au vendeur
+                                            </label>
+                                        </div>
+
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" asp-for="SellerPayment.IsDeleted" />
+                                            <label class="form-check-label" asp-for="SellerPayment.IsDeleted">
+                                                Marquer comme supprimé
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a asp-page="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i> Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Activation de la validation Bootstrap
+        (function () {
+            'use strict'
+            
+            var forms = document.querySelectorAll('.needs-validation')
+            
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })();
+
+        // Afficher/masquer le champ de date de paiement au vendeur
+        document.getElementById('SellerPayment_IsPaidToSeller').addEventListener('change', function() {
+            document.getElementById('paidToSellerAtGroup').style.display = this.checked ? 'block' : 'none';
+        });
+
+        // Initialiser l'état du champ de date
+        document.addEventListener('DOMContentLoaded', function() {
+            const isPaidCheckbox = document.getElementById('SellerPayment_IsPaidToSeller');
+            document.getElementById('paidToSellerAtGroup').style.display = isPaidCheckbox.checked ? 'block' : 'none';
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .form-floating label {
+            padding-left: 2.5rem;
+        }
+        
+        .form-floating i.bi {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 5;
+            color: #6c757d;
+        }
+        
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-control:not(:placeholder-shown) ~ label,
+        .form-floating > .form-select ~ label {
+            transform: scale(.85) translateY(-0.5rem) translateX(0.15rem);
+            padding-left: 2.5rem;
+        }
+        
+        .card {
+            border-radius: 0.5rem;
+        }
+        
+        .btn {
+            border-radius: 0.25rem;
+        }
+        
+        .form-switch .form-check-input {
+            width: 2.5em;
+            height: 1.5em;
+            margin-left: 0;
+            margin-right: 0.5em;
+        }
+    </style>
+}

@@ -1,0 +1,860 @@
+@page "{conversationId?}"
+@model MCBusiness.Pages.Users.User.Conversations.ChatModel
+@using System.Security.Claims
+@{
+    ViewData["Title"] = "Messagerie";
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+}
+   
+<div class="container-fluid p-0">
+    <div class="chat-shell rounded-3">
+         @* Side bar button *@
+        <button class="btn btn-dark border-0 d-block d-md-none w-100 rounded-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions" style="background: var(--chat-surface-2); color: var(--chat-text);">Mes conversations</button>
+
+        <div class="offcanvas offcanvas-start text-bg-dark" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+        <div class="offcanvas-header border-bottom" style="border-color: rgba(255,255,255,.08) !important;">
+            <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Conversations</h5>
+            <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#newChatModal">
+                <i class="bi bi-plus-lg"></i>
+            </button>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="chat-sidebar__list">
+            @foreach (var conv in Model.Conversations.OrderByDescending(c => c.Messages.Max(m => (DateTimeOffset?)m.SentAt) ?? DateTimeOffset.MinValue))
+            {
+                var otherUser = conv.User1Id == userId ? conv.User2 : conv.User1;
+                var CurrentComapny = Model.Company.FirstOrDefault(c=> c.SellerId == otherUser.Id);
+                var lastMsg = conv.Messages.OrderByDescending(m => m.SentAt).FirstOrDefault();
+                var unreadCount = conv.Messages.Count(m => m.ReceiverId == userId && !m.IsRead);
+
+                <a class="conversation-item @(Model.CurrentConversation?.Id == conv.Id ? "active" : "")" 
+                   href="/Users/User/Conversations/Chat/@conv.Id" 
+                   onclick="window.location.href=this.href; return false;">
+                    <div class="avatar">
+                        @if(otherUser.ProfilePictureUrl != null){<img src="@otherUser.ProfilePictureUrl" alt="Avatar" />}
+                        else{<i class="bi bi-person fs-4"></i>}
+                    </div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="d-flex align-items-center justify-content-between gap-2">
+                            <div class="fw-semibold text-dark user-name">
+                                @otherUser.UserName @if(CurrentComapny != null){<span class="opacity-75">(@CurrentComapny.Name)</span>}
+                            </div>
+                            @if(unreadCount > 0){<span class="badge bg-danger rounded-pill">@unreadCount</span>}
+                        </div>
+                        <div class="subtitle text-truncate">@lastMsg?.Content</div>
+                    </div>
+                </a>
+            }
+        </div>
+        </div>
+        <!-- Sidebar desktop -->
+        <aside class="chat-sidebar d-none d-md-flex">
+            <div class="chat-sidebar__header d-flex align-items-center justify-content-between">
+                <div class="fw-semibold text-light">Conversations</div>
+                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#newChatModal">
+                    <i class="bi bi-plus-lg"></i>
+                </button>
+            </div>
+            <div class="chat-sidebar__list">
+                @foreach (var conv in Model.Conversations.OrderByDescending(c => c.Messages.Max(m => (DateTimeOffset?)m.SentAt) ?? DateTimeOffset.MinValue))
+                {
+                    var otherUser = conv.User1Id == userId ? conv.User2 : conv.User1;
+                    var CurrentComapny = Model.Company.FirstOrDefault(c=> c.SellerId == otherUser.Id);
+                    var lastMsg = conv.Messages.OrderByDescending(m => m.SentAt).FirstOrDefault();
+                    var unreadCount = conv.Messages.Count(m => m.ReceiverId == userId && !m.IsRead);
+
+                    <a class="conversation-item @(Model.CurrentConversation?.Id == conv.Id ? "active" : "")" href="/Users/User/Conversations/Chat/@conv.Id">
+                        <div class="avatar">
+                            @if(otherUser.ProfilePictureUrl != null){<img src="@otherUser.ProfilePictureUrl" alt="Avatar" />}
+                            else{<i class="bi bi-person fs-4"></i>}
+                        </div>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <div class="d-flex align-items-center justify-content-between gap-2">
+                                <div class="fw-semibold text-truncate">
+                                    @otherUser.UserName @if(CurrentComapny != null){<span class="opacity-75">(@CurrentComapny.Name)</span>}
+                                </div>
+                                @if(unreadCount > 0){<span class="badge bg-danger rounded-pill">@unreadCount</span>}
+                            </div>
+                            <div class="subtitle text-truncate">@lastMsg?.Content</div>
+                        </div>
+                    </a>
+                }
+            </div>
+        </aside>
+
+        <!-- Thread -->
+        <main class="chat-thread">
+            @if (Model.CurrentConversation != null)
+            {
+                var otherUser = Model.CurrentConversation.User1Id == userId ? Model.CurrentConversation.User2 : Model.CurrentConversation.User1;
+                var CurrentComapny = Model.Company.FirstOrDefault(c=> c.SellerId == otherUser.Id);
+
+                <div class="chat-thread__header">
+                    <button class="btn btn-sm btn-outline-light d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions">
+                        <i class="bi bi-list"></i>
+                    </button>
+
+                    <div class="avatar">
+                        @if(otherUser.ProfilePictureUrl != null){<img src="@otherUser.ProfilePictureUrl" alt="Avatar" />}
+                        else{<i class="bi bi-person fs-4"></i>}
+                    </div>
+
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="chat-title fw-semibold  text-light">
+                            @otherUser.UserName @if(CurrentComapny != null){<span class="opacity-75">(@CurrentComapny.Name)</span>}
+                        </div>
+                        <div class="chat-subtitle d-flex align-items-center gap-2 text-light">
+                            <span class="status-dot" id="presence-dot"></span>
+                            <span id="presence-text">Chargements</span>
+                            <span class="ms-2" id="typing-indicator" style="display:none;">Scritp</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-thread__messages" id="messages-container" aria-live="polite" data-has-more="true">
+                    @{ DateTime? lastDay = null; }
+                    @foreach (var msg in Model.CurrentConversation.Messages.OrderBy(m => m.SentAt))
+                    {
+                        var localSentAt = LocalTime.ToLocal(msg.SentAt);
+                        var localDay = localSentAt.Date;
+                        if (lastDay == null || localDay != lastDay.Value)
+                        {
+                            <div class="day-separator" data-day="@localDay.ToString("yyyy-MM-dd")">@localDay.ToString("D")</div>
+                            lastDay = localDay;
+                        }
+
+                        var isMine = msg.SenderId == userId;
+                        <div class="chat-bubble @(isMine ? "chat-bubble--out" : "chat-bubble--in")" data-message-id="@msg.Id" data-day="@localDay.ToString("yyyy-MM-dd")">
+                            <div class="chat-text">@msg.Content</div>
+                            <div class="chat-meta">
+                                <span>@localSentAt.ToString("t")</span>
+                                @if (isMine)
+                                {
+                                    if (!msg.IsRead)
+                                    {
+                                        <i class="bi bi-check"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-check-all"></i>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="chat-composer">
+                    <form method="post" id="message-form" novalidate>
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="conversationId" value="@Model.CurrentConversation.Id" />
+                        <div class="composer-inner">
+                            <textarea class="form-control" name="content" rows="1" placeholder="Message" id="message-input"></textarea>
+                            <button type="submit" class="btn btn-success chat-send-btn" aria-label="Envoyer">
+                                <i class="bi bi-send"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <input type="hidden" id="other-user-id" value="@otherUser.Id" />
+                <input type="hidden" id="current-conversation-id" value="@Model.CurrentConversation.Id" />
+            }
+            else
+            {
+                <div class="chat-empty">
+                    <div>
+                        <div class="fs-4 mb-2"><i class="bi bi-chat-dots"></i></div>
+                        <div>Sélectionnez une conversation ou démarrez-en une nouvelle.</div>
+                    </div>
+                </div>
+            }
+        </main>
+    </div>
+</div>
+
+<!-- Modal Nouvelle conversation -->
+<div class="modal fade" id="newChatModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nouvelle conversation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="StartConversation">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom d'utilisateur</label>
+                        <input type="text" class="form-control" name="username" placeholder="ex: jean.dupont" required />
+                        <div class="form-text">Saisissez le nom d'utilisateur exact de la personne.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Démarrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    @* <link rel="stylesheet" href="~/Pages/Users/User/Conversations/Chat.cshtml.css" asp-append-version="true" /> *@
+
+    <style>
+        /* ===============================
+        VARIABLES (BOOTSTRAP FRIENDLY)
+        ================================ */
+        :root {
+            --chat-primary: #005fac;   /* Bootstrap primary */
+            --chat-success: #0e8038;   /* Bootstrap success */
+            --chat-white: #ffffff;
+
+            --chat-bg-main: #f8f9fa;
+            --chat-bg-sidebar: #212529;  /* Gris foncé comme l'offcanvas */
+            --chat-bg-header: #2c3034;   /* Légèrement plus clair pour le header */
+            --chat-bg-hover: rgba(255,255,255,.08);  /* Hover sur fond sombre */
+
+            --chat-bg-in: #ffffff;
+            --chat-bg-out: #e7f1ff;
+
+            --chat-border: rgba(255,255,255,.08);  /* Bordure claire sur fond sombre */
+            --chat-text-main: #212529;
+            --chat-text-muted: #6c757d;
+        }
+
+        /* ===============================
+        CONTAINER GLOBAL
+        ================================ */
+        .chat-shell {
+            height: 100vh;
+            display: flex;
+            background: var(--chat-bg-main);
+            color: var(--chat-text-main);
+            overflow: hidden;
+        }
+
+        /* ===============================
+        SIDEBAR
+        ================================ */
+        .chat-sidebar {
+            width: 320px;
+            background: var(--chat-bg-sidebar);
+            border-right: 1px solid var(--chat-border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-sidebar__header {
+            padding: 14px 16px;
+            background: var(--chat-bg-header);
+            border-bottom: 1px solid var(--chat-border);
+        }
+
+        .chat-sidebar__list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Conversation */
+        .conversation-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #f0f4f8;  /* Texte clair sur fond sombre */
+            transition: background .15s ease;
+        }
+
+        .conversation-item:hover {
+            background: var(--chat-bg-hover);
+        }
+
+        .conversation-item.active {
+            background: rgba(13,110,253,.2);  /* Plus visible sur fond sombre */
+            border-left: 3px solid var(--chat-primary);
+        }
+
+        /* Nom utilisateur avec bon contraste */
+        .conversation-item .user-name {
+            color: #f0f4f8;  /* Texte clair */
+        }
+
+        .conversation-item .subtitle {
+            color: #94a3b8;  /* Gris clair pour sous-titre */
+        }
+
+        [data-theme="dark"] .conversation-item {
+            color: #f0f4f8;
+        }
+
+        [data-theme="dark"] .conversation-item .user-name {
+            color: #f0f4f8;
+        }
+
+        [data-theme="dark"] .conversation-item .subtitle {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .conversation-item:hover {
+            background: rgba(26, 140, 255, 0.1);
+        }
+
+        [data-theme="dark"] .conversation-item.active {
+            background: rgba(26, 140, 255, 0.2);
+        }
+
+        /* Avatar */
+        .avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: #495057;  /* Gris moyen pour avatar sur fond sombre */
+            color: #f0f4f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Subtitle */
+        .subtitle {
+            font-size: .85rem;
+            color: var(--chat-text-muted);
+        }
+
+        /* ===============================
+        THREAD
+        ================================ */
+        .chat-thread {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .chat-thread__header {
+            padding: 12px 16px;
+            background: var(--chat-bg-header);
+            border-bottom: 1px solid var(--chat-border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Presence */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #adb5bd;
+        }
+
+        .status-dot.online {
+            background: var(--chat-success);
+        }
+
+        /* ===============================
+        MESSAGES
+        ================================ */
+        .chat-thread__messages {
+            flex: 1;
+            padding: 14px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        /* Day separator */
+        .day-separator {
+            text-align: center;
+            font-size: .75rem;
+            color: var(--chat-text-muted);
+            margin: 18px 0;
+        }
+
+        /* ===============================
+        BULLES
+        ================================ */
+        .chat-bubble {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 14px;
+            margin-bottom: 8px;
+            font-size: .95rem;
+            animation: fadeIn .15s ease;
+        }
+
+        .chat-bubble--in {
+            background: var(--chat-bg-in);
+            border: 1px solid var(--chat-border);
+            border-top-left-radius: 6px;
+        }
+
+        .chat-bubble--out {
+            background: var(--chat-bg-out);
+            margin-left: auto;
+            border-top-right-radius: 6px;
+        }
+
+        /* Meta */
+        .chat-meta {
+            font-size: .7rem;
+            color: var(--chat-text-muted);
+            display: flex;
+            justify-content: flex-end;
+            gap: 4px;
+        }
+
+        /* ===============================
+        COMPOSER
+        ================================ */
+        .chat-composer {
+            padding: 10px;
+            background: var(--chat-bg-header);
+            border-top: 1px solid var(--chat-border);
+        }
+
+        .composer-inner {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .chat-composer textarea {
+            flex: 1;
+            resize: none;
+            border-radius: 22px;
+            padding: 10px 14px;
+            background: #ffffff;
+            border: 1px solid var(--chat-border);
+            font-size: .95rem;
+        }
+
+        .chat-composer textarea:focus {
+            outline: none;
+            border-color: var(--chat-primary);
+        }
+
+        /* Bouton envoyer */
+        .chat-send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--chat-primary);
+            border: none;
+        }
+
+        .chat-send-btn i {
+            color: white;
+        }
+
+        /* ===============================
+        EMPTY STATE
+        ================================ */
+        .chat-empty {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--chat-text-muted);
+            text-align: center;
+        }
+
+        /* ===============================
+        MOBILE OPTIMISATION
+        ================================ */
+        @@media (max-width: 768px) {
+
+            .chat-shell {
+                flex-direction: column;
+            }
+
+            .chat-sidebar {
+                width: 100%;
+                border-right: none;
+            }
+
+            .chat-thread__header {
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+
+            .chat-thread__messages {
+                padding: 10px;
+            }
+
+            .chat-bubble {
+                max-width: 88%;
+                font-size: .9rem;
+            }
+
+            .chat-composer {
+                position: sticky;
+                bottom: 0;
+                z-index: 10;
+            }
+        }
+
+        /* ===============================
+        ANIMATION
+        ================================ */
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(3px); }
+            to { opacity: 1; transform: none; }
+        }
+
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script>
+        (function(){
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .build();
+
+        const convIdEl = document.getElementById('current-conversation-id');
+        const otherUserEl = document.getElementById('other-user-id');
+        const messagesContainerEl = document.getElementById('messages-container');
+
+        // Si aucune conversation ouverte, ne pas initialiser la logique chat (évite erreurs JS qui cassent la page)
+        if(!convIdEl || !messagesContainerEl){
+            // Pas de conversation ouverte: ne pas initialiser SignalR/UI chat
+            return;
+        }
+
+        connection.start()
+            .then(() => {
+                const convId = document.getElementById('current-conversation-id')?.value;
+                if(convId){
+                    connection.invoke("JoinConversation", Number(convId));
+                }
+                const container = document.getElementById('messages-container');
+                container?.addEventListener('scroll', () => {
+                    if(container.scrollTop <= 40){
+                        loadOlderMessages();
+                    }
+                });
+                // scroll initial
+                scrollMessagesToBottom();
+            })
+            .catch(console.error);
+
+        function formatLastSeen(lastSeenAtUtc){
+            if(!lastSeenAtUtc) return 'Hors ligne';
+            const d = new Date(lastSeenAtUtc);
+            if(Number.isNaN(d.getTime())) return 'Hors ligne';
+            return `Vu le ${d.toLocaleString()}`;
+        }
+
+        function setPresence(isOnline, lastSeenAtUtc){
+            const dot = document.getElementById('presence-dot');
+            const txt = document.getElementById('presence-text');
+            if(!dot || !txt) return;
+
+            dot.classList.toggle('online', !!isOnline);
+            txt.textContent = isOnline ? 'En ligne' : formatLastSeen(lastSeenAtUtc);
+        }
+
+        function scrollMessagesToBottom(){
+            const c = document.getElementById('messages-container');
+            if(c) c.scrollTop = c.scrollHeight;
+        }
+
+        function ensureDaySeparator(container, dayKey, dayLabel){
+            const firstDaySep = container.querySelector('.day-separator:first-of-type')?.getAttribute('data-day');
+            const firstBubbleDay = container.querySelector('.chat-bubble:first-of-type')?.getAttribute('data-day');
+            const currentFirstDay = firstBubbleDay || firstDaySep;
+            if(currentFirstDay !== dayKey){
+                container.insertAdjacentHTML('afterbegin', `<div class="day-separator" data-day="${dayKey}">${dayLabel}</div>`);
+            }
+        }
+
+        async function loadOlderMessages(){
+            const container = document.getElementById('messages-container');
+            const convId = Number(document.getElementById('current-conversation-id')?.value);
+            if(!container || !convId) return;
+            if(container.getAttribute('data-loading') === 'true') return;
+            if(container.getAttribute('data-has-more') !== 'true') return;
+
+            const firstMsgId = Number(container.querySelector('.chat-bubble:first-of-type')?.getAttribute('data-message-id'));
+            if(!firstMsgId) return;
+
+            container.setAttribute('data-loading','true');
+            const prevScrollHeight = container.scrollHeight;
+            const prevScrollTop = container.scrollTop;
+
+            try{
+                const res = await fetch(`/Users/User/Conversations/Chat?handler=Messages&conversationId=${convId}&beforeMessageId=${firstMsgId}&take=30`);
+                if(!res.ok){ container.setAttribute('data-has-more','false'); return; }
+                const items = await res.json();
+                if(!Array.isArray(items) || items.length === 0){
+                    container.setAttribute('data-has-more','false');
+                    return;
+                }
+
+                // insérer les messages en haut (ancien -> récent)
+                for(let i=items.length-1; i>=0; i--){
+                    const m = items[i];
+                    const sentDate = new Date(m.sentAtUtc);
+                    const dayKey = sentDate.toISOString().slice(0,10);
+                    const dayLabel = sentDate.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+                    const time = sentDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+                    ensureDaySeparator(container, dayKey, dayLabel);
+
+                    const isMine = m.senderId === '@userId';
+                    const bubbleHtml = `
+                        <div class="chat-bubble ${isMine ? 'chat-bubble--out' : 'chat-bubble--in'}" data-message-id="${m.id}" data-day="${dayKey}">
+                            <div class="chat-text"></div>
+                            <div class="chat-meta">
+                                <span>${time}</span>
+                                ${isMine ? (m.isRead ? '<i class="bi bi-check-all"></i>' : '<i class="bi bi-check"></i>') : ''}
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('afterbegin', bubbleHtml);
+                    const inserted = container.querySelector(`[data-message-id="${m.id}"] .chat-text`);
+                    if(inserted) inserted.textContent = m.content;
+                }
+
+                // garder la position visuelle
+                const newScrollHeight = container.scrollHeight;
+                container.scrollTop = (newScrollHeight - prevScrollHeight) + prevScrollTop;
+            } finally {
+                container.setAttribute('data-loading','false');
+            }
+        }
+
+        connection.on("PresenceSnapshot", (payload) => {
+            const otherUserId = document.getElementById('other-user-id')?.value;
+            if(otherUserId && payload.userId === otherUserId){
+                setPresence(payload.isOnline, payload.lastSeenAtUtc);
+            }
+        });
+
+        connection.on("UserOnline", (payload) => {
+            const otherUserId = document.getElementById('other-user-id')?.value;
+            if(otherUserId && payload.userId === otherUserId){
+                setPresence(true, null);
+            }
+        });
+
+        connection.on("UserOffline", (payload) => {
+            const otherUserId = document.getElementById('other-user-id')?.value;
+            if(otherUserId && payload.userId === otherUserId){
+                // on attend LastSeenUpdated, mais on peut déjà basculer offline
+                setPresence(false, null);
+            }
+        });
+
+        let typingTimer;
+        connection.on("UserTyping", (payload) => {
+            const otherUserId = document.getElementById('other-user-id')?.value;
+            if(otherUserId && payload.userId === otherUserId){
+                const ti = document.getElementById('typing-indicator');
+                if(ti) ti.style.display = 'inline';
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(()=>{ if(ti) ti.style.display='none'; }, 1500);
+            }
+        });
+
+        connection.on("UserStoppedTyping", (payload) => {
+            const otherUserId = document.getElementById('other-user-id')?.value;
+            if(otherUserId && payload.userId === otherUserId){
+                const ti = document.getElementById('typing-indicator');
+                if(ti) ti.style.display = 'none';
+            }
+        });
+
+        connection.on("UserLastSeenUpdated", (payload) => {
+            const otherUserId = document.getElementById('other-user-id')?.value;
+            if(otherUserId && payload.userId === otherUserId){
+                setPresence(false, payload.lastSeenAtUtc);
+            }
+        });
+
+        connection.on("MessageRead", (payload) => {
+            const messageId = payload.messageId ?? payload; // compat
+            const bubble = document.querySelector(`[data-message-id="${messageId}"]`);
+            if(!bubble) return;
+            // remplacer l'icone check par check-all
+            const meta = bubble.querySelector('.chat-meta');
+            if(!meta) return;
+            const icon = meta.querySelector('i');
+            if(icon){
+                icon.className = 'bi bi-check-all';
+            } else {
+                meta.insertAdjacentHTML('beforeend', '<i class="bi bi-check-all"></i>');
+            }
+        });
+
+        connection.on("ReceiveMessage", (message) => {
+            try {
+            const currentUserId = '@userId';
+            const isMine = message.senderId === currentUserId;
+            const containerEl = document.getElementById('messages-container');
+            
+            // CORRECTION DUPLICATION: Si message sortant, supprimer le message temporaire
+            if(isMine && containerEl){
+                const tempMessages = containerEl.querySelectorAll('.chat-bubble--out[data-message-id^="tmp-"]');
+                tempMessages.forEach(temp => temp.remove());
+            }
+            
+            // Vérifier si le message existe déjà (éviter les doublons)
+            if(containerEl && containerEl.querySelector(`[data-message-id="${message.id}"]`)){
+                console.log('Message déjà affiché, ignoré:', message.id);
+                return;
+            }
+            
+            const sentDate = new Date(message.sentAtUtc);
+            const time = sentDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            const dayKey = sentDate.toISOString().slice(0,10);
+            const dayLabel = sentDate.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+            let html = '';
+            if(containerEl){
+                const lastDaySep = containerEl.querySelector('.day-separator:last-of-type')?.getAttribute('data-day');
+                const lastBubbleDay = containerEl.querySelector('.chat-bubble:last-of-type')?.getAttribute('data-day');
+                const currentDay = lastBubbleDay || lastDaySep;
+                if(currentDay !== dayKey){
+                    html += `<div class="day-separator" data-day="${dayKey}">${dayLabel}</div>`;
+                }
+            }
+
+            html += `
+                <div class="chat-bubble ${isMine ? 'chat-bubble--out' : 'chat-bubble--in'}" data-message-id="${message.id}" data-day="${dayKey}">
+                    <div class="chat-text"></div>
+                    <div class="chat-meta">
+                        <span>${time}</span>
+                        ${isMine ? (message.isRead ? '<i class="bi bi-check-all"></i>' : '<i class="bi bi-check"></i>') : ''}
+                    </div>
+                </div>
+            `;
+
+            if(containerEl){
+                containerEl.insertAdjacentHTML('beforeend', html);
+                const inserted = containerEl.querySelector(`[data-message-id="${message.id}"] .chat-text`);
+                if(inserted) inserted.textContent = message.content;
+                scrollMessagesToBottom();
+
+                // Si message entrant dans la conversation ouverte, demander le read-receipt
+                if(!isMine && message.id){
+                    connection.invoke('MarkAsRead', Number(message.id)).catch(()=>{});
+                }
+            }
+            } catch(err){
+                console.error('ReceiveMessage handler error:', err);
+            }
+        });
+
+        const messageForm = document.getElementById('message-form');
+        const messageInput = document.getElementById('message-input');
+
+        function appendOptimisticOutgoingMessage(content){
+            const sentDate = new Date();
+            const time = sentDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            const dayKey = sentDate.toISOString().slice(0,10);
+            const dayLabel = sentDate.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+            const containerEl = document.getElementById('messages-container');
+            if(!containerEl) return;
+
+            const lastDaySep = containerEl.querySelector('.day-separator:last-of-type')?.getAttribute('data-day');
+            const lastBubbleDay = containerEl.querySelector('.chat-bubble:last-of-type')?.getAttribute('data-day');
+            const currentDay = lastBubbleDay || lastDaySep;
+
+            let html = '';
+            if(currentDay !== dayKey){
+                html += `<div class="day-separator" data-day="${dayKey}">${dayLabel}</div>`;
+            }
+
+            // id temporaire pour éviter les collisions
+            const tmpId = `tmp-${Date.now()}`;
+            html += `
+                <div class="chat-bubble chat-bubble--out" data-message-id="${tmpId}" data-day="${dayKey}">
+                    <div class="chat-text"></div>
+                    <div class="chat-meta">
+                        <span>${time}</span>
+                        <i class="bi bi-check"></i>
+                    </div>
+                </div>
+            `;
+
+            containerEl.insertAdjacentHTML('beforeend', html);
+            const inserted = containerEl.querySelector(`[data-message-id="${tmpId}"] .chat-text`);
+            if(inserted) inserted.textContent = content;
+            scrollMessagesToBottom();
+        }
+
+        function autoResize(){
+            if(!messageInput) return;
+            messageInput.style.height = 'auto';
+            messageInput.style.height = Math.min(messageInput.scrollHeight, 140) + 'px';
+        }
+
+        messageInput?.addEventListener('input', () => {
+            autoResize();
+            const convId = Number(document.getElementById('current-conversation-id')?.value);
+            if(convId){
+                connection.invoke('SendTyping', convId, true).catch(()=>{});
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(()=>{ connection.invoke('SendTyping', convId, false).catch(()=>{}); }, 900);
+            }
+        });
+
+        // Enter pour envoyer, Shift+Enter pour nouvelle ligne
+        messageInput?.addEventListener('keydown', (e) => {
+            if(e.key === 'Enter' && !e.shiftKey){
+                e.preventDefault();
+                messageForm?.requestSubmit();
+            }
+        });
+
+        if(messageForm){
+        messageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const content = (messageInput?.value ?? '').trim();
+            if(!content) return;
+
+            // UX: afficher immédiatement (évite impression de "chat vide" si SignalR tarde)
+            appendOptimisticOutgoingMessage(content);
+
+            const formData = new FormData(e.target);
+            formData.set('content', content);
+
+            try {
+                const response = await fetch('/Users/User/Conversations/Chat?handler=SendMessage', {
+                    method: 'POST',
+                    body: new URLSearchParams(formData),
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value,
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('échec de l\'envoi');
+                }
+
+                if(messageInput){
+                    messageInput.value = '';
+                    autoResize();
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de l\'envoi du message');
+            }
+        });
+}
+        })();
+    </script>
+}

@@ -1,0 +1,116 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Notices.DeleteModel
+
+@{
+    ViewData["Title"] = "Supprimer l'annonce";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-danger text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-exclamation-octagon me-2"></i>Supprimer l'annonce
+                        </h4>
+                        <a asp-page="Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour à la liste
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="alert alert-danger" role="alert">
+                        <h5 class="alert-heading">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Attention !
+                        </h5>
+                        <p>Vous êtes sur le point de supprimer définitivement cette annonce. Cette action est irréversible.</p>
+                        <hr>
+                        <p class="mb-0">Veuillez confirmer votre choix en cliquant sur le bouton "Supprimer".</p>
+                    </div>
+
+                    <div class="card mb-4 border-danger">
+                        <div class="card-header bg-light">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-megaphone text-danger me-2"></i>
+                                Détails de l'annonce
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-3">
+                                    <i class="bi bi-card-heading me-1"></i> @Html.DisplayNameFor(model => model.Notice.Name)
+                                </dt>
+                                <dd class="col-sm-9">
+                                    @Html.DisplayFor(model => model.Notice.Name)
+                                </dd>
+
+                                <dt class="col-sm-3">
+                                    <i class="bi bi-card-text me-1"></i> @Html.DisplayNameFor(model => model.Notice.Content)
+                                </dt>
+                                <dd class="col-sm-9">
+                                    <div class="p-2 bg-light rounded">
+                                        @Html.DisplayFor(model => model.Notice.Content)
+                                    </div>
+                                </dd>
+
+                                <dt class="col-sm-3">
+                                    <i class="bi bi-tag me-1"></i> @Html.DisplayNameFor(model => model.Notice.Type)
+                                </dt>
+                                <dd class="col-sm-9">
+                                    <span class="badge bg-secondary">
+                                        @Html.DisplayFor(model => model.Notice.Type)
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-3">
+                                    <i class="bi bi-calendar-range me-1"></i> Période
+                                </dt>
+                                <dd class="col-sm-9">
+                                    <div>
+                                        <strong>Début :</strong> @Model.Notice.StartDate.ToString("dd/MM/yyyy HH:mm")
+                                    </div>
+                                    <div>
+                                        <strong>Fin :</strong> @Model.Notice.EndDate.ToString("dd/MM/yyyy HH:mm")
+                                    </div>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <form method="post" class="mt-4">
+                        <input type="hidden" asp-for="Notice.Id" />
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-danger px-4">
+                                <i class="bi bi-trash-fill me-1"></i> Supprimer définitivement
+                            </button>
+                            <a asp-page="Index" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-x-circle me-1"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 0.5rem;
+        }
+        .card-header {
+            font-weight: 500;
+        }
+        dt {
+            font-weight: 500;
+            color: #6c757d;
+        }
+    </style>
+}

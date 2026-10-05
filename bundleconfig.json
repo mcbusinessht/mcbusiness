@@ -1,0 +1,36 @@
+[
+  {
+    "outputFileName": "wwwroot/css/site.bundle.min.css",
+    "inputFiles": [
+      "wwwroot/css/site.css",
+      "wwwroot/css/style.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "commentType": "none"
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/site.bundle.min.js",
+    "inputFiles": [
+      "wwwroot/js/site.js",
+      "wwwroot/js/performance-optimizations.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": false,
+      "commentType": "none"
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/validation.bundle.min.js",
+    "inputFiles": [
+      "wwwroot/lib/jquery-validation/dist/jquery.validate.min.js",
+      "wwwroot/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"
+    ],
+    "minify": {
+      "enabled": true
+    }
+  }
+]

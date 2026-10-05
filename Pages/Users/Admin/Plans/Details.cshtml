@@ -1,0 +1,183 @@
+@page
+@model MCBusiness.Pages.Users.Admin.Plans.DetailsModel
+
+@{
+    ViewData["Title"] = "Détails du Plan";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-info-circle me-2"></i>Détails du Plan: @Model.Plan.Name
+                        </h4>
+                        <a asp-page="./Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8 mx-auto">
+                            <div class="d-flex justify-content-center mb-4">
+                                <img src="@Model.Plan.PathPicture" alt="Image du plan" class="img-thumbnail" style="max-width: 150px;">
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover">
+                                    <tbody>
+                                        <tr>
+                                            <th class="bg-light" style="width: 30%;">Nom</th>
+                                            <td>@Model.Plan.Name</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">Prix</th>
+                                            <td>@Model.Plan.Price.ToString("N0") HTG</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">Durée</th>
+                                            <td>@Model.Plan.DurationInDays jours</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">Description</th>
+                                            <td>@Model.Plan.Description</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">Commission Ambassadeur</th>
+                                            <td>@Model.Plan.AmbassadorCommissionPercentage%</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">Commission Ambassadeur</th>
+                                            <td>@Model.Plan.AmbassadorCommissionPercentage%</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">Commission Ambassadeur</th>
+                                            <td>@Model.Plan.AmbassadorCommissionPercentage.ToString("P2")</td>
+                                        </tr>
+                                        <!-- NOUVEAU: Séparateur -->
+                                        <tr>
+                                            <td colspan="2" class="bg-success text-white text-center fw-bold">
+                                                <i class="bi bi-star-fill me-2"></i>?? SYSTÈME DE POINTS DE FIDÉLITÉ
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light"><i class="bi bi-star-fill text-success"></i> Points G1</th>
+                                            <td>
+                                                <span class="badge bg-success fs-6">@Model.Plan.PointsGeneration1 points</span>
+                                                <small class="text-muted d-block mt-1">Parrainage direct</small>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light"><i class="bi bi-star-fill text-info"></i> Points G2</th>
+                                            <td>
+                                                <span class="badge bg-info fs-6">@Model.Plan.PointsGeneration2 points</span>
+                                                <small class="text-muted d-block mt-1">Niveau 2</small>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light"><i class="bi bi-star-fill text-warning"></i> Points G3</th>
+                                            <td>
+                                                <span class="badge bg-warning fs-6">@Model.Plan.PointsGeneration3 points</span>
+                                                <small class="text-muted d-block mt-1">Niveau 3</small>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light"><i class="bi bi-gift-fill text-primary"></i> Bonus Bienvenue</th>
+                                            <td>
+                                                @if (Model.Plan.WelcomeBonusPoints > 0)
+                                                {
+                                                    <span class="badge bg-primary fs-6">@Model.Plan.WelcomeBonusPoints points</span>
+                                                    <small class="text-muted d-block mt-1">Offert aux nouveaux parrainés</small>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Aucun</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light"><i class="bi bi-exclamation-circle text-danger"></i> Plafond Mensuel</th>
+                                            <td>
+                                                @if (Model.Plan.MonthlyPointsLimit > 0)
+                                                {
+                                                    <span class="badge bg-danger fs-6">@Model.Plan.MonthlyPointsLimit pts/mois</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success fs-6">Illimité</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light"><i class="bi bi-unlock-fill"></i> Type de Plan</th>
+                                            <td>
+                                                @if (Model.Plan.IsFreeplan)
+                                                {
+                                                    <span class="badge bg-info fs-6"><i class="bi bi-unlock-fill"></i> Plan Gratuit</span>
+                                                    <small class="text-muted d-block mt-1">Créé manuellement par admin</small>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-primary fs-6"><i class="bi bi-cash-coin"></i> Plan Payant</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="d-flex justify-content-center gap-3 mt-4">
+                                <a asp-page="./Edit" asp-route-id="@Model.Plan?.Id" class="btn btn-primary">
+                                    <i class="bi bi-pencil-square me-1"></i> Modifier
+                                </a>
+                                <a asp-page="./Index" class="btn btn-outline-secondary">
+                                    <i class="bi bi-list-ul me-1"></i> Liste des Plans
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .img-thumbnail {
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            transition: transform 0.3s ease;
+        }
+        
+        .img-thumbnail:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn {
+            min-width: 150px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+    </style>
+}
+

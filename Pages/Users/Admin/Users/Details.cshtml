@@ -1,0 +1,230 @@
+﻿@page
+@model             MCBusiness.Pages.Users.Admin.Users.DetailsModel
+@{
+    ViewData["Title"] = "Détails Utilisateur";
+}
+
+<div class="container-fluid px-4">
+    
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial"/>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">  
+            <!-- En-tête avec photo de profil -->
+            <div class="d-flex flex-column flex-md-row align-items-center mb-4 p-3 bg-light rounded-3 shadow-sm">
+                <div class="me-md-4 mb-3 mb-md-0">
+                    @if (!string.IsNullOrEmpty(Model.ApplicationUser.ProfilePictureUrl))
+                    {
+                        <img src="@Model.ApplicationUser.ProfilePictureUrl" 
+                             class="rounded-circle border border-4 border-white shadow" 
+                             width="120" height="120" 
+                             alt="Photo de profil">
+                    }
+                    else
+                    {
+                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" 
+                             style="width: 120px; height: 120px;">
+                            <i class="bi bi-person-fill text-white" style="font-size: 3rem;"></i>
+                        </div>
+                    }
+                </div>
+                <div class="text-center text-md-start">
+                    <h2 class="mb-1">@Model.ApplicationUser.FirstName @Model.ApplicationUser.LastName</h2>
+                    <p class="text-muted mb-2">
+                        <i class="bi bi-at"></i> @Model.ApplicationUser.UserName
+                    </p>
+                    <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-2">
+                        <span class="badge bg-primary rounded-pill">
+                            <i class="bi bi-envelope me-1"></i> @Model.ApplicationUser.Email
+                        </span>
+                        @if (!string.IsNullOrEmpty(Model.ApplicationUser.PhoneNumber))
+                        {
+                            <span class="badge bg-success rounded-pill">
+                                <i class="bi bi-telephone me-1"></i> @Model.ApplicationUser.PhoneNumber
+                            </span>
+                        }
+                        <span class="badge bg-@(Model.ApplicationUser.EmailConfirmed ? "success" : "warning") rounded-pill">
+                            <i class="bi bi-@(Model.ApplicationUser.EmailConfirmed ? "check-circle" : "exclamation-triangle") me-1"></i>
+                            Email @(Model.ApplicationUser.EmailConfirmed ? "confirmé" : "non confirmé")
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cartes d'informations -->
+            <div class="row g-4">
+                <!-- Informations personnelles -->
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-person-vcard me-2"></i>Informations personnelles</h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-5">Nom complet</dt>
+                                <dd class="col-sm-7">@Model.ApplicationUser.FirstName @Model.ApplicationUser.LastName</dd>
+
+                                <dt class="col-sm-5">Genre</dt>
+                                <dd class="col-sm-7">@Model.ApplicationUser.Gender</dd>
+
+                                <dt class="col-sm-5">Code de parrainage</dt>
+                                <dd class="col-sm-7">@Model.ApplicationUser.ReferralCode</dd>
+
+                                <dt class="col-sm-5">Parrainé par</dt>
+                                <dd class="col-sm-7">@(Model.ApplicationUser.ReferredBy ?? "N/A")</dd>
+
+                                <dt class="col-sm-5">Solde</dt>
+                                <dd class="col-sm-7">@Model.ApplicationUser.Balance</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Adresse -->
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Adresse</h5>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.Address.Any())
+                            {
+                                foreach(var item in Model.Address)
+                                {
+                                    <address class="mb-0">
+                                        <strong>@item.Line1</strong><br>
+                                        @item.City, @item.State<br>
+                                        @item.Country<br>
+                                        <abbr title="Code postal">CP:</abbr> @item.ZipCode
+                                    </address>
+                                }
+                            }
+                            else
+                            {
+                                <p class="text-muted mb-0">Aucune adresse enregistrée</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sécurité -->
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Sécurité</h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-5">2FA activé</dt>
+                                <dd class="col-sm-7">
+                                    <span class="badge bg-@(Model.ApplicationUser.TwoFactorEnabled ? "success" : "secondary")">
+                                        @(Model.ApplicationUser.TwoFactorEnabled ? "Oui" : "Non")
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-5">Statut du compte</dt>
+                                @if( User.IsInRole("Admin")){
+                                    <dd class="col-sm-7">
+                                    
+                                        @if (Model.ApplicationUser.LockoutEnd.HasValue && Model.ApplicationUser.LockoutEnd > DateTimeOffset.UtcNow )
+                                        {
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-lock-fill me-1"></i> Verrouillé
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-unlock-fill me-1"></i> Actif
+                                            </span>
+                                        }
+                                    </dd>
+                                }
+                                <dt class="col-sm-5">Échecs de connexion</dt>
+                                <dd class="col-sm-7">@Model.ApplicationUser.AccessFailedCount</dd>
+
+                                <dt class="col-sm-5">Dernière verrouillage</dt>
+                                <dd class="col-sm-7">@(Model.ApplicationUser.LockoutEnd?.ToString("g") ?? "Jamais")</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Métadonnées -->
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-database me-2"></i>Métadonnées</h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-5">Date d'inscription</dt>
+                                <dd class="col-sm-7">@Model.ApplicationUser.RegistrationDate.ToString("g")</dd>
+
+                                <dt class="col-sm-5">ID utilisateur</dt>
+                                <dd class="col-sm-7"><small class="text-muted">@Model.ApplicationUser.Id</small></dd>
+
+                                <dt class="col-sm-5">Email normalisé</dt>
+                                <dd class="col-sm-7"><small>@Model.ApplicationUser.NormalizedEmail</small></dd>
+
+                                <dt class="col-sm-5">Nom d'utilisateur normalisé</dt>
+                                <dd class="col-sm-7"><small>@Model.ApplicationUser.NormalizedUserName</small></dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="d-flex justify-content-center gap-3 mt-4">
+                @if(User.IsInRole("Admin"))
+                {
+                    <a asp-page="./Edit" asp-route-id="@Model.ApplicationUser.Id" class="btn btn-primary px-4">
+                        <i class="bi bi-pencil-square me-2"></i>Modifier
+                    </a>
+                    <a asp-page="./LockUser" asp-route-id="@Model.ApplicationUser.Id" 
+                       class="btn btn-@(Model.ApplicationUser.LockoutEnd.HasValue && Model.ApplicationUser.LockoutEnd > DateTimeOffset.UtcNow ? "success" : "warning") px-4">
+                        <i class="bi bi-@(Model.ApplicationUser.LockoutEnd.HasValue && Model.ApplicationUser.LockoutEnd > DateTimeOffset.UtcNow ? "unlock" : "lock") me-2"></i>
+                        @(Model.ApplicationUser.LockoutEnd.HasValue && Model.ApplicationUser.LockoutEnd > DateTimeOffset.UtcNow ? "Déverrouiller" : "Verrouiller")
+                    </a>
+                }
+                <a asp-page="./Index" class="btn btn-outline-secondary px-4">
+                    <i class="bi bi-arrow-left me-2"></i>Retour à la liste
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border: none;
+            border-radius: 10px;
+            transition: transform 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        address {
+            line-height: 1.6;
+        }
+        
+        .badge {
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+        }
+        .card {
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        
+        .bg-light {
+            background-color: #f8f9fa !important;
+        }
+    </style>
+}

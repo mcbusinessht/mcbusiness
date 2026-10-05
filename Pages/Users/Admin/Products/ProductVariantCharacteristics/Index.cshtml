@@ -1,0 +1,56 @@
+﻿@page
+@model             MCBusiness.Pages.Users.Admin.Products.ProductVariantCharacteristics.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductVariantCharacteristic[0].Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductVariantCharacteristic[0].ProductVariant)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductVariantCharacteristic[0].Characteristic)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductVariantCharacteristic[0].CharacteristicValue)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.ProductVariantCharacteristic) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProductVariant.Sku)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Characteristic.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CharacteristicValue.Value)
+            </td>
+            <td>
+                    <a asp-page="./Details" asp-route-id="@item.Id"><i   class="bi bi-ticket-detailed text-light"></i> |</a>
+                    @if (User.IsInRole("Admin")){
+                        <a asp-page="./Edit" asp-route-id="@item.Id"><i   class="bi bi-pencil-square text-light"></i> |</a> 
+                        <a asp-page="./Delete" asp-route-id="@item.Id"><i   class="bi bi-trash text-light"></i></a>
+                    }
+                </td>
+        </tr>
+}
+    </tbody>
+</table>

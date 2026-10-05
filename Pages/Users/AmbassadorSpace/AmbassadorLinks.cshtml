@@ -1,0 +1,453 @@
+@page
+@model MCBusiness.Pages.Users.AmbassadorSpace.AmbassadorLinksModel
+@{
+    ViewData["Title"] = "Générateur de Liens Ambassadeur";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+
+        <!-- Sidebar Desktop -->
+        <div class="col-lg-3 d-none d-lg-block">
+            <div class="bg-white shadow-sm rounded-3 p-3 sticky-top" style="top:1rem">
+                <partial name="_AmbassadorSidebarPartial" />
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+
+            <!-- Header -->
+            @* <partial name="_AmbassadorSidebarPartial" /> *@
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 text-primary fw-bold">
+                        <i class="bi bi-link-45deg me-2"></i>Générateur de Liens Ambassadeur
+                    </h1>
+                    <p class="text-muted">Créez vos liens personnalisés pour tous les produits</p>
+                </div>
+                <div>
+                    <a href="/Users/AmbassadorSpace/Dashboard" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Retour Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recherche de Produits -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-search me-2"></i>Recherche de Produits
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Recherche par nom</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="productSearch" 
+                                               placeholder="Tapez le nom du produit...">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="searchProducts()">
+                                            <i class="bi bi-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Filtrer par catégorie</label>
+                                    <select class="form-select" id="categoryFilter" onchange="filterByCategory()">
+                                        <option value="">Toutes les catégories</option>
+                                        @if(Model.Categories != null)
+                                        {
+                                            @foreach(var category in Model.Categories)
+                                            {
+                                                <option value="@category.Id">@category.Name</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Résultats de Recherche -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-grid-3x3-gap me-2"></i>Produits Disponibles
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="productsGrid" class="row">
+                                <div class="col-12 text-center py-5">
+                                    <i class="bi bi-search text-muted display-4"></i>
+                                    <p class="text-muted mt-3">Utilisez la recherche pour trouver des produits</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Pagination -->
+                            <nav aria-label="Navigation produits" class="mt-4">
+                                <ul id="productsPagination" class="pagination justify-content-center">
+                                    <!-- Généré par JavaScript -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liens Générés -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-clipboard-check me-2"></i>Liens Générés
+                                <span class="badge bg-light text-success ms-2" id="linksCount">0</span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="generatedLinks">
+                                <div class="text-center py-4">
+                                    <i class="bi bi-clipboard-plus text-muted display-4"></i>
+                                    <p class="text-muted mt-3">Aucun lien généré pour le moment</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Scripts JavaScript -->
+<script>
+let currentPage = 1;
+let currentProducts = [];
+let generatedLinksCount = 0;
+
+$(document).ready(function() {
+    loadInitialProducts();
+    
+    // Recherche avec délai
+    let searchTimeout;
+    $('#productSearch').on('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(searchProducts, 500);
+    });
+
+    $('#productSearch').on('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            clearTimeout(searchTimeout);
+            searchProducts(1);
+        }
+    });
+});
+
+// Charger les produits initiaux
+function loadInitialProducts() {
+    $.get('/api/search/products?page=1&pageSize=12')
+        .done(function(data) {
+            const response = normalizeProductsResponse(data);
+            currentProducts = response.products;
+            displayProducts(response.products);
+            displayPagination(response.totalPages, 1);
+        })
+        .fail(function() {
+            $('#productsGrid').html('<div class="alert alert-danger">Erreur de chargement</div>');
+        });
+}
+
+// Rechercher des produits
+function searchProducts(page = 1) {
+    const searchTerm = $('#productSearch').val();
+    const categoryId = $('#categoryFilter').val();
+    
+    let url = `/api/search/products?page=${page}&pageSize=12`;
+    if (searchTerm) url += `&search=${encodeURIComponent(searchTerm)}`;
+    if (categoryId) url += `&categoryId=${categoryId}`;
+    
+    $.get(url)
+        .done(function(data) {
+            const response = normalizeProductsResponse(data);
+            currentProducts = response.products;
+            displayProducts(response.products);
+            displayPagination(response.totalPages, page);
+            currentPage = page;
+        })
+        .fail(function() {
+            $('#productsGrid').html('<div class="alert alert-danger">Erreur de recherche</div>');
+        });
+}
+
+// Filtrer par catégorie
+function filterByCategory() {
+    searchProducts(1);
+}
+
+// Afficher les produits
+function displayProducts(products) {
+    if (!products || products.length === 0) {
+        $('#productsGrid').html(`
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-inbox text-muted display-4"></i>
+                <p class="text-muted mt-3">Aucun produit trouvé</p>
+            </div>
+        `);
+        return;
+    }
+    
+    let html = '';
+    products.forEach(rawProduct => {
+        const product = normalizeProduct(rawProduct);
+        const price = Number(product.price || 0);
+        html += `
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <img src="${escapeHtml(product.imageUrl || '/image/NoPicture.jpg')}" 
+                         class="card-img-top" 
+                         style="height: 200px; object-fit: cover;"
+                         alt="${escapeHtml(product.name)}">
+                    <div class="card-body">
+                        <h6 class="card-title">${escapeHtml(product.name)}</h6>
+                        <p class="card-text text-muted small">${escapeHtml(product.description || '')}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-primary fw-bold">${formatMoney(price)} HTG</span>
+                            <small class="text-muted">Commission: ${formatMoney(price * 0.05)} HTG</small>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0">
+                        <button class="btn btn-primary w-100" onclick="generateProductLink(${product.id})">
+                            <i class="bi bi-link-45deg me-2"></i>Générer Lien
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    $('#productsGrid').html(html);
+}
+
+function normalizeProductsResponse(data) {
+    return {
+        products: data?.products || data?.Products || [],
+        totalPages: data?.totalPages || data?.TotalPages || 1
+    };
+}
+
+function normalizeProduct(product) {
+    return {
+        id: product.id ?? product.Id,
+        name: product.name ?? product.Name ?? '',
+        description: product.description ?? product.Description ?? '',
+        price: product.price ?? product.Price ?? 0,
+        imageUrl: product.imageUrl ?? product.ImageUrl ?? ''
+    };
+}
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function formatMoney(value) {
+    return Number(value || 0).toLocaleString('fr-HT', {
+        maximumFractionDigits: 2
+    });
+}
+
+// Afficher la pagination
+function displayPagination(totalPages, currentPage) {
+    if (totalPages <= 1) {
+        $('#productsPagination').empty();
+        return;
+    }
+    
+    let html = '';
+    
+    // Bouton précédent
+    if (currentPage > 1) {
+        html += `<li class="page-item"><a class="page-link" href="#" onclick="searchProducts(${currentPage - 1})">&laquo;</a></li>`;
+    }
+    
+    // Pages
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === currentPage) {
+            html += `<li class="page-item active"><span class="page-link">${i}</span></li>`;
+        } else {
+            html += `<li class="page-item"><a class="page-link" href="#" onclick="searchProducts(${i})">${i}</a></li>`;
+        }
+    }
+    
+    // Bouton suivant
+    if (currentPage < totalPages) {
+        html += `<li class="page-item"><a class="page-link" href="#" onclick="searchProducts(${currentPage + 1})">&raquo;</a></li>`;
+    }
+    
+    $('#productsPagination').html(html);
+}
+
+// Générer un lien pour un produit
+function generateProductLink(productId, productName) {
+    if (!productName) {
+        const selectedProduct = currentProducts
+            .map(normalizeProduct)
+            .find(product => Number(product.id) === Number(productId));
+        productName = selectedProduct?.name || 'Produit';
+    }
+
+    $.ajax({
+        url: '/api/ambassador/generate-link',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            ProductId: productId
+        })
+    })
+    .done(function(data) {
+        console.log('API Response:', data); // Debug
+        
+        // Gérer les différentes casses possibles
+        const link = data.Link || data.link;
+        const commission = data.Commission || data.commission;
+        
+        if (!link) {
+            console.error('Link not found in response:', data);
+            showErrorToast('Lien non trouvé dans la réponse');
+            return;
+        }
+        
+        addGeneratedLink(productId, productName, link, commission);
+        showSuccessToast(`Lien généré pour ${productName}`);
+    })
+    .fail(function(xhr) {
+        let errorMsg = 'Erreur lors de la génération du lien';
+        if (xhr.status === 401 || xhr.status === 403) {
+            errorMsg = "Votre session ambassadeur n'est plus valide. Reconnectez-vous puis réessayez.";
+        } else if (xhr.responseJSON && xhr.responseJSON.error) {
+            errorMsg = xhr.responseJSON.error;
+        } else if (xhr.responseText) {
+            errorMsg = xhr.responseText;
+        }
+        showErrorToast(errorMsg);
+        console.error('Error details:', xhr);
+    });
+}
+
+// Ajouter un lien généré
+function addGeneratedLink(productId, productName, link, commission) {
+    if (generatedLinksCount === 0) {
+        $('#generatedLinks').html('');
+    }
+    
+    generatedLinksCount++;
+    $('#linksCount').text(generatedLinksCount);
+    const safeProductName = escapeHtml(productName);
+    const safeLink = escapeHtml(link);
+    const safeCommission = Number(commission || 0);
+    
+    const linkHtml = `
+        <div class="card mb-3" id="link-${productId}">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h6 class="mb-1">${safeProductName}</h6>
+                        <small class="text-muted">Commission estimée: ${commission ? formatMoney(safeCommission) + ' HTG' : 'N/A'}</small>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" value="${safeLink}" readonly id="linkInput-${productId}">
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyLink(${productId})">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <button class="btn btn-outline-danger btn-sm" onclick="removeLink(${productId})">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#generatedLinks').append(linkHtml);
+}
+
+// Copier un lien
+function copyLink(productId) {
+    const linkInput = document.getElementById(`linkInput-${productId}`);
+    linkInput.select();
+    document.execCommand('copy');
+    showSuccessToast('Lien copié dans le presse-papiers !');
+}
+
+// Supprimer un lien
+function removeLink(productId) {
+    $(`#link-${productId}`).remove();
+    generatedLinksCount--;
+    $('#linksCount').text(generatedLinksCount);
+    
+    if (generatedLinksCount === 0) {
+        $('#generatedLinks').html(`
+            <div class="text-center py-4">
+                <i class="bi bi-clipboard-plus text-muted display-4"></i>
+                <p class="text-muted mt-3">Aucun lien généré pour le moment</p>
+            </div>
+        `);
+    }
+}
+
+// Notifications toast
+function showSuccessToast(message) {
+    const toast = $(`
+        <div class="toast align-items-center text-white bg-success border-0" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1055;">
+            <div class="d-flex">
+                <div class="toast-body"><i class="bi bi-check-circle me-2"></i>${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    `);
+    
+    $('body').append(toast);
+    const bsToast = new bootstrap.Toast(toast[0]);
+    bsToast.show();
+    
+    toast.on('hidden.bs.toast', function() {
+        $(this).remove();
+    });
+}
+
+function showErrorToast(message) {
+    const toast = $(`
+        <div class="toast align-items-center text-white bg-danger border-0" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1055;">
+            <div class="d-flex">
+                <div class="toast-body"><i class="bi bi-exclamation-circle me-2"></i>${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    `);
+    
+    $('body').append(toast);
+    const bsToast = new bootstrap.Toast(toast[0]);
+    bsToast.show();
+    
+    toast.on('hidden.bs.toast', function() {
+        $(this).remove();
+    });
+}
+</script>

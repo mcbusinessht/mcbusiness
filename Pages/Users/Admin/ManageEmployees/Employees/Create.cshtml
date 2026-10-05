@@ -1,0 +1,224 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_ManageEmployees_Employees.CreateModel
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+@{
+    ViewData["Title"] = "Nouvel employé";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-person-plus me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row g-3 mb-4">
+                            <!-- Section Informations de base -->
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">
+                                            <i class="bi bi-person-badge me-2"></i>Informations principales
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-floating mb-3">
+                                            <select asp-for="Employee.UserId" class="form-select" asp-items="ViewBag.UserId" required>
+                                                <option value="">Sélectionnez un utilisateur</option>
+                                            </select>
+                                            <label asp-for="Employee.UserId" class="form-label">
+                                                <i class="bi bi-person me-1"></i> Utilisateur <span class="text-danger">*</span>
+                                            </label>
+                                            <span asp-validation-for="Employee.UserId" class="text-danger small"></span>
+                                        </div>
+
+                                        <div class="form-floating mb-3">
+                                            <select asp-for="Employee.PostId" class="form-select" asp-items="ViewBag.PostId" required>
+                                                <option value="">Sélectionnez un poste</option>
+                                            </select>
+                                            <label asp-for="Employee.PostId" class="form-label">
+                                                <i class="bi bi-briefcase me-1"></i> Poste <span class="text-danger">*</span>
+                                            </label>
+                                            <span asp-validation-for="Employee.PostId" class="text-danger small"></span>
+                                        </div>
+
+                                        <div class="form-floating mb-3">
+                                            <select asp-for="Employee.Status" class="form-select">
+                                                <option value="0">Inactif</option>
+                                                <option value="1" selected>Actif</option>
+                                            </select>
+                                            <label asp-for="Employee.Status" class="form-label">
+                                                <i class="bi bi-info-circle me-1"></i> Statut
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section Salaire et contrat -->
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">
+                                            <i class="bi bi-cash-stack me-2"></i>Conditions d'emploi
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-floating mb-3">
+                                            <input asp-for="Employee.Salary" class="form-control" placeholder=" " required />
+                                            <label asp-for="Employee.Salary" class="form-label">
+                                                <i class="bi bi-currency-dollar me-1"></i> Salaire <span class="text-danger">*</span>
+                                            </label>
+                                            <span asp-validation-for="Employee.Salary" class="text-danger small"></span>
+                                        </div>
+
+                                        <div class="form-floating mb-3">
+                                            <select asp-for="Employee.CurrencyBase" class="form-select" asp-items="ViewBag.CurrencyBase">
+                                                <option value="">Sélectionnez une devise</option>
+                                            </select>
+                                            <label asp-for="Employee.CurrencyBase" class="form-label">
+                                                <i class="bi bi-coin me-1"></i> Devise
+                                            </label>
+                                        </div>
+
+                                        <div class="form-floating mb-3">
+                                            <input asp-for="Employee.HiredAt" class="form-control" type="date" placeholder=" " />
+                                            <label asp-for="Employee.HiredAt" class="form-label">
+                                                <i class="bi bi-calendar-plus me-1"></i> Date d'embauche
+                                            </label>
+                                        </div>
+
+                                        <div class="form-floating mb-3">
+                                            <input asp-for="Employee.ContractEndDate" class="form-control" type="date" placeholder=" " />
+                                            <label asp-for="Employee.ContractEndDate" class="form-label">
+                                                <i class="bi bi-calendar-minus me-1"></i> Fin de contrat
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section Options avancées -->
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">
+                                            <i class="bi bi-gear me-2"></i>Options avancées
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" asp-for="Employee.IsDeleted" />
+                                            <label class="form-check-label" asp-for="Employee.IsDeleted">
+                                                Marquer comme supprimé
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a asp-page="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i> Créer l'employé
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Activation de la validation Bootstrap
+        (function () {
+            'use strict'
+            
+            var forms = document.querySelectorAll('.needs-validation')
+            
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })();
+
+        // Initialisation des datepickers
+        document.addEventListener('DOMContentLoaded', function() {
+            flatpickr("[type=date]", {
+                dateFormat: "Y-m-d",
+                allowInput: true,
+                locale: "fr"
+            });
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .form-floating label {
+            padding-left: 2.5rem;
+        }
+        
+        .form-floating i.bi {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 5;
+            color: #6c757d;
+        }
+        
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-control:not(:placeholder-shown) ~ label,
+        .form-floating > .form-select ~ label {
+            transform: scale(.85) translateY(-0.5rem) translateX(0.15rem);
+            padding-left: 2.5rem;
+        }
+        
+        .card {
+            border-radius: 0.5rem;
+        }
+        
+        .btn {
+            border-radius: 0.25rem;
+        }
+        
+        .form-switch .form-check-input {
+            width: 2.5em;
+            height: 1.5em;
+            margin-left: 0;
+            margin-right: 0.5em;
+        }
+    </style>
+}

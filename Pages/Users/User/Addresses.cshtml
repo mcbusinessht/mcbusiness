@@ -1,0 +1,216 @@
+﻿@page
+@model MCBusiness.Pages.Users.User.AddressesModel
+@{
+    ViewData["Title"] = "Gestion des Adresses";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-geo-alt me-2"></i>@ViewData["Title"]
+        </h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addressModal">
+            <i class="bi bi-plus-lg me-2"></i>Nouvelle Adresse
+        </button>
+    </div>
+
+    @if (Model.Addresses.Any())
+    {
+        <div class="row g-4">
+            @foreach (var a in Model.Addresses)
+            { var i = 1;
+                <div class="col-md-6 col-xl-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">                 
+                            <h5 class="card-title text-primary">
+                                <i class="bi bi-geo me-2"></i>Adresse #@i  @{i=i+1;}
+                            </h5>
+                            <div class="card-text">
+                                <p class="mb-1">@a.Line1</p>
+                                <p class="mb-1 text-muted small">      
+                                    @a.Neighborhood?.Name, @a.City?.Name
+                                    <br>@a.State?.Name, @a.Country?.Name
+                                    <br>@a.ZipCode
+                                </p>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent d-flex justify-content-end">
+                            @* <button class="btn btn-sm btn-outline-primary me-2"
+                                    onclick="editAddress(@a.Id, '@a.Address1', @a.CountryId, @a.StateId, @a.CityId, @(a.NeighborhoodId ?? 0), '@a.ZipCode')">
+                                <i class="bi bi-pencil"></i>
+                            </button> *@
+                            @* <form method="post" asp-page-handler="Delete" 
+                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette adresse ?');">
+                                <input type="hidden" name="id" value="@a.Id" />
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form> *@
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info d-flex align-items-center">
+            <i class="bi bi-info-circle me-2"></i>
+            Aucune adresse enregistrée. Commencez par en ajouter une.
+        </div>
+    }
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form method="post" class="modal-content needs-validation" novalidate>
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle"><i class="bi bi-geo me-2"></i>Nouvelle Adresse</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" asp-for="CurrentAddress.Id" />
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label asp-for="CurrentAddress.Line1" class="form-label">Adresse complète</label>
+                        <input asp-for="CurrentAddress.Line1" class="form-control" required />
+                        <div class="invalid-feedback">Veuillez saisir une adresse.</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="CurrentAddress.CountryId" class="form-label">Pays</label>
+                        <select asp-for="CurrentAddress.CountryId" class="form-select" 
+                                asp-items="Model.CountryList" required>
+                            <option value="">Sélectionnez un pays</option>
+                        </select>
+                        <div class="invalid-feedback">Veuillez sélectionner un pays.</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="CurrentAddress.StateId" class="form-label">Région/État</label>
+                        <!-- Remplacer les asp-items pour les listes dépendantes -->
+                        <select asp-for="CurrentAddress.StateId" class="form-select" required>
+                            @if (Model.StateList != null)
+                            {
+                                @foreach (var item in Model.StateList)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                            else
+                            {
+                                <option value="">Sélectionnez d'abord un pays</option>
+                            }
+                        </select>
+                        <div class="invalid-feedback">Veuillez sélectionner une région.</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="CurrentAddress.CityId" class="form-label">Ville</label>
+                        <select asp-for="CurrentAddress.CityId" class="form-select" required>
+                            <option value="">Sélectionnez une ville</option>
+                        </select>
+                        <div class="invalid-feedback">Veuillez sélectionner une ville.</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="CurrentAddress.NeighborhoodId" class="form-label">Quartier</label>
+                        <select asp-for="CurrentAddress.NeighborhoodId" class="form-select">
+                            <option value="">Optionnel</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="CurrentAddress.ZipCode" class="form-label">Code Postal</label>
+                        <input asp-for="CurrentAddress.ZipCode" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg me-2"></i>Annuler
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save me-2"></i>Enregistrer  
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Gestion des listes dépendantes
+        document.addEventListener('DOMContentLoaded', function() {
+          initSelect('#CurrentAddress_CountryId',    '#CurrentAddress_StateId',        'States');
+          initSelect('#CurrentAddress_StateId',      '#CurrentAddress_CityId',         'Cities');
+          initSelect('#CurrentAddress_CityId',       '#CurrentAddress_NeighborhoodId',  'Neighborhoods');
+        });
+
+        function initSelect(parentSelector, childSelector, endpoint) {           
+          const parentSelect = document.querySelector(parentSelector);
+          const childSelect  = document.querySelector(childSelector);
+
+          parentSelect.addEventListener('change', async function() {
+            const parentId = this.value;
+            childSelect.innerHTML = '<option value="">Chargement...</option>';
+            if (!parentId) {
+              childSelect.innerHTML = '<option value="">Sélectionnez d\'abord le parent</option>';
+              return;
+            }
+            const resp = await fetch(`?handler=${endpoint}&id=${parentId}`);
+            const data = await resp.json();
+
+            childSelect.innerHTML = data.length
+              ? '<option value="">Sélectionnez...</option>'
+              : '<option value="">Aucun résultat</option>';
+
+            data.forEach(item => {
+              childSelect.innerHTML += `<option value="${item.id}">${item.name}</option>`;
+            });
+          });
+        }
+
+        // Édition d'adresse
+        function editAddress(id, address1, countryId, stateId, cityId, neighborhoodId, zip) {
+            const form = document.forms[0];
+            form.CurrentAddress_Id.value = id;
+            form.CurrentAddress_Address1.value = address1;
+            form.CurrentAddress_ZipCode.value = zip;
+
+            setSelected('#CurrentAddress_CountryId', countryId);
+            setTimeout(() => {
+                setSelected('#CurrentAddress_StateId', stateId);
+                setTimeout(() => {
+                    setSelected('#CurrentAddress_CityId', cityId);
+                    setTimeout(() => {
+                        setSelected('#CurrentAddress_NeighborhoodId', neighborhoodId);
+                    }, 100);
+                }, 100);
+            }, 100);
+
+            document.getElementById('modalTitle').textContent = `Modifier l'adresse #${id}`;
+            new bootstrap.Modal('#addressModal').show();
+        }
+
+        function setSelected(selector, value) {
+            const select = document.querySelector(selector);
+            if (select) {
+                select.value = value;
+                select.dispatchEvent(new Event('change'));
+            }
+        }
+
+        // Reset du modal
+        document.getElementById('addressModal').addEventListener('hidden.bs.modal', () => {
+            document.forms[0].reset();
+            document.querySelector('#CurrentAddress_StateId').innerHTML = '<option value="">Sélectionnez...</option>';
+            document.querySelector('#CurrentAddress_CityId').innerHTML = '<option value="">Sélectionnez...</option>';
+            document.querySelector('#CurrentAddress_NeighborhoodId').innerHTML = '<option value="">Sélectionnez...</option>';
+            document.getElementById('modalTitle').textContent = 'Nouvelle Adresse';
+        });
+    </script>                                                       
+}

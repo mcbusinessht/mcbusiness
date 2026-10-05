@@ -1,0 +1,332 @@
+﻿@page
+@model MCBusiness.Pages.PlaceOrderModel
+@{
+    ViewData["Title"] = "Passer la commande";
+}
+
+<div class="container py-4">
+  <div class="row">
+    <div class="col-md-8">
+      <h3 class="mb-4">Récapitulatif de votre commande</h3>
+      <div class="card mb-4">
+        <div class="card-header bg-primary"><h5>Articles</h5></div>
+        <div class="card-body">
+          @foreach(var item in Model.CartItems) {
+            var correctUnitPrice = Model.GetCorrectUnitPrice(item);
+            var totalPrice = Model.GetCorrectTotalPrice(item);
+            <div class="d-flex justify-content-between mb-3">
+              <div>
+                <h6>@item.ProductVariant.Product.Name</h6>
+                <div>Quantité : @item.Quantity</div>
+                @if (correctUnitPrice != item.ProductVariant.Price)
+                {
+                  <small class="text-success">
+                    <i class="bi bi-tag"></i> Prix palier appliqué
+                    @{
+                      var savings = (item.ProductVariant.Price - correctUnitPrice) * item.Quantity;
+                    }
+                    (Économie: @savings.ToString("N0") HTG)
+                  </small>
+                }
+              </div>
+              <div class="text-end">
+                <div class="fw-bold">@totalPrice.ToString("N0") HTG</div>
+                <small class="text-muted">@correctUnitPrice.ToString("N0") HTG/unité</small>
+                @if (correctUnitPrice != item.ProductVariant.Price)
+                {
+                  <br />
+                  <small class="text-muted text-decoration-line-through">
+                    Base: @item.ProductVariant.Price.ToString("N0") HTG/unité
+                  </small>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card sticky-top" style="top:100px">
+        <div class="card-header bg-primary"><h5>Total</h5></div>
+        <div class="card-body">
+
+          <div class="d-flex justify-content-between mb-2">
+            <span>Sous‑total</span>
+            <span id="subtotal">@Model.SubTotal.ToString("N0")</span> HTG
+          </div>
+
+          <div id="shipping-fees-list">
+            @foreach(var fee in Model.ShippingFees) {
+                <div class="border rounded p-3 mb-3 shipping-company-block">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <strong>Livraison @fee.CompanyName</strong>
+                            @if (!string.IsNullOrWhiteSpace(fee.Message))
+                            {
+                                <small class="text-muted d-block">@fee.Message</small>
+                            }
+                        </div>
+                        <div class="text-end">
+                            @if (fee.IsAvailable) {
+                                <span class="fw-bold">@fee.Amount.ToString("N0") HTG</span>
+                            } else if (fee.QuoteRequired) {
+                                <span class="badge bg-warning text-dark">Sur devis</span>
+                            } else {
+                                <span class="text-danger">Livraison indisponible</span>
+                            }
+                        </div>
+                    </div>
+                    @if (fee.Lines.Any())
+                    {
+                        <div class="small">
+                            @foreach (var line in fee.Lines)
+                            {
+                                <div class="d-flex justify-content-between border-top py-1">
+                                    <div class="pe-2">
+                                        <span>
+                                            @line.ProductName x @line.Quantity
+                                            <span class="text-muted">(@line.PackageType)</span>
+                                            @if (line.IsPrimary)
+                                            {
+                                                <span class="badge bg-primary ms-1">principal</span>
+                                            }
+                                            @if (line.IsBlocking)
+                                            {
+                                                <span class="badge bg-danger ms-1">à corriger</span>
+                                            }
+                                        </span>
+                                        @if (!string.IsNullOrWhiteSpace(line.Explanation) && !line.IsPrimary)
+                                        {
+                                            <small class="text-muted d-block">@line.Explanation</small>
+                                        }
+                                        @if (line.IsBlocking)
+                                        {
+                                            <div class="alert alert-warning py-2 px-3 mt-2 mb-2">
+                                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                                @(string.IsNullOrWhiteSpace(line.ActionHint)
+                                                    ? "Retirez ce produit du panier ou essayez une autre adresse de livraison."
+                                                    : line.ActionHint)
+                                            </div>
+                                            @if (line.CanRemoveFromCart)
+                                            {
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-danger remove-blocking-item"
+                                                        data-variant-id="@line.ProductVariantId"
+                                                        data-product-name="@line.ProductName">
+                                                    <i class="bi bi-trash me-1"></i>Retirer ce produit
+                                                </button>
+                                            }
+                                        }
+                                    </div>
+                                    <span class="text-nowrap">@line.Amount.ToString("N0") HTG</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+          </div>
+
+          @if (!Model.ShippingAvailable)
+          {
+            <div class="alert alert-warning small" id="shipping-help-box">
+                <strong>Action requise avant paiement.</strong>
+                Une livraison est indisponible ou sur devis. Retirez le produit indiqué, ou essayez une autre adresse si vous en avez une.
+            </div>
+          }
+
+          <div class="d-flex justify-content-between mb-2">
+            <span>Total livraison</span>
+            <span id="shipping-total">
+                @if (Model.ShippingAvailable) {
+                    @Model.ShippingTotal.ToString("N0") <span>HTG</span>
+                } else {
+                    <text>Indisponible</text>
+                }
+            </span>
+          </div>
+
+          <div class="d-flex justify-content-between fw-bold fs-5">
+            <span>Total général</span>
+            <span id="grand-total">
+                @if (Model.ShippingAvailable) {
+                    @Model.GrandTotal.ToString("N0") <span>HTG</span>
+                } else {
+                    <text>Livraison indisponible</text>
+                }
+            </span>
+          </div>
+
+          <form method="post" class="mt-4" id="orderForm" data-critical="true">
+            <div class="mb-3">
+                <label class="form-label">Adresse de livraison</label>
+                <select class="form-select" asp-for="SelectedAddressId" id="addressSelect" required>
+                    <option value="">Sélectionnez une adresse</option>
+                    @foreach(var addr in Model.UserAddresses) {
+                        <option value="@addr.Id" selected="@(addr.Id == Model.SelectedAddressId)">
+                            @addr.Line1, @addr.City?.Name, @addr.State?.Name, @addr.Country?.Name
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="mb-3 text-center">
+              <a asp-page="/Users/User/Addresses"> <i class="bi bi-gear"></i> Paramètres d'adresse</a>
+            </div>
+            <button type="submit" class="btn btn-primary w-100" id="submitBtn" @(Model.ShippingAvailable ? "" : "disabled")>
+                <span class="button-text">Confirmer la commande</span>
+                <span class="spinner-border spinner-border-sm d-none ms-2" role="status" aria-hidden="true"></span>
+            </button>
+            <p class="text-muted small mt-2 mb-0">
+                Les frais sont regroupés par vendeur : le produit le plus coûteux à livrer sert de base, puis les autres articles ajoutent seulement des suppléments réduits.
+            </p>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+@section Scripts {
+  <script src="~/js/anti-double-submit.js"></script>
+  <script>
+    const addressSelect = document.getElementById('addressSelect');
+    const submitBtn     = document.getElementById('submitBtn');
+    const shippingTotalElem = document.getElementById('shipping-total');
+    const grandTotalElem    = document.getElementById('grand-total');
+    const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+    async function updateShipping(addressId) {
+      const resp = await fetch(`?handler=ShippingFees&addressId=${addressId}`);
+      const data = await resp.json();
+
+      // rebuild list
+      const list = document.getElementById('shipping-fees-list');
+      list.innerHTML = '';
+      let anyUnavailable = false;
+
+      data.shippingFees.forEach(f => {
+        const div = document.createElement('div');
+        div.className = 'd-flex justify-content-between mb-2';
+        const amt = f.isAvailable
+          ? `${Number(f.amount).toLocaleString()} HTG`
+          : (f.quoteRequired ? 'Sur devis' : 'Livraison indisponible');
+        if (!f.isAvailable) anyUnavailable = true;
+        const lines = (f.lines || []).map(l => {
+          const blockingBadge = l.isBlocking ? ' <span class="badge bg-danger ms-1">à corriger</span>' : '';
+          const primaryBadge = l.isPrimary ? ' <span class="badge bg-primary ms-1">principal</span>' : '';
+          const explanation = l.explanation && !l.isPrimary ? `<small class="text-muted d-block">${escapeHtml(l.explanation)}</small>` : '';
+          const actionHint = l.isBlocking ? `
+            <div class="alert alert-warning py-2 px-3 mt-2 mb-2">
+              <i class="bi bi-exclamation-triangle me-1"></i>
+              ${escapeHtml(l.actionHint || 'Retirez ce produit du panier ou essayez une autre adresse de livraison.')}
+            </div>
+            ${l.canRemoveFromCart ? `
+              <button type="button"
+                      class="btn btn-sm btn-outline-danger remove-blocking-item"
+                      data-variant-id="${l.productVariantId}"
+                      data-product-name="${escapeHtml(l.productName)}">
+                <i class="bi bi-trash me-1"></i>Retirer ce produit
+              </button>` : ''}
+          ` : '';
+
+          return `
+          <div class="d-flex justify-content-between border-top py-1 small">
+            <div class="pe-2">
+              <span>${escapeHtml(l.productName)} x ${l.quantity} <span class="text-muted">(${escapeHtml(l.packageType)})</span>${primaryBadge}${blockingBadge}</span>
+              ${explanation}
+              ${actionHint}
+            </div>
+            <span class="text-nowrap">${Number(l.amount).toLocaleString()} HTG</span>
+          </div>
+        `;
+        }).join('');
+        div.className = 'border rounded p-3 mb-3 shipping-company-block';
+        div.innerHTML = `
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <strong>Livraison ${f.companyName}</strong>
+              ${f.message ? `<small class="text-muted d-block">${f.message}</small>` : ''}
+            </div>
+            <div class="text-end fw-bold">${amt}</div>
+          </div>
+          ${lines}
+        `;
+        list.appendChild(div);
+      });
+
+      bindRemoveButtons();
+
+      // mets à jour le total de livraison et le bouton
+      if (!anyUnavailable) {
+        shippingTotalElem.textContent = `${Number(data.shippingTotal).toLocaleString()} HTG`;
+        grandTotalElem.textContent    = `${Number(data.grandTotal).toLocaleString()} HTG`;
+      } else {
+        shippingTotalElem.textContent = 'Livraison indisponible';
+        grandTotalElem.textContent    = 'Livraison indisponible';
+      }
+      submitBtn.disabled = anyUnavailable;
+    }
+
+    function bindRemoveButtons() {
+      document.querySelectorAll('.remove-blocking-item').forEach(button => {
+        button.addEventListener('click', async () => {
+          const variantId = button.dataset.variantId;
+          const productName = button.dataset.productName || 'ce produit';
+          if (!variantId) return;
+
+          const confirmed = window.confirm(`Retirer ${productName} de cette commande ?`);
+          if (!confirmed) return;
+
+          button.disabled = true;
+          button.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Retrait...';
+
+          const formData = new FormData();
+          formData.append('productVariantId', variantId);
+          if (csrfToken) {
+            formData.append('__RequestVerificationToken', csrfToken);
+          }
+
+          const resp = await fetch('?handler=RemoveCartItem', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          });
+
+          const data = await resp.json();
+          if (!resp.ok || !data.success) {
+            alert(data.message || "Impossible de retirer ce produit pour le moment.");
+            button.disabled = false;
+            button.innerHTML = '<i class="bi bi-trash me-1"></i>Retirer ce produit';
+            return;
+          }
+
+          if (data.redirect) {
+            window.location.href = data.redirect;
+            return;
+          }
+
+          window.location.reload();
+        });
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    addressSelect.addEventListener('change', () => {
+      if (addressSelect.value) updateShipping(addressSelect.value);
+    });
+
+    // initialisation
+    if (addressSelect.value) updateShipping(addressSelect.value);
+    bindRemoveButtons();
+  </script>
+}
+   

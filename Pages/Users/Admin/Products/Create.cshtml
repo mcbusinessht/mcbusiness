@@ -1,0 +1,46 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Products.CreateModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+
+<div class="row">
+    <div class="col-md-5 mx-auto">
+        <h4 class="text-center">Ajouter un Nouveau Produit</h4>
+        <hr>
+
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group mb-3">
+                <span class="text-danger">*</span>
+                <label asp-for="Product.Name" class="control-label">Nom</label>
+                <input asp-for="Product.Name" class="form-control" />
+                <span asp-validation-for="Product.Name" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Product.CategoryId" class="control-label">Categorie</label> 
+                <select asp-for="Product.CategoryId" class ="form-control" asp-items="ViewBag.CategoryId">
+                    <option value="" selected disabled>--Veuillez choisir une Categorie--</option>
+                </select>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Product.CompanyId" class="control-label"></label>
+                <select asp-for="Product.CompanyId" class ="form-control" asp-items="ViewBag.CompanyId">
+                </select>
+            </div>
+            <div class="form-group mb-3 text-center">
+                <button type="submit" class="btn btn-primary">Enregister <i class="bi bi-database-add"></i></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

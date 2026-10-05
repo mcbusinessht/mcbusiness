@@ -1,0 +1,182 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_Addresses_States.DeleteModel
+
+@{
+    ViewData["Title"] = "Supprimer une région/état";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-danger text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-trash me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="./Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <h5 class="alert-heading">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>Attention !
+                        </h5>
+                        <p class="mb-0">
+                            Vous êtes sur le point de supprimer définitivement cette région/état. 
+                            Cette action entraînera également la suppression de toutes les villes associées.
+                        </p>
+                    </div>
+
+                    <div class="row">
+                        <!-- Menu latéral Adresses -->
+                        <div class="col-md-3 mb-4 mb-md-0">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-geo-alt me-2"></i>Menu Adresses
+                                    </h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="list-group list-group-flush">
+                                        <a asp-page="../Index" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-map me-2"></i>Gestion des adresses
+                                        </a>
+                                        <a asp-page="../Cities/Index" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-building me-2"></i>Villes
+                                        </a>
+                                        <a asp-page="./Index" class="list-group-item list-group-item-action active">
+                                            <i class="bi bi-globe me-2"></i>Régions/États
+                                        </a>
+                                        <a asp-page="../Countries/Index" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-flag me-2"></i>Pays
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Détails de la région à supprimer -->
+                        <div class="col-md-9">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title text-danger mb-4">
+                                        <i class="bi bi-globe me-2"></i>@Model.State.Name
+                                    </h5>
+                                    
+                                    <dl class="row mb-4">
+                                        <dt class="col-sm-4 text-end fw-bold">
+                                            <i class="bi bi-pin-map me-2"></i>Nom :
+                                        </dt>
+                                        <dd class="col-sm-8">
+                                            <span class="badge bg-danger">@Model.State.Name</span>
+                                        </dd>
+
+                                        <dt class="col-sm-4 text-end fw-bold">
+                                            <i class="bi bi-flag me-2"></i>Pays :
+                                        </dt>
+                                        <dd class="col-sm-8">
+                                            @if (Model.State.Country != null)
+                                            {
+                                                <span class="badge bg-info">@Model.State.Country.Name</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning">Non spécifié</span>
+                                            }
+                                        </dd>
+
+                                        <dt class="col-sm-4 text-end fw-bold">
+                                            <i class="bi bi-building me-2"></i>Villes associées :
+                                        </dt>
+                                        <dd class="col-sm-8">
+                                            <span class="badge bg-secondary">@(Model.State.Cities?.Count ?? 0) ville(s)</span>
+                                        </dd>
+                                    </dl>
+
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-exclamation-circle me-2"></i>
+                                        <strong>Attention :</strong> La suppression de cette région entraînera la suppression de toutes ses villes.
+                                    </div>
+
+                                    <form method="post" class="mt-4">
+                                        <input type="hidden" asp-for="State.Id" />
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <a asp-page="./Index" class="btn btn-outline-secondary">
+                                                <i class="bi bi-x-circle me-1"></i> Annuler
+                                            </a>
+                                            <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous certain de vouloir supprimer cette région et toutes ses villes ? Cette action est irréversible.');">
+                                                <i class="bi bi-trash me-1"></i> Confirmer la suppression
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .list-group-item {
+            border-left: 0;
+            border-right: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .list-group-item:first-child {
+            border-top: 0;
+        }
+        
+        .list-group-item:last-child {
+            border-bottom: 0;
+        }
+        
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+        
+        .list-group-item.active:hover {
+            background-color: #0d6efd;
+            transform: none;
+        }
+        
+        .badge {
+            font-size: 0.85em;
+            padding: 0.5em 0.75em;
+        }
+        
+        .alert-danger {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .alert-warning {
+            border-left: 4px solid #ffc107;
+        }
+        
+        dt {
+            color: #6c757d;
+        }
+        
+        dd {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .btn {
+            transition: all 0.2s ease;
+        }
+    </style>
+}

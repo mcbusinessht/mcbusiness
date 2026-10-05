@@ -1,0 +1,311 @@
+@using Microsoft.AspNetCore.Identity
+@using MCBusiness.Models; 
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+            
+<button class="mobile-menu-btn" id="mobileMenuBtn">
+    <i class="bi bi-list"></i>  
+</button>
+<div class="overlay" id="overlay"></div>  
+<div class="col-12 col-lg-3 sidebar" id="sidebar">
+    <div class="d-flex justify-content-between align-items-center px-3 mb-3">
+        <h5 class="mb-0">Menu Admin</h5>
+        <button class="btn btn-sm d-lg-none" id="closeSidebar">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <nav class="nav flex-column">
+
+        <!-- Abonnements -->
+        <a asp-page="/Users/Admin/Dashboard" class="sidebar-link fw-bold">
+            <i class="bi bi-shield-lock"></i> Dashboard
+        </a>
+        
+        <hr>
+
+        <!-- Abonnements -->
+        <a asp-page="/Users/Admin/Subscriptions/Index" class="sidebar-link">
+            <i class="bi bi-credit-card"></i> Abonnements
+        </a>
+
+        <!-- Addresses -->
+        <a asp-page="/Users/Admin/Addresses/Index" class="sidebar-link">
+            <i class="bi bi-bell"></i> Addresses
+        </a>
+
+        <!-- Administrateurs -->
+        @if (User.IsInRole("Admin")){
+        <a asp-page="/Users/Admin/Admins/Index" class="sidebar-link">
+            <i class="bi bi-shield-lock"></i> Administrateurs
+        </a>
+        }
+
+        <!-- Annonces -->
+        <a asp-page="/Users/Admin/Notices/Index" class="sidebar-link">
+            <i class="bi bi-bell"></i> Annonces
+        </a>
+
+        <!-- BankTransfer -->
+        @if (User.IsInRole("Admin")){
+        <a asp-page="/Users/Admin/BankTransferPayments/Index" class="sidebar-link">
+            <i class="bi bi-bank"></i> BankTransfer
+        </a>
+        }
+
+        <!-- Catégories -->
+        <a asp-page="/Users/Admin/Categories/Index" class="sidebar-link">
+            <i class="bi bi-tags"></i> Catégories
+        </a>
+
+        <!-- Code Promos -->
+        @if (User.IsInRole("Admin")){
+        <a asp-page="/Users/Admin/Promotions/PromoCodes/Index" class="sidebar-link">
+            <i class="bi bi-code"></i> Code Promos
+        </a>
+        <a asp-page="/Users/Admin/Promotions/PromoAnalytics" class="sidebar-link">
+            <i class="bi bi-graph-up"></i> Analyse Coûts Promo
+        </a>
+        }
+
+        <!-- Devises -->
+        <a asp-page="/Users/Admin/Currencies/Index" class="sidebar-link">
+            <i class="bi bi-currency-exchange"></i> Devises
+        </a>
+
+        <!-- Employees -->
+        <a asp-page="/Users/Admin/ManageEmployees/Employees/Index" class="sidebar-link">
+            <i class="bi bi-building-check"></i> Employees
+        </a>
+
+        <!-- Entreprises -->
+        <a asp-page="/Users/Admin/Sellers/Companies/Index" class="sidebar-link">
+            <i class="bi bi-building"></i> Entreprises
+        </a>
+
+        <!-- Fournisseurs -->
+        <a asp-page="/Users/Admin/Sellers/Index" class="sidebar-link">
+            <i class="bi bi-truck"></i> Fournisseurs
+        </a>
+
+        <!-- Journalisations -->
+        <a asp-page="/Users/Admin/UserActivityLogs/Index" class="sidebar-link">
+            <i class="bi bi-newspaper"></i> Journalisations
+        </a>
+
+        <!-- Marques -->
+        <a asp-page="/Users/Admin/Products/Brands/Index" class="sidebar-link">
+            <i class="bi bi-buildings"></i> Marques
+        </a>
+
+        <!-- Médias -->
+        <a asp-page="/Users/Admin/Medias/Index" class="sidebar-link">
+            <i class="bi bi-images"></i> Médias
+        </a>
+
+        <!-- Notifications -->
+        <a asp-page="/Users/Admin/Notifications/Index" class="sidebar-link">
+            <i class="bi bi-bell-fill"></i> Notifications
+        </a>
+
+        <!-- Paiement vendeurs -->
+        @if (User.IsInRole("Admin")){
+        <a asp-page="/Users/Admin/SellerPayments/Index" class="sidebar-link">
+            <i class="bi bi-credit-card-2-back-fill"></i> Paiement Vendeurs
+        </a>
+        }
+
+        <!-- Parrainages -->
+        <a asp-page="/Users/Admin/Referrals/Index" class="sidebar-link">
+            <i class="bi bi-person-plus"></i> Parrainages
+        </a>
+
+        <!-- Plans -->
+        <a asp-page="/Users/Admin/Plans/Index" class="sidebar-link">
+            <i class="bi bi-journal-bookmark"></i> Plans
+        </a>
+
+        <!-- Produits -->
+        <a asp-page="/Users/Admin/Products/Index" class="sidebar-link">
+            <i class="bi bi-box-seam"></i> Produits
+        </a>
+
+        <!-- Reconciliation Financiere -->
+        <a asp-page="/Users/Admin/FinancialReconciliation/Index" class="sidebar-link">
+            <i class="bi bi-bank"></i> Reconciliation Financi�re 
+        </a>
+
+        <!-- Retraits -->
+        <a asp-page="/Users/Admin/MonCashWithdrawals/Index" class="sidebar-link">
+            <i class="bi bi-bank"></i> Retraits
+        </a>
+
+        <!-- Roles -->
+        @if (User.IsInRole("Admin")){
+        <a asp-page="/Users/Admin/GestionRoles/Index" class="sidebar-link">
+            <i class="bi bi-person-gear"></i> Roles
+        </a>
+        }
+
+        <!-- Sauvegardes -->
+        <a asp-page="/Users/Admin/Backup/Index" class="sidebar-link">
+            <i class="bi bi-hdd"></i> Sauvegardes
+        </a>
+
+        <!-- Services -->
+        <a asp-page="/Users/Admin/Services/ITServices/Index" class="sidebar-link">
+            <i class="bi bi-hdd"></i> Services
+        </a>
+
+        <!-- Transactions -->
+        <a asp-page="/Users/Admin/Transactions/Index" class="sidebar-link">
+            <i class="bi bi-cash-stack"></i> Transactions
+        </a>
+
+        <!-- Utilisateurs -->
+        <a asp-page="/Users/Admin/Users/Index" class="sidebar-link">
+            <i class="bi bi-people"></i> Utilisateurs
+        </a>
+
+        <!-- Déconnexion -->
+        <a asp-page="/Account/Login" asp-page-handler="LogOut" class="sidebar-link mt-4 text-danger">
+            <i class="bi bi-box-arrow-right"></i> Déconnexion
+        </a>
+
+    </nav>
+</div>
+
+<style>   
+    :root {
+            --primary-color: #005fac;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --success-color: #4cc9f0;
+            --warning-color: #f8961e;
+            --danger-color: #f94144;
+            --dark-color: #212529;
+            --text-color: #495057;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);  
+        }
+    .sidebar {
+            background: white;
+            border-radius: var(--border-radius);  
+            box-shadow: var(--box-shadow);
+            padding: 1rem 0;
+        }
+
+        .sidebar-link {
+            color: var(--text-color);
+            padding: 0.75rem 1.5rem;
+            margin: 0.25rem 0;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            display: block;
+            text-decoration: none;
+        }
+
+        .sidebar-link:hover {
+            background-color: #f1f3f9;
+            color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .sidebar-link.active {
+            background-color: #e6f0ff;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .sidebar-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+        }
+        .dropdown-menu {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        .card {
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }  
+        @@media (max-width: 992px) {  
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -300px;
+                width: 280px;
+                height: 100vh;
+                z-index: 1050;
+                transition: all 0.3s ease;
+                overflow-y: auto;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+                position: fixed;
+                bottom: 2rem;
+                right: 2rem;
+                z-index: 1040;
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                background: var(--primary-color);
+                color: white;
+                border: none;
+                box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+            }
+
+            .overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1040;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+            }
+
+            .overlay.show {
+                opacity: 1;
+                visibility: visible;
+            }
+
+        }
+    </style>
+
+
+
+    <script>
+        // Le même script que dans le dashboard pour gérer le menu mobile
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('open');
+            document.getElementById('overlay').classList.add('show');
+        });
+
+        document.getElementById('closeSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('overlay').classList.remove('show');
+        });
+
+        document.getElementById('overlay').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('open');
+            this.classList.remove('show');
+        });
+    </script>

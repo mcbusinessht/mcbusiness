@@ -1,0 +1,297 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Transactions.IndexModel
+
+@{
+    ViewData["Title"] = "Gestion des Transactions";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-cash-stack me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="./PlatformTransactions/Index" class="btn btn-light">
+                        <i class="bi bi-bank2 me-1"></i>
+                        Transactions Interne
+                    </a>
+                    </div>
+                    
+                </div>
+
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                                <input type="text" id="searchInput" class="form-control" placeholder="Rechercher...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="typeFilter">
+                                <option value="">Tous les types</option>
+                                @foreach (var type in Enum.GetValues(typeof(MCBusiness.Models.TransactionType)))
+                                {
+                                    <option value="@type">@type</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">Tous les statuts</option>
+                                @foreach (var status in Enum.GetValues(typeof(MCBusiness.Models.TransactionStatus)))
+                                {
+                                    <option value="@status">@status</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex justify-content-end">
+                            <button class="btn btn-outline-secondary" id="resetFilters">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="transactionsTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="sortable" data-sort="amount">
+                                        <i class="bi bi-currency-euro me-1"></i>
+                                        Montant
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-sort="type">
+                                        <i class="bi bi-tag me-1"></i>
+                                        Type
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th>
+                                        <i class="bi bi-card-text me-1"></i>
+                                        Description
+                                    </th>
+                                    <th class="sortable" data-sort="method">
+                                        <i class="bi bi-credit-card me-1"></i>
+                                        Méthode
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-sort="status">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Statut
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-sort="date">
+                                        <i class="bi bi-calendar me-1"></i>
+                                        Date
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="text-end">
+                                        <i class="bi bi-gear me-1"></i>
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Transaction)
+                                {
+                                    <tr data-type="@item.Type" data-status="@item.Status">
+                                        <td>
+                                            <span class="@(item.Type == MCBusiness.Models.TransactionType.Deposit ? "text-success" : "text-danger") fw-bold">
+                                                @item.Amount.ToString("C")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge @(item.Type == MCBusiness.Models.TransactionType.Deposit ? "bg-success" : 
+                                                              item.Type == MCBusiness.Models.TransactionType.Withdrawal ? "bg-danger" : "bg-info")">
+                                                @item.Type
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @item.Description
+                                        </td>
+                                        <td>
+                                            @item.Method
+                                        </td>
+                                        <td>
+                                            @{
+                                                var statusBadgeClass = item.Status switch
+                                                {
+                                                    MCBusiness.Models.TransactionStatus.Completed => "bg-success",
+                                                    MCBusiness.Models.TransactionStatus.Pending => "bg-warning",
+                                                    MCBusiness.Models.TransactionStatus.Failed => "bg-danger",
+                                                    _ => "bg-secondary"
+                                                };
+                                            }
+                                            <span class="badge @statusBadgeClass">@item.Status</span>
+                                        </td>
+                                        <td>
+                                            @LocalTime.Format(item.TransactionDate, "dd/MM/yyyy HH:mm")
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="btn-group" role="group">
+                                                <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Détails">
+                                                    <i class="bi bi-info-circle"></i>
+                                                </a>
+                                                @if (User.IsInRole("Admin"))
+                                                {
+                                                    <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Modifier">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Supprimer">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="small text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <span id="totalCount">@Model.Transaction.Count</span> transactions trouvées
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Filtrage par recherche
+            $('#searchInput').keyup(function() {
+                const searchText = $(this).val().toLowerCase();
+                filterTable(searchText);
+            });
+
+            // Filtrage par type
+            $('#typeFilter').change(function() {
+                const type = $(this).val();
+                filterTable('', type);
+            });
+
+            // Filtrage par statut
+            $('#statusFilter').change(function() {
+                const status = $(this).val();
+                filterTable('', '', status);
+            });
+
+            // Réinitialisation des filtres
+            $('#resetFilters').click(function() {
+                $('#searchInput').val('');
+                $('#typeFilter').val('');
+                $('#statusFilter').val('');
+                filterTable('', '', '');
+            });
+
+            // Tri des colonnes
+            $('.sortable').click(function() {
+                const sortBy = $(this).data('sort');
+                // Implémentez la logique de tri ici
+                console.log('Tri par: ' + sortBy);
+            });
+
+            function filterTable(searchText = '', type = '', status = '') {
+                let visibleCount = 0;
+                
+                $('#transactionsTable tbody tr').each(function() {
+                    const description = $(this).find('td:nth-child(3)').text().toLowerCase();
+                    const rowType = $(this).data('type').toString();
+                    const rowStatus = $(this).data('status').toString();
+                    
+                    const matchSearch = searchText === '' || description.includes(searchText);
+                    const matchType = type === '' || rowType === type;
+                    const matchStatus = status === '' || rowStatus === status;
+                    
+                    if (matchSearch && matchType && matchStatus) {
+                        $(this).show();
+                        visibleCount++;
+                    } else {
+                        $(this).hide();
+                    }
+                });
+                
+                $('#totalCount').text(visibleCount);
+            }
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .sort-icon {
+            font-size: 0.8em;
+            opacity: 0.5;
+            margin-left: 5px;
+        }
+        
+        .sortable:hover .sort-icon {
+            opacity: 1;
+        }
+        
+        .badge {
+            font-size: 0.85em;
+            padding: 0.35em 0.65em;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .btn-group .btn {
+            border-radius: 0.25rem !important;
+        }
+        
+        .input-group-text {
+            background-color: #f8f9fa;
+        }
+        
+        .card-header {
+            border-bottom: none;
+        }
+        
+        /* Style pour les statuts */
+        .bg-success {
+            background-color: #28a745 !important;
+        }
+        .bg-danger {
+            background-color: #dc3545 !important;
+        }
+        .bg-warning {
+            background-color: #ffc107 !important;
+            color: #212529;
+        }
+        .bg-info {
+            background-color: #17a2b8 !important;
+        }
+        .bg-secondary {
+            background-color: #6c757d !important;
+        }
+    </style>
+}

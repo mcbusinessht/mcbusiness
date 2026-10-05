@@ -1,0 +1,881 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.UserActivityLogs.IndexModel
+@using MCBusiness.Models;
+@{
+    ViewData["Title"] = "Surveillance Avancée des Activités";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-shield-lock me-2"></i>Surveillance Avancée des Activités
+                        </h4>
+                        <div>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-warning me-2" id="scanSuspiciousBtn">
+                                    <i class="bi bi-shield-exclamation me-1"></i> Scanner
+                                </button>
+                                <button class="btn btn-sm btn-danger" id="autoProtectBtn" title="Mode Protection Automatique">
+                                    <i class="bi bi-shield-check me-1"></i> Auto-Protect
+                                </button>
+                            </div>
+                            <a asp-page="../Dashboard" class="btn btn-sm btn-light ms-2">
+                                <i class="bi bi-arrow-left me-1"></i> Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <!-- Outils de surveillance avancés -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 border-primary">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-funnel me-2"></i>Filtres Intelligents</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Utilisateur</label>
+                                            <select class="form-select" id="userFilter">
+                                                <option value="">Tous les utilisateurs</option>
+                                                @foreach (var user in Model.UserActivityLog.Select(u => u.UserName).Distinct())
+                                                {
+                                                    <option value="@user">@user</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Type d'action</label>
+                                            <select class="form-select" id="actionFilter">
+                                                <option value="">Toutes les actions</option>
+                                                @foreach (var action in Model.UserActivityLog.Select(a => a.ActionType).Distinct())
+                                                {
+                                                    <option value="@action">@action</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Date de début</label>
+                                            <input type="date" class="form-control" id="startDateFilter">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Date de fin</label>
+                                            <input type="date" class="form-control" id="endDateFilter">
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-check form-switch mt-2">
+                                                <input class="form-check-input" type="checkbox" id="showOnlySuspicious" checked>
+                                                <label class="form-check-label" for="showOnlySuspicious">Afficher uniquement les activités suspectes</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 border-primary">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Statistiques & Alertes</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-4 border-end">
+                                            <div class="display-6 text-primary">@Model.UserActivityLog.Count</div>
+                                            <small class="text-muted">Activités</small>
+                                        </div>
+                                        <div class="col-4 border-end">
+                                            <div class="display-6 text-success">@Model.UserActivityLog.Select(u => u.UserName).Distinct().Count()</div>
+                                            <small class="text-muted">Utilisateurs</small>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="display-6 text-warning" id="suspiciousCount">0</div>
+                                            <small class="text-muted">Suspectes</small>
+                                        </div>
+                                        <div class="col-12 mt-3">
+                                            <div class="alert alert-danger py-2 mb-0 d-flex align-items-center" id="criticalAlert" style="display: none;">
+                                                <i class="bi bi-exclamation-octagon-fill me-2"></i>
+                                                <span id="criticalAlertText"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tableau des activités avec détection avancée -->
+                    <div class="table-responsive mb-4">
+                        <table class="table table-hover" id="activityTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th><i class="bi bi-person me-1"></i>Utilisateur</th>
+                                    <th><i class="bi bi-link me-1"></i>URL</th>
+                                    <th><i class="bi bi-gear me-1"></i>Méthode</th>
+                                    <th><i class="bi bi-pc me-1"></i>IP</th>
+                                    <th><i class="bi bi-activity me-1"></i>Action</th>
+                                    <th><i class="bi bi-clock me-1"></i>Date/Heure</th>
+                                    <th><i class="bi bi-shield me-1"></i>Risque</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.UserActivityLog)
+                                {
+                                    var threatLevel = GetThreatLevel(item);
+                                    <tr class="@GetThreatRowClass(threatLevel)" 
+                                        data-suspicious="@(threatLevel > 0 ? "true" : "false")"
+                                        data-threat-level="@threatLevel">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                @if (threatLevel > 0)
+                                                {
+                                                    <i class="bi @GetThreatIcon(threatLevel) me-2" title="@GetThreatDescription(threatLevel)"></i>
+                                                }
+                                                @Html.DisplayFor(modelItem => item.UserName)
+                                                @if (IsNewDeviceOrLocation(item))
+                                                {
+                                                    <span class="badge bg-info ms-2" title="Nouvel appareil/localisation">
+                                                        <i class="bi bi-star-fill"></i> Nouveau
+                                                    </span>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="d-inline-block text-truncate" style="max-width: 150px;" title="@item.Path">
+                                                @item.Path
+                                            </span>
+                                            @if (IsPotentialXSS(item.Path))
+                                            {
+                                                <span class="badge bg-danger ms-1" title="Possible attaque XSS">
+                                                    <i class="bi bi-exclamation-triangle"></i> XSS
+                                                </span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="badge @GetMethodBadgeClass(item.Method)">
+                                                @item.Method
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <span class="d-inline-block text-truncate" style="max-width: 120px;" title="@item.IpAddress">
+                                                    @item.IpAddress
+                                                </span>
+                                                @if (IsTorNode(item.IpAddress))
+                                                {
+                                                    <span class="badge bg-dark ms-1" title="Noeud Tor">
+                                                        <i class="bi bi-incognito"></i> Tor
+                                                    </span>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge @GetActionBadgeClass(item.ActionType)">
+                                                @item.ActionType
+                                            </span>
+                                            @if (item.ActionType == "LoginFailed")
+                                            {
+                                                <span class="badge bg-danger ms-1" title="Tentative échouée">
+                                                    <i class="bi bi-exclamation-octagon"></i> Échec
+                                                </span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @LocalTime.Format(item.Timestamp, "g")
+                                            @if (IsUnusualTime(item.Timestamp))
+                                            {
+                                                <span class="badge bg-warning text-dark ms-1" title="Heure inhabituelle">
+                                                    <i class="bi bi-moon-stars"></i>
+                                                </span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar @GetThreatProgressClass(threatLevel)" 
+                                                     role="progressbar" 
+                                                     style="width: @(threatLevel * 10)%;" 
+                                                     aria-valuenow="@(threatLevel * 10)" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                    @threatLevel/10
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-outline-primary" title="Détails">
+                                                    <i class="bi bi-search"></i>
+                                                </a>
+                                                <button class="btn btn-outline-secondary" title="Bloquer IP" onclick="blockIP('@item.IpAddress')">
+                                                    <i class="bi bi-shield-lock"></i>
+                                                </button>
+                                                @if (User.IsInRole("Admin"))
+                                                {
+                                                    <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-outline-danger" title="Supprimer">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Précédent</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Suivant</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour les détails suspects -->
+<div class="modal fade" id="suspiciousModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title"><i class="bi bi-shield-exclamation me-2"></i>Analyse de Menace</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="suspiciousDetails">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-activity me-2"></i>Activités Suspectes</h5>
+                        <div id="suspiciousActivitiesList" class="mb-4"></div>
+                        
+                        <h5><i class="bi bi-graph-up me-2"></i>Tendances</h5>
+                        <div class="card">
+                            <div class="card-body">
+                                <canvas id="threatTrendChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-shield-shaded me-2"></i>Recommandations</h5>
+                        <div id="securityRecommendations" class="alert alert-info"></div>
+                        
+                        <h5><i class="bi bi-geo-alt me-2"></i>Répartition Géographique</h5>
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <img src="https://via.placeholder.com/400x200?text=Carte+des+menaces" alt="Carte des menaces" class="img-fluid">
+                                <p class="mt-2 small text-muted">Visualisation des IPs suspectes par localisation</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-danger" id="applyProtectionBtn">
+                    <i class="bi bi-shield-lock me-1"></i> Appliquer les Protections
+                </button>
+                <button type="button" class="btn btn-primary" id="exportSuspiciousBtn">
+                    <i class="bi bi-download me-1"></i> Exporter le Rapport
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de blocage IP -->
+<div class="modal fade" id="blockIPModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-shield-lock me-2"></i>Bloquer une Adresse IP</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="ipAddress" class="form-label">Adresse IP à bloquer</label>
+                    <input type="text" class="form-control" id="ipAddress" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="blockReason" class="form-label">Raison du blocage</label>
+                    <select class="form-select" id="blockReason">
+                        <option value="Brute Force">Tentative de Brute Force</option>
+                        <option value="XSS Attempt">Tentative XSS</option>
+                        <option value="SQL Injection">Tentative d'Injection SQL</option>
+                        <option value="Suspicious Activity">Activité suspecte</option>
+                        <option value="Other">Autre</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="blockDuration" class="form-label">Durée du blocage</label>
+                    <select class="form-select" id="blockDuration">
+                        <option value="1">1 heure</option>
+                        <option value="24" selected>24 heures</option>
+                        <option value="168">1 semaine</option>
+                        <option value="720">1 mois</option>
+                        <option value="0">Permanent</option>
+                    </select>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="blockWholeRange">
+                    <label class="form-check-label" for="blockWholeRange">
+                        Bloquer toute la plage /24
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-danger" id="confirmBlockIP">
+                    <i class="bi bi-shield-lock me-1"></i> Confirmer le Blocage
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css" />
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        
+        .card-header {
+            padding: 0.75rem 1.25rem;
+        }
+        
+        .table th {
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .badge {
+            font-size: 0.85em;
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+        }
+        
+        .bg-threat-low { background-color: #28a745; }
+        .bg-threat-medium { background-color: #ffc107; }
+        .bg-threat-high { background-color: #fd7e14; }
+        .bg-threat-critical { background-color: #dc3545; }
+        
+        .text-truncate {
+            max-width: 0;
+        }
+        
+        .progress {
+            border-radius: 0.25rem;
+            overflow: hidden;
+        }
+        
+        .progress-bar-threat-low { background-color: #28a745; }
+        .progress-bar-threat-medium { background-color: #ffc107; }
+        .progress-bar-threat-high { background-color: #fd7e14; }
+        .progress-bar-threat-critical { background-color: #dc3545; }
+        
+        .threat-icon-low { color: #28a745; }
+        .threat-icon-medium { color: #ffc107; }
+        .threat-icon-high { color: #fd7e14; }
+        .threat-icon-critical { color: #dc3545; }
+        
+        #scanSuspiciousBtn, #autoProtectBtn {
+            position: relative;
+        }
+        
+        #autoProtectBtn.active {
+            animation: pulse 2s infinite;
+        }
+        
+        @@keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+        
+        .spinner-border {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            vertical-align: text-bottom;
+            border: 0.15em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border 0.75s linear infinite;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script>
+        // Détection automatique des menaces
+        function detectThreats() {
+            const threats = [];
+            const suspiciousIPs = [];
+            let criticalCount = 0;
+            
+            document.querySelectorAll('#activityTable tbody tr').forEach(row => {
+                const threatLevel = parseInt(row.getAttribute('data-threat-level'));
+                if (threatLevel >= 7) {
+                    criticalCount++;
+                    const ip = row.cells[3].textContent.trim();
+                    if (!suspiciousIPs.includes(ip)) {
+                        suspiciousIPs.push(ip);
+                    }
+                }
+                
+                if (threatLevel > 0) {
+                    threats.push({
+                        user: row.cells[0].textContent.trim(),
+                        action: row.cells[4].textContent.trim(),
+                        threatLevel: threatLevel,
+                        timestamp: row.cells[5].textContent.trim()
+                    });
+                }
+            });
+            
+            // Mettre à jour le compteur
+            document.getElementById('suspiciousCount').textContent = threats.length;
+            
+            // Afficher une alerte critique si nécessaire
+            const criticalAlert = document.getElementById('criticalAlert');
+            if (criticalCount > 0) {
+                criticalAlert.style.display = 'flex';
+                document.getElementById('criticalAlertText').textContent = 
+                    `${criticalCount} menaces critiques détectées!`;
+            } else {
+                criticalAlert.style.display = 'none';
+            }
+            
+            return { threats, suspiciousIPs };
+        }
+        
+        // Scanner les activités suspectes
+        document.getElementById('scanSuspiciousBtn').addEventListener('click', function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            
+            // Afficher le spinner
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Analyse...';
+            btn.disabled = true;
+            
+            // Simuler un scan
+            setTimeout(() => {
+                const { threats, suspiciousIPs } = detectThreats();
+                
+                // Afficher les résultats dans le modal
+                const modal = new bootstrap.Modal(document.getElementById('suspiciousModal'));
+                const activitiesList = document.getElementById('suspiciousActivitiesList');
+                const recommendations = document.getElementById('securityRecommendations');
+                
+                // Remplir la liste des activités
+                activitiesList.innerHTML = threats.map(threat => `
+                    <div class="card mb-2 border-${getThreatClass(threat.threatLevel)}">
+                        <div class="card-body p-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-${getThreatClass(threat.threatLevel)} me-2">
+                                        Niveau ${threat.threatLevel}/10
+                                    </span>
+                                    <strong>${threat.user}</strong> - ${threat.action}
+                                </div>
+                                <small class="text-muted">${threat.timestamp}</small>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Générer des recommandations
+                recommendations.innerHTML = `
+                    <h6><i class="bi bi-lightbulb me-2"></i>Actions Recommandées:</h6>
+                    <ul class="mb-0">
+                        ${suspiciousIPs.length > 0 ? 
+                          `<li><i class="bi bi-check-circle me-1"></i> Bloquer les IPs suspectes: ${suspiciousIPs.join(', ')}</li>` : ''}
+                        <li><i class="bi bi-check-circle me-1"></i> Examiner les tentatives de connexion échouées</li>
+                        <li><i class="bi bi-check-circle me-1"></i> Vérifier les accès aux pages admin</li>
+                        <li><i class="bi bi-check-circle me-1"></i> Mettre à jour les règles WAF si nécessaire</li>
+                    </ul>`;
+                
+                // Initialiser le graphique
+                initThreatTrendChart(threats);
+                
+                // Afficher le modal
+                modal.show();
+                
+                // Réinitialiser le bouton
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 1500);
+        });
+        
+        // Initialiser le graphique des tendances
+        function initThreatTrendChart(threats) {
+            const ctx = document.getElementById('threatTrendChart').getContext('2d');
+            
+            // Grouper par heure
+            const hourlyData = {};
+            threats.forEach(threat => {
+                const date = new Date(threat.timestamp);
+                const hour = `${date.getHours()}:00`;
+                hourlyData[hour] = (hourlyData[hour] || 0) + 1;
+            });
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(hourlyData),
+                    datasets: [{
+                        label: 'Activités suspectes par heure',
+                        data: Object.values(hourlyData),
+                        borderColor: '#fd7e14',
+                        backgroundColor: 'rgba(253, 126, 20, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Nombre d\'activités'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Heure de la journée'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Fonction helper pour obtenir la classe de menace
+        function getThreatClass(level) {
+            if (level >= 8) return 'danger';
+            if (level >= 5) return 'warning';
+            return 'info';
+        }
+        
+        // Bloquer une IP
+        function blockIP(ip) {
+            const modal = new bootstrap.Modal(document.getElementById('blockIPModal'));
+            document.getElementById('ipAddress').value = ip;
+            modal.show();
+        }
+        
+        // Confirmer le blocage d'IP
+        document.getElementById('confirmBlockIP').addEventListener('click', function() {
+            const ip = document.getElementById('ipAddress').value;
+            const reason = document.getElementById('blockReason').value;
+            const duration = document.getElementById('blockDuration').value;
+            const blockRange = document.getElementById('blockWholeRange').checked;
+            
+            alert(`IP ${ip} bloquée pour ${reason} pendant ${duration} heures${blockRange ? ' (plage /24)' : ''}`);
+            
+            // Fermer le modal
+            bootstrap.Modal.getInstance(document.getElementById('blockIPModal')).hide();
+        });
+        
+        // Activer/désactiver la protection automatique
+        document.getElementById('autoProtectBtn').addEventListener('click', function() {
+            const btn = this;
+            btn.classList.toggle('active');
+            
+            if (btn.classList.contains('active')) {
+                btn.innerHTML = '<i class="bi bi-shield-check me-1"></i> Protection Active';
+                alert('Mode Auto-Protect activé - Les menaces seront bloquées automatiquement');
+            } else {
+                btn.innerHTML = '<i class="bi bi-shield me-1"></i> Auto-Protect';
+                alert('Mode Auto-Protect désactivé');
+            }
+        });
+        
+        // Filtrer le tableau
+        document.getElementById('userFilter').addEventListener('change', filterTable);
+        document.getElementById('actionFilter').addEventListener('change', filterTable);
+        document.getElementById('startDateFilter').addEventListener('change', filterTable);
+        document.getElementById('endDateFilter').addEventListener('change', filterTable);
+        document.getElementById('showOnlySuspicious').addEventListener('change', filterTable);
+        
+        function filterTable() {
+            const userFilter = document.getElementById('userFilter').value.toLowerCase();
+            const actionFilter = document.getElementById('actionFilter').value.toLowerCase();
+            const startDate = document.getElementById('startDateFilter').value;
+            const endDate = document.getElementById('endDateFilter').value;
+            const showOnlySuspicious = document.getElementById('showOnlySuspicious').checked;
+            
+            const rows = document.querySelectorAll('#activityTable tbody tr');
+            
+            rows.forEach(row => {
+                const userName = row.cells[0].textContent.toLowerCase();
+                const actionType = row.cells[4].textContent.toLowerCase();
+                const dateStr = row.cells[5].textContent;
+                const date = new Date(dateStr);
+                const filterDate = new Date(date.toLocaleDateString());
+                const isSuspicious = row.getAttribute('data-suspicious') === 'true';
+                
+                const userMatch = !userFilter || userName.includes(userFilter);
+                const actionMatch = !actionFilter || actionType.includes(actionFilter);
+                const dateMatch = (!startDate || filterDate >= new Date(startDate)) && 
+                                (!endDate || filterDate <= new Date(endDate));
+                const suspiciousMatch = !showOnlySuspicious || isSuspicious;
+                
+                row.style.display = (userMatch && actionMatch && dateMatch && suspiciousMatch) ? '' : 'none';
+            });
+        }
+        
+        // Exporter les activités suspectes
+        document.getElementById('exportSuspiciousBtn').addEventListener('click', function() {
+            alert('Export du rapport de menace en cours...');
+        });
+        
+        // Appliquer les protections
+        document.getElementById('applyProtectionBtn').addEventListener('click', function() {
+            alert('Protections appliquées avec succès!');
+            bootstrap.Modal.getInstance(document.getElementById('suspiciousModal')).hide();
+        });
+        
+        // Détection initiale au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            detectThreats();
+            filterTable();
+        });
+    </script>
+}
+
+@functions {
+    // Fonction helper pour déterminer le niveau de menace
+    public int GetThreatLevel(UserActivityLog log)
+    {
+        int threatLevel = 0;
+        
+        // 1. Tentatives de connexion échouées (+3)
+        if (log.ActionType == "LoginFailed") 
+        {
+            threatLevel += 3;
+            
+            // Si multiples tentatives (+2 supplémentaires)
+            var failedAttempts = Model.UserActivityLog
+                .Count(x => x.UserName == log.UserName && x.ActionType == "LoginFailed");
+            if (failedAttempts > 3) threatLevel += 2;
+        }
+        
+        // 2. Accès admin non autorisés (+4)
+        if (log.Path.Contains("/admin", StringComparison.OrdinalIgnoreCase) && 
+            !log.UserName.Contains("admin", StringComparison.OrdinalIgnoreCase))
+        {
+            threatLevel += 4;
+        }
+        
+        // 3. IPs suspectes (+3)
+        if (IsSuspiciousIP(log.IpAddress))
+        {
+            threatLevel += 3;
+        }
+        
+        // 4. Heures inhabituelles (20h-8h) (+1)
+        if (IsUnusualTime(log.Timestamp))
+        {
+            threatLevel += 1;
+        }
+        
+        // 5. Nouvel appareil/localisation (+2)
+        if (IsNewDeviceOrLocation(log))
+        {
+            threatLevel += 2;
+        }
+        
+        // 6. Méthodes dangereuses (POST/PUT/DELETE sur certaines URLs) (+2)
+        if ((log.Method == "POST" || log.Method == "PUT" || log.Method == "DELETE") &&
+            log.Path.Contains("api", StringComparison.OrdinalIgnoreCase))
+        {
+            threatLevel += 2;
+        }
+        
+        // 7. Activité Tor (+3)
+        if (IsTorNode(log.IpAddress))
+        {
+            threatLevel += 3;
+        }
+        
+        // 8. Possible XSS (+2)
+        if (IsPotentialXSS(log.Path))
+        {
+            threatLevel += 2;
+        }
+        
+        // Limiter à 10 maximum
+        return Math.Min(threatLevel, 10);
+    }
+    
+    // Fonction helper pour la classe CSS de la ligne
+    public string GetThreatRowClass(int threatLevel)
+    {
+        return threatLevel switch
+        {
+            >= 8 => "table-danger",
+            >= 5 => "table-warning",
+            >= 3 => "table-info",
+            _ => ""
+        };
+    }
+    
+    // Fonction helper pour l'icône de menace
+    public string GetThreatIcon(int threatLevel)
+    {
+        return threatLevel switch
+        {
+            >= 8 => "bi-exclamation-octagon-fill text-danger",
+            >= 5 => "bi-exclamation-triangle-fill text-warning",
+            >= 3 => "bi-info-circle-fill text-info",
+            _ => ""
+        };
+    }
+    
+    // Fonction helper pour la description de menace
+    public string GetThreatDescription(int threatLevel)
+    {
+        return threatLevel switch
+        {
+            >= 8 => "Menace Critique",
+            >= 5 => "Menace Élevée",
+            >= 3 => "Activité Suspecte",
+            _ => "Normal"
+        };
+    }
+    
+    // Fonction helper pour la classe de la barre de progression
+    public string GetThreatProgressClass(int threatLevel)
+    {
+        return threatLevel switch
+        {
+            >= 8 => "progress-bar-threat-critical",
+            >= 5 => "progress-bar-threat-high",
+            >= 3 => "progress-bar-threat-medium",
+            _ => "progress-bar-threat-low"
+        };
+    }
+    
+    // Fonction helper pour détecter les IPs suspectes
+    public bool IsSuspiciousIP(string ip)
+    {
+        // Liste d'IPs suspectes (à compléter avec une vraie liste)
+        string[] suspiciousIPs = {
+            "185.143.223.", 
+            "91.234.116.", 
+            "123.456.789.",
+            "192.168.", // IPs internes (peut être suspect si vu en externe)
+            "10.0."     // IPs internes
+        };
+        
+        return suspiciousIPs.Any(sip => ip.StartsWith(sip));
+    }
+    
+    // Fonction helper pour détecter les noeuds Tor
+    public bool IsTorNode(string ip)
+    {
+        // Liste simplifiée (dans un cas réel, utiliser une API ou liste à jour)
+        string[] torNodes = {
+            "178.20.55.",
+            "185.220.100.",
+            "199.249.230."
+        };
+        
+        return torNodes.Any(torIp => ip.StartsWith(torIp));
+    }
+    
+    // Fonction helper pour détecter les heures inhabituelles
+    public bool IsUnusualTime(DateTimeOffset timestamp)
+    {
+        // Considère inhabituel entre 20h et 8h
+        return timestamp.Hour < 8 || timestamp.Hour > 20;
+    }
+    
+    // Fonction helper pour détecter les nouveaux appareils/localisations
+    public bool IsNewDeviceOrLocation(UserActivityLog log)
+    {
+        // Simplifié - dans un cas réel, comparer avec l'historique utilisateur
+        return Model.UserActivityLog.Count(x => 
+            x.UserName == log.UserName && 
+            x.IpAddress == log.IpAddress &&
+            x.UserAgent == log.UserAgent) < 3;
+    }
+    
+    // Fonction helper pour détecter les potentielles attaques XSS
+    public bool IsPotentialXSS(string path)
+    {
+        // Détection très basique - dans un cas réel, utiliser une analyse plus poussée
+        return path.Contains("<script>") || 
+               path.Contains("alert(") || 
+               path.Contains("onerror=") ||
+               path.Contains("%3Cscript%3E");
+    }
+    
+    // Fonction helper pour les badges de méthode
+    public string GetMethodBadgeClass(string method)
+    {
+        return method.ToLower() switch
+        {
+            "get" => "bg-primary",
+            "post" => "bg-success",
+            "put" => "bg-warning text-dark",
+            "delete" => "bg-danger",
+            "patch" => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+    
+    // Fonction helper pour les badges d'action
+    public string GetActionBadgeClass(string actionType)
+    {
+        return actionType.ToLower() switch
+        {
+            "login" => "bg-success",
+            "logout" => "bg-secondary",
+            "loginfailed" => "bg-danger",
+            "addtocart" => "bg-info",
+            "editproduct" => "bg-warning text-dark",
+            "deleteproduct" => "bg-danger",
+            _ => "bg-primary"
+        };
+    }
+}

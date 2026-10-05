@@ -1,0 +1,163 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_Addresses_States.IndexModel
+
+@{
+    ViewData["Title"] = "Gestion des Régions/États";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-globe me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="Create" class="btn btn-sm btn-light">
+                            <i class="bi bi-plus-circle me-1"></i> Nouvelle Région
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>
+                                        <i class="bi bi-pin-map me-1"></i>
+                                        @Html.DisplayNameFor(model => model.State[0].Name)
+                                    </th>
+                                    <th>
+                                        <i class="bi bi-flag me-1"></i>
+                                        Pays
+                                    </th>
+                                    <th class="text-end">
+                                        <i class="bi bi-activity me-1"></i>
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.State)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@Html.DisplayFor(modelItem => item.Name)</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">
+                                                <i class="bi bi-flag me-1"></i>
+                                                @Html.DisplayFor(modelItem => item.Country.Name)
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                                        type="button" id="dropdownMenu-@item.Id" 
+                                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu-@item.Id">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="../Cities/Index" asp-route-stateId="@item.Id">
+                                                            <i class="bi bi-building me-2"></i>Villes
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="../Cities/Create" asp-route-stateId="@item.Id">
+                                                            <i class="bi bi-plus-circle me-2"></i>Ajouter Ville
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="./Edit" asp-route-id="@item.Id">
+                                                            <i class="bi bi-pencil me-2"></i>Modifier
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="./Details" asp-route-id="@item.Id">
+                                                            <i class="bi bi-info-circle me-2"></i>Détails
+                                                        </a>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <a class="dropdown-item text-danger" asp-page="./Delete" asp-route-id="@item.Id">
+                                                            <i class="bi bi-trash me-2"></i>Supprimer
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="small text-muted">
+                            <i class="bi bi-info-circle me-1"></i> @Model.State.Count régions enregistrées
+                        </div>
+                        <a asp-page="Create" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-circle me-1"></i> Ajouter une région
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        
+        .badge {
+            font-size: 0.85em;
+            padding: 0.35em 0.65em;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .dropdown-menu {
+            min-width: 200px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+        
+        .dropdown-item {
+            padding: 0.5rem 1.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(3px);
+        }
+        
+        .dropdown-item.text-danger:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .btn-group .btn {
+            border-radius: 0.25rem !important;
+        }
+    </style>
+}

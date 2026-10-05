@@ -1,0 +1,54 @@
+@page
+@model MCBusiness.Pages_Users_Admin_Sellers_CompanySectors.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CompanySector[0].Company)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CompanySector[0].Category)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CompanySector[0].AddedDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CompanySector[0].IsPrimary)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.CompanySector) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Company.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Category.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AddedDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsPrimary)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

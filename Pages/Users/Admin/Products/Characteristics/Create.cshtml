@@ -1,0 +1,123 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Products.Characteristics.CreateModel
+@{
+    ViewData["Title"] = "Nouvelle caractéristique";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-tag-plus me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="./Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Characteristic.Name" class="form-control" placeholder=" " required />
+                                    <label asp-for="Characteristic.Name" class="form-label"></label>
+                                    <span asp-validation-for="Characteristic.Name" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="form-floating mb-3">
+                                    <select asp-for="Characteristic.CategoryId" class="form-select" asp-items="ViewBag.CategoryId" required>
+                                        <option value="">Sélectionnez une catégorie</option>
+                                    </select>
+                                    <label asp-for="Characteristic.CategoryId" class="form-label">Catégorie</label>
+                                    <span asp-validation-for="Characteristic.CategoryId" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-save me-2"></i> Enregistrer
+                            </button>
+                            <a asp-page="./Index" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-x-circle me-2"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .form-floating > .form-control:not(:placeholder-shown) ~ label,
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-select ~ label {
+            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+            opacity: 0.8;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 0.375rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.25);
+        }
+        
+        .card {
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+    </style>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Validation côté client améliorée
+            (function () {
+                'use strict'
+                
+                const forms = document.querySelectorAll('.needs-validation')
+                
+                Array.from(forms).forEach(form => {
+                    form.addEventListener('submit', event => {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+            })()
+            
+            // Ajouter des indicateurs visuels pour les champs requis
+            document.querySelectorAll('[required]').forEach(el => {
+                const label = document.querySelector(`label[for="${el.id}"]`)
+                if (label) {
+                    label.innerHTML = `<span class="text-danger">*</span> ${label.textContent}`
+                }
+            })
+        })
+    </script>
+}

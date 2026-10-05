@@ -1,0 +1,297 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_ManageEmployees_Employees.IndexModel
+@using MCBusiness.Models;
+@{
+    ViewData["Title"] = "Gestion des Employés";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-people-fill me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <div>
+                            <a asp-page="Create" class="btn btn-sm btn-light me-2">
+                                <i class="bi bi-person-plus me-1"></i> Nouvel Employé
+                            </a>
+                            <a asp-page="../Posts/Create" class="btn btn-sm btn-light me-2">
+                                <i class="bi bi-file-earmark-plus me-1"></i> Nouveau Poste
+                            </a>
+                            <a asp-page="../Posts/Index" class="btn btn-sm btn-light">
+                                <i class="bi bi-list-ul me-1"></i> Liste des Postes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                                <input type="text" id="searchInput" class="form-control" placeholder="Rechercher un employé...">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">Tous les statuts</option>
+                                @foreach (var status in Enum.GetValues(typeof(EmployeeStatus)))
+                                {
+                                    <option value="@status">@status</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex justify-content-end">
+                            <button class="btn btn-outline-secondary" id="resetFilters">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="employeesTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="sortable" data-sort="name">
+                                        <i class="bi bi-person me-1"></i>
+                                        Employé
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-sort="post">
+                                        <i class="bi bi-briefcase me-1"></i>
+                                        Poste
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-sort="salary">
+                                        <i class="bi bi-cash-stack me-1"></i>
+                                        Salaire
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-sort="hired">
+                                        <i class="bi bi-calendar-plus me-1"></i>
+                                        Date d'embauche
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-sort="end">
+                                        <i class="bi bi-calendar-minus me-1"></i>
+                                        Fin de contrat
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-sort="status">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Statut
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="text-end">
+                                        <i class="bi bi-gear me-1"></i>
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Employee)
+                                {
+                                    <tr data-status="@item.Status.ToString()">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-primary me-2">@item.User?.UserName</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @item.Post?.Name
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold">@item.Salary.ToString("C")</span>
+                                            <small class="text-muted d-block">@item.Currency?.CurrencyBase</small>
+                                        </td>
+                                        <td>
+                                            @item.HiredAt.ToString("dd/MM/yyyy")
+                                        </td>
+                                        <td>
+                                            @(item.ContractEndDate.HasValue ? item.ContractEndDate.Value.ToString("dd/MM/yyyy") : "Indéterminé")
+                                        </td>
+                                        <td>
+                                            @{
+                                                string statusBadgeClass;
+                                                string statusText;
+                                                
+                                                if (item.IsDeleted)
+                                                {
+                                                    statusBadgeClass = "bg-secondary";
+                                                    statusText = "Supprimé";
+                                                }
+                                                else
+                                                {
+                                                    switch (item.Status)
+                                                    {
+                                                        case EmployeeStatus.Active:
+                                                            statusBadgeClass = "bg-success";
+                                                            statusText = "Actif";
+                                                            break;
+                                                           
+                                                        default:
+                                                           statusBadgeClass = "bg-danger";
+                                                            statusText = "Inactif";
+                                                            break;
+                                                    }
+                                                }
+                                            }
+                                            <span class="badge @statusBadgeClass">@statusText</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="btn-group" role="group">
+                                                <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Détails">
+                                                    <i class="bi bi-info-circle"></i>
+                                                </a>
+                                                @if (User.IsInRole("Admin"))
+                                                {
+                                                    <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Modifier">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Supprimer">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="small text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <span id="totalCount">@Model.Employee.Count</span> employés enregistrés
+                        </div>
+                        <a asp-page="Create" class="btn btn-primary btn-sm">
+                            <i class="bi bi-person-plus me-1"></i> Ajouter
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Filtrage par recherche
+            $('#searchInput').keyup(function() {
+                const searchText = $(this).val().toLowerCase();
+                filterTable(searchText);
+            });
+
+            // Filtrage par statut
+            $('#statusFilter').change(function() {
+                const status = $(this).val();
+                filterTable('', status);
+            });
+
+            // Réinitialisation des filtres
+            $('#resetFilters').click(function() {
+                $('#searchInput').val('');
+                $('#statusFilter').val('');
+                filterTable('', '');
+            });
+
+            // Tri des colonnes
+            $('.sortable').click(function() {
+                const sortBy = $(this).data('sort');
+                // Implémentez la logique de tri ici
+                console.log('Tri par: ' + sortBy);
+            });
+
+            function filterTable(searchText = '', status = '') {
+                let visibleCount = 0;
+                
+                $('#employeesTable tbody tr').each(function() {
+                    const employeeName = $(this).find('td:first').text().toLowerCase();
+                    const postName = $(this).find('td:nth-child(2)').text().toLowerCase();
+                    const rowStatus = $(this).data('status');
+                    const matchSearch = searchText === '' || 
+                                      employeeName.includes(searchText) || 
+                                      postName.includes(searchText);
+                    const matchStatus = status === '' || rowStatus === status;
+                    
+                    if (matchSearch && matchStatus) {
+                        $(this).show();
+                        visibleCount++;
+                    } else {
+                        $(this).hide();
+                    }
+                });
+                
+                $('#totalCount').text(visibleCount);
+            }
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .sort-icon {
+            font-size: 0.8em;
+            opacity: 0.5;
+            margin-left: 5px;
+        }
+        
+        .sortable:hover .sort-icon {
+            opacity: 1;
+        }
+        
+        .badge {
+            font-size: 0.85em;
+            padding: 0.35em 0.65em;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .btn-group .btn {
+            border-radius: 0.25rem !important;
+        }
+        
+        .input-group-text {
+            background-color: #f8f9fa;
+        }
+        
+        .card-header {
+            border-bottom: none;
+        }
+        
+        /* Style pour les statuts */
+        .bg-success {
+            background-color: #28a745 !important;
+        }
+        .bg-danger {
+            background-color: #dc3545 !important;
+        }
+        .bg-secondary {
+            background-color: #6c757d !important;
+        }
+    </style>
+}

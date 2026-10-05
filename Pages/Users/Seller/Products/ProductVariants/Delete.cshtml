@@ -1,0 +1,203 @@
+﻿@page
+@model MCBusiness.Pages.Users.Seller.Products.ProductVariants.DeleteModel
+@{
+    ViewData["Title"] = "Supprimer la Variante de Produit";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-3 d-none d-lg-block border-end">
+            <partial name="_SideBarPartial"/>
+        </div>
+        
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="display-6 fw-bold text-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>@ViewData["Title"]
+                    </h1>
+                    <p class="text-muted mb-0">Confirmez la suppression définitive de cette variante</p>
+                </div>
+                <a asp-page="./Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Retour à la liste
+                </a>
+            </div>
+
+            <div class="card border-danger border-2 shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-trash3 me-2"></i>Avertissement critique
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading">
+                            <i class="bi bi-exclamation-octagon me-2"></i>Action irréversible !
+                        </h4>
+                        <p>La suppression de cette variante affectera tous les produits associés et les commandes en cours.</p>
+                        <hr>
+                        <p class="mb-0">Toute suppression est définitive et ne peut être annulée.</p>
+                    </div>
+
+                    <div class="row">
+                        <!-- Détails de la variante -->
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="bi bi-upc-scan me-2"></i>Identifiants
+                                </h5>
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
+                                        <i class="bi bi-tag text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">@Model.ProductVariant.Sku</h6>
+                                        <small class="text-muted">Référence SKU</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="bi bi-cash-stack me-2"></i>Prix & Stock
+                                </h5>
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <div class="bg-light p-3 rounded text-center">
+                                            <div class="text-success fw-bold fs-4">
+                                                @Model.ProductVariant.Price.ToString("C")
+                                            </div>
+                                            <small class="text-muted">Prix unitaire</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="bg-light p-3 rounded text-center">
+                                            <div class="text-primary fw-bold fs-4">
+                                                @Model.ProductVariant.Quantity
+                                            </div>
+                                            <small class="text-muted">Stock restant</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Produit associé -->
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">
+                                <i class="bi bi-box-seam me-2"></i>Produit Parent
+                            </h5>
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-shrink-0">
+                                            <i class="bi bi-box2 text-primary fs-3"></i>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1">@Model.ProductVariant.Product?.Name</h6>
+                                            <p class="text-muted small mb-0">
+                                                Catégorie : @Model.ProductVariant.Product?.Category?.Name
+                                            </p>
+                                            <p class="text-muted small mb-0">
+                                                Statut : 
+                                                <span class="badge @(Model.ProductVariant.IsAvailable ? "bg-success" : "bg-danger")">
+                                                    @(Model.ProductVariant.IsAvailable ? "Disponible" : "Épuisé")
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light border-top">
+                    <form method="post" class="d-flex justify-content-between">
+                        <input type="hidden" asp-for="ProductVariant.Id" />
+                        <a asp-page="./Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash3 me-2"></i>Supprimer définitivement
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Menu mobile -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <partial name="_SideBarPartial"/>
+    </div>
+</div>
+
+<button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+        style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+        data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+    <i class="bi bi-list fs-4"></i>
+</button>
+
+@section Styles {
+    <style>
+        .card {
+            transition: transform 0.2s;
+            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.03);
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+        }
+        .badge {
+            font-size: 0.75em;
+            padding: 0.35em 0.65em;
+        }
+        .bg-light {
+            background-color: #f8f9fa!important;
+        }
+        .border-danger {
+            border-width: 2px;
+        }
+    </style>
+}   
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle sidebar groups
+            document.querySelectorAll('.sidebar-group').forEach(group => {
+                const item = group.querySelector('.sidebar-item');
+                const submenu = group.querySelector('.sidebar-submenu');
+                
+                // Open if contains active item
+                if (submenu.querySelector('.active')) {
+                    group.classList.add('active');
+                }
+                
+                item.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A') return;
+                    group.classList.toggle('active');
+                });
+            });
+            
+            // Toggle sidebar subgroups
+            document.querySelectorAll('.sidebar-subgroup').forEach(group => {
+                const item = group.querySelector('.sidebar-subitem');
+                const submenu = group.querySelector('.sidebar-subsubmenu');
+                
+                // Open if contains active item
+                if (submenu.querySelector('.active')) {
+                    group.classList.add('active');
+                }
+                
+                item.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A') return;
+                    group.classList.toggle('active');
+                });
+            });
+        });
+    </script>

@@ -1,0 +1,143 @@
+﻿@page
+@model             MCBusiness.Pages.Users.Seller.Products.DetailsModel
+
+@{
+    ViewData["Title"] = "Détails du Produit";
+}
+
+<!-- Bouton menu mobile -->
+<button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+        style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+        data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+    <i class="bi bi-list fs-4"></i>
+</button>
+
+<!-- Offcanvas Sidebar Mobile -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <partial name="_SideBarPartial"/>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar version desktop -->
+        <div class="col-lg-3 col-md-3 col-xl-3 d-none d-lg-block bg-white border-end vh-100 sticky-top">
+            <partial name="_SideBarPartial"/>
+        </div>
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="h5 mb-0">
+                            <i class="bi bi-info-circle me-2"></i>@ViewData["Title"]
+                        </h2>
+                        <div>
+                            <a asp-page="./Edit" asp-route-id="@Model.Product.Id" class="btn btn-sm btn-light">
+                                <i class="bi bi-pencil me-1"></i>Modifier
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-4 text-center">
+                            <div class="bg-light p-4 rounded-3">
+                                <i class="bi bi-box-seam text-primary" style="font-size: 3rem;"></i>
+                                <h5 class="mt-2">@Model.Product.Name</h5>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="table-responsive">
+                                <table class="table table-borderless">
+                                    <tbody>
+                                         <tr>
+                                            <th class="w-25"><i class="bi bi-building me-2"></i>Description :</th>
+                                            <td>@if (string.IsNullOrEmpty(Model.Product.Description)) {<span>Aucune description disponible.</span>} else { @Model.Product.Description }</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="w-25"><i class="bi bi-building me-2"></i>Entreprise :</th>
+                                            <td>@if (Model.Product.Company != null) { @Model.Product.Company.Name } else { <span>Aucune entreprise disponible.</span> }</td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="bi bi-geo-alt me-2"></i>Adresse :</th>
+                                            <td>@if (Model.Product.Company != null) { @Model.Product.Company.FullAddress } else { <span>Aucune adresse disponible.</span> }</td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="bi bi-tags me-2"></i>Catégorie :</th>
+                                            <td>
+                                                <span class="badge bg-secondary">@Model.Product.Category?.Name</span>
+                                            </td>                                      
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-page="./Index" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-left me-1"></i>Retour à la liste
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Offcanvas Sidebar Mobile -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title">Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <partial name="_SideBarPartial"/>
+        </div>
+    </div>
+    <!-- Bouton menu mobile -->
+    <button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+            style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+            data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+        <i class="bi bi-list fs-4"></i>
+    </button>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle sidebar groups
+            document.querySelectorAll('.sidebar-group').forEach(group => {
+                const item = group.querySelector('.sidebar-item');
+                const submenu = group.querySelector('.sidebar-submenu');
+                
+                // Open if contains active item
+                if (submenu.querySelector('.active')) {
+                    group.classList.add('active');
+                }
+                
+                item.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A') return;
+                    group.classList.toggle('active');
+                });
+            });
+            
+            // Toggle sidebar subgroups
+            document.querySelectorAll('.sidebar-subgroup').forEach(group => {
+                const item = group.querySelector('.sidebar-subitem');
+                const submenu = group.querySelector('.sidebar-subsubmenu');
+                
+                // Open if contains active item
+                if (submenu.querySelector('.active')) {
+                    group.classList.add('active');
+                }
+                
+                item.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A') return;
+                    group.classList.toggle('active');
+                });
+            });
+        });
+    </script>

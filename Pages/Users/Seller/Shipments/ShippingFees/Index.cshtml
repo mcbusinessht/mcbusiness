@@ -1,0 +1,288 @@
+﻿@page
+@model MCBusiness.Pages_Users_Seller_Shipments_ShippingFees.IndexModel
+@{
+    ViewData["Title"] = "Gestion des Frais de Livraison";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-3 d-none d-lg-block border-end">
+            <partial name="_SideBarPartial"/>
+        </div>
+         <button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+                    style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+                    data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+
+            
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="display-6 fw-bold text-primary">
+                        <i class="bi bi-truck me-2"></i>@ViewData["Title"]
+                    </h1>
+                    <p class="text-muted mb-0">Gérez les tarifs de livraison par zone géographique</p>
+                </div>
+                <a asp-page="Create" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-2"></i>Nouveau Tarif
+                </a>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                <div class="card-header bg-light p-3">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="bi bi-search text-muted"></i>
+                                </span>
+                                <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Rechercher...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="countryFilter">
+                                <option value="">Tous les pays</option>
+                                @foreach (var item in Model.Countries)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="companyFilter">
+                                <option value="">Toutes les compagnies</option>
+                                @foreach (var item in Model.Companies)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <button class="btn btn-outline-secondary" id="resetFilters">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Compagnie</th>
+                                <th>Localisation</th>
+                                <th>Profil</th>
+                                <th class="text-end">Tarif</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.ShippingFee)
+                            {
+                                <tr data-country="@item.Country?.Id" data-company="@item.Company?.Id">
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light bg-opacity-10 p-2 rounded me-3">     
+                                                <i class="bi bi-building text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">@item.Company?.Name</h6>
+                                                <!-- CORRECTION : Utilisation des méthodes utilitaires -->
+                                                <small class="text-muted">
+                                                    <i class="bi bi-geo-alt me-1"></i>
+                                                    @Model.GetCompanyCity(item.Company)
+                                                </small>
+                                                @if (!string.IsNullOrEmpty(item.Company?.Email))
+                                                {
+                                                    <small class="text-muted d-block">
+                                                        <i class="bi bi-envelope me-1"></i>
+                                                        @item.Company.Email
+                                                    </small>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span>
+                                                <i class="bi bi-geo-alt-fill me-2 text-primary"></i>
+                                                @if(item.Neighborhood != null) { <span>@item.Neighborhood.Name ,</span> } @item.City?.Name
+                                            </span>
+                                            <small class="text-muted">
+                                                @item.State?.Name, @item.Country?.Name       
+                                            </small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">@item.PackageType</span>
+                                        @if (item.QuoteRequired)
+                                        {
+                                            <span class="badge bg-warning text-dark d-block mt-1">Sur devis</span>
+                                        }
+                                        @if (item.AdditionalItemPrice > 0 || item.AdditionalUnitPrice > 0)
+                                        {
+                                            <small class="text-muted d-block">
+                                                Suppl.: @item.AdditionalItemPrice.ToString("N0") / article, @item.AdditionalUnitPrice.ToString("N0") / unité
+                                            </small>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="fw-bold">@((item.BasePrice > 0 ? item.BasePrice : item.Price).ToString("N0"))</span>
+                                        <small class="text-muted d-block">@item.Currency?.Symbol</small>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-outline-primary" title="Modifier">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-outline-info" title="Détails">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-outline-danger" title="Supprimer">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card-footer bg-light p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-muted small">
+                            Affichage de <span id="visibleCount">@Model.ShippingFee.Count</span> sur @Model.ShippingFee.Count tarifs
+                        </div>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Précédent</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Suivant</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title">Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <partial name="_SideBarPartial"/>
+        </div>
+    </div>
+    <!-- Bouton menu mobile -->
+    <button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+            style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+            data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+        <i class="bi bi-list fs-4"></i>   
+    </button>
+    
+@section Styles {
+    <style>
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.05);
+        }
+        .input-group-text {
+            transition: all 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            border-color: #86b7fe;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle sidebar groups
+            document.querySelectorAll('.sidebar-group').forEach(group => {
+                const item = group.querySelector('.sidebar-item');
+                const submenu = group.querySelector('.sidebar-submenu');
+                
+                // Open if contains active item
+                if (submenu.querySelector('.active')) {
+                    group.classList.add('active');
+                }
+                
+                item.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A') return;
+                    group.classList.toggle('active');
+                });
+            });
+            
+            // Toggle sidebar subgroups
+            document.querySelectorAll('.sidebar-subgroup').forEach(group => {
+                const item = group.querySelector('.sidebar-subitem');
+                const submenu = group.querySelector('.sidebar-subsubmenu');
+                
+                // Open if contains active item
+                if (submenu.querySelector('.active')) {
+                    group.classList.add('active');
+                }
+                
+                item.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A') return;
+                    group.classList.toggle('active');
+                });
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            // Filtrage en temps réel
+            $('#searchInput, #countryFilter, #companyFilter').on('input change', function() {
+                const searchText = $('#searchInput').val().toLowerCase();
+                const countryFilter = $('#countryFilter').val();
+                const companyFilter = $('#companyFilter').val();
+                
+                let visibleCount = 0;
+                
+                $('tbody tr').each(function() {
+                    const rowText = $(this).text().toLowerCase();
+                    const rowCountry = $(this).data('country');
+                    const rowCompany = $(this).data('company');
+                    
+                    const matchesSearch = searchText === '' || rowText.includes(searchText);
+                    const matchesCountry = countryFilter === '' || rowCountry == countryFilter;
+                    const matchesCompany = companyFilter === '' || rowCompany == companyFilter;
+                    
+                    if (matchesSearch && matchesCountry && matchesCompany) {
+                        $(this).show();
+                        visibleCount++;
+                    } else {
+                        $(this).hide();
+                    }
+                });
+                
+                $('#visibleCount').text(visibleCount);
+            });
+            
+            // Réinitialisation des filtres
+            $('#resetFilters').click(function() {
+                $('#searchInput, #countryFilter, #companyFilter').val('');
+                $('tbody tr').show();
+                $('#visibleCount').text(@Model.ShippingFee.Count);
+            });
+        });
+    </script>
+}

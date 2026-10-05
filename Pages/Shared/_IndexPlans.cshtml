@@ -1,0 +1,123 @@
+@model IndexModel
+
+<section class="plans-section py-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h6 class="section-subtitle">AFFILIATION</h6>
+            <h2 class="section-title">Gagnez comme ambassadeur MC Business</h2>
+            <p class="section-description">Recommandez des produits et gagnez des commissions sur les ventes qualifiées.</p>
+        </div>
+
+        @if (Model.plans != null && Model.plans.Any())
+        {
+            <div class="plans-scroll-container">
+                <div class="plans-scroll-wrapper">
+                    @foreach (var plan in Model.plans)
+                    {
+                        <div class="plan-card">
+                            <div class="plan-header">
+                                @if (!string.IsNullOrEmpty(plan.PathPicture))
+                                {
+                                    <img src="@plan.PathPicture" alt="@plan.Name" class="plan-image">
+                                }
+                                else
+                                {
+                                    <img src="~/images/plan-default.png" alt="@plan.Name" class="plan-image">
+                                }
+                                <h3 class="plan-name">@plan.Name</h3>
+                                <div class="plan-price">@plan.Price HTG</div>
+                            </div>
+                            <div class="plan-body">
+                                <ul class="plan-features">
+                                    <li><i class="bi bi-check-circle-fill text-success"></i> Durée: @plan.DurationInDays jours</li>
+                                    <li><i class="bi bi-check-circle-fill text-success"></i> Commission: @plan.AmbassadorCommissionPercentage.ToString("P0")</li>
+                                    <li><i class="bi bi-check-circle-fill text-success"></i> Plafond: @plan.Ceiling HTG</li>
+                                </ul>
+                            </div>
+                            <div class="plan-footer">
+                                <button class="btn btn-outline-primary plan-details-btn" data-bs-toggle="modal" data-bs-target="#planModal-@plan.Id">
+                                    Détails <i class="bi bi-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <button class="scroll-button scroll-left" aria-label="Précédent">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="scroll-button scroll-right" aria-label="Suivant">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+            <div class="text-center mt-4">
+                <a asp-page="/Plans/Index" class="btn btn-outline-primary">
+                    Voir tous nos plans <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+            </div>
+
+            @foreach (var plan in Model.plans)
+            {
+                <div class="modal fade" id="planModal-@plan.Id" tabindex="-1" aria-labelledby="planModalLabel-@plan.Id" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="planModalLabel-@plan.Id">Plan @plan.Name</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="d-flex align-items-center mb-4">
+                                    @if (!string.IsNullOrEmpty(plan.PathPicture))
+                                    {
+                                        <img src="@plan.PathPicture" class="modal-plan-image rounded-circle me-3" alt="@plan.Name">
+                                    }
+                                    else
+                                    {
+                                        <img src="~/images/plan-default.png" class="modal-plan-image rounded-circle me-3" alt="@plan.Name">
+                                    }
+                                    <div>
+                                        <h4 class="mb-0">@plan.Name</h4>
+                                        <div class="text-primary fw-bold">@plan.Price HTG</div>
+                                    </div>
+                                </div>
+
+                                <div class="plan-details">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Durée:</span>
+                                        <span class="detail-value">@plan.DurationInDays jours</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Commission ambassadeur:</span>
+                                        <span class="detail-value text-success fw-bold">@plan.AmbassadorCommissionPercentage.ToString("P2")</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Plafond mensuel:</span>
+                                        <span class="detail-value">@plan.Ceiling HTG</span>
+                                    </div>
+                                    <div class="detail-item full-width">
+                                        <span class="detail-label">Description:</span>
+                                        <p class="detail-value">@plan.Description</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <a asp-page="/Payments/Payment" asp-route-type="plan" asp-route-id="@plan.Id" class="btn btn-primary w-100 py-2">
+                                    Souscrire à ce plan
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <div class="empty-state">
+                    <i class="bi bi-wallet2 empty-state-icon"></i>
+                    <h4>Aucun plan disponible pour le moment</h4>
+                    <p>Revenez plus tard pour découvrir nos offres</p>
+                </div>
+            </div>
+        }
+    </div>
+</section>

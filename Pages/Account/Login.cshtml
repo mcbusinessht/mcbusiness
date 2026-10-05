@@ -1,0 +1,240 @@
+﻿@page
+@model MCBusiness.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Connexion";
+    Layout = "_MinimalLayout";   
+}
+
+<div class="container-fluid d-flex align-items-center justify-content-center min-vh-60 mb-5">
+    <div class="col-xl-4 col-lg-5 col-md-7 col-sm-10 col-12">
+        <div class="card border-0 shadow-lg overflow-hidden" id="loginCard">
+            <!-- Card Header with Gradient Background -->
+            <div class="card-header bg-primary text-white py-4 position-relative overflow-hidden">
+                <div class="position-absolute w-100 h-100 top-0 start-0" style="background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%);"></div>
+                <h4 class="text-center mb-0 position-relative">Accédez à votre espace MC Business</h4>
+                <p class="text-center mb-0 position-relative small mt-2">Achetez, vendez et gérez votre business en toute sécurité.</p>
+            </div>
+            
+            <!-- Card Body -->
+            <div class="card-body p-4">
+                <form method="post" id="loginForm" autocomplete="off" data-lpignore="true">
+                    <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
+                    <input type="hidden" id="InputUsernamePayload" name="Input.Username" autocomplete="off" />
+                    <input type="hidden" id="InputPasswordPayload" name="Input.Password" autocomplete="new-password" />
+                    <div class="form-group mb-4">
+                        <label for="LoginIdentifier" class="form-label fw-bold">Adresse e-mail ou numéro de téléphone</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-person-fill text-primary"></i></span>
+                            <input type="text"
+                                   class="form-control"
+                                   id="LoginIdentifier"
+                                   name="login_identifier_display"
+                                   required
+                                   autocomplete="off"
+                                   autocorrect="off"
+                                   autocapitalize="none"
+                                   spellcheck="false"
+                                   data-lpignore="true"
+                                   data-1p-ignore="true"
+                                   placeholder="Entrez votre e-mail ou téléphone" />
+                        </div>
+                        <div class="invalid-feedback">Veuillez entrer des informations valides</div>   
+                    </div>      
+                    
+                    <div class="form-group mb-4">
+                        <label for="LoginSecret" class="form-label fw-bold">Mot de passe</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-lock-fill text-primary"></i></span>
+                            <input type="password"
+                                   class="form-control"
+                                   id="LoginSecret"
+                                   name="login_secret_display"
+                                   required
+                                   autocomplete="new-password"
+                                   data-lpignore="true"
+                                   data-1p-ignore="true"
+                                   placeholder="Entrez votre mot de passe" />
+                            <button class="btn btn-outline-secondary toggle-password" type="button">
+                                <i class="bi bi-eye-fill"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback">Veuillez entrer un mot de passe valide</div>
+                    </div>
+                    
+                    <!-- reCAPTCHA -->
+                    <div class="g-recaptcha mb-2" data-sitekey="@Model.ReCaptchaSiteKey"></div>
+                    <div class="trustedsite-trustmark" data-type="1001"></div>
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill py-2 fw-bold" id="loginButton">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            Se connecter <i class="bi bi-box-arrow-in-right ms-2"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="text-center">
+                        <span>Pas encore de compte ? </span><a asp-page="../Account/SignUp" class="text-decoration-none mb-2 text-primary fw-bold">Créer un compte gratuitement</a>
+                        <a asp-page="../Account/ForgotPassword" class="text-decoration-none text-muted d-block">Mot de passe oublié ?</a>
+                    </div>
+                </form>
+                
+                @if (ModelState.ErrorCount > 0)
+                {
+                    <div class="alert alert-danger mt-4 animate__animated animate__shakeX">
+                        @foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <p class="mb-1"><i class="bi bi-exclamation-triangle-fill me-2"></i>@error.ErrorMessage</p>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom styles */
+    .min-vh-100 {
+        min-height: 100vh;
+    }
+    
+    #loginCard {
+        border-radius: 15px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    #loginCard:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .card-header {
+        border-radius: 0 !important;
+    }
+    
+    .toggle-password {
+        cursor: pointer;
+    }
+    
+    .toggle-password:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .btn-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+        transform: translateY(-2px);
+    }
+    
+    .form-control:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .input-group-text {
+        transition: all 0.3s ease;
+    }
+    
+    .input-group:focus-within .input-group-text {
+        background-color: #e9ecef;
+    }
+    
+    /* Animation for invalid fields */
+    .is-invalid {
+        animation: shake 0.5s;
+    }
+    
+    @@keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-5px); }
+        40%, 80% { transform: translateX(5px); }
+    }
+</style>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle password visibility
+        const togglePassword = document.querySelector('.toggle-password');
+        const password = document.querySelector('#LoginSecret');
+        
+        if (togglePassword && password) {
+            togglePassword.addEventListener('click', function() {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('bi-eye-fill');
+                this.querySelector('i').classList.toggle('bi-eye-slash-fill');
+            });
+        }
+        
+        // Form validation
+        const form = document.getElementById('loginForm');
+        if (form) {
+            const usernamePayload = document.getElementById('InputUsernamePayload');
+            const passwordPayload = document.getElementById('InputPasswordPayload');
+            const username = document.getElementById('LoginIdentifier');
+            const password = document.getElementById('LoginSecret');
+
+            const clearLoginFields = () => {
+                if (username) username.value = '';
+                if (password) password.value = '';
+                if (usernamePayload) usernamePayload.value = '';
+                if (passwordPayload) passwordPayload.value = '';
+            };
+
+            clearLoginFields();
+            window.addEventListener('pageshow', clearLoginFields);
+
+            form.addEventListener('submit', function(event) {
+                let isValid = true;
+                
+                // Validate username
+                if (!username.value.trim()) {
+                    username.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    username.classList.remove('is-invalid');
+                }
+                
+                // Validate password
+                if (!password.value.trim()) {
+                    password.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    password.classList.remove('is-invalid');
+                }
+                
+                if (!isValid) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                } else {
+                    usernamePayload.value = username.value.trim();
+                    passwordPayload.value = password.value;
+
+                    // Show loading spinner
+                    const button = document.getElementById('loginButton');
+                    const spinner = button.querySelector('.spinner-border');
+                    spinner.classList.remove('d-none');
+                    button.disabled = true;
+                }
+            });
+        }
+        
+        // Add focus effects
+        const inputs = document.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.querySelector('.input-group-text').style.backgroundColor = '#e9ecef';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.querySelector('.input-group-text').style.backgroundColor = '';
+            });
+        });
+    });
+</script>

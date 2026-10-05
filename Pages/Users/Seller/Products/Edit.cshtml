@@ -1,0 +1,180 @@
+﻿@page
+@model             MCBusiness.Pages.Users.Seller.Products.EditModel
+
+@{
+    ViewData["Title"] = "Modifier le produit";
+}
+
+
+<!-- Bouton menu mobile -->
+<button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+        style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+        data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+    <i class="bi bi-list fs-4"></i>
+</button>
+
+<!-- Offcanvas Sidebar Mobile -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <partial name="_SideBarPartial"/>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar version desktop -->
+        <div class="col-lg-3 col-md-3 col-xl-3 d-none d-lg-block bg-white border-end vh-100 sticky-top">
+            <partial name="_SideBarPartial"/>
+        </div>
+        <div class="col-lg-9 col-md-9">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">
+                        <i class="bi bi-pencil-square me-2"></i>@ViewData["Title"]
+                    </h2>
+                </div>
+                
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        <input type="hidden" asp-for="Product.Id" />
+                        
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        
+                        <!-- Nom du produit -->
+                        <div class="mb-4">
+                            <label asp-for="Product.Name" class="form-label fw-bold">
+                                <i class="bi bi-tag me-1"></i>Nom du produit <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Product.Name" maxlength="40" class="form-control form-control-lg" required />
+                            <span asp-validation-for="Product.Name" class="text-danger small"></span>
+                            <div class="invalid-feedback">
+                                Veuillez saisir un nom pour le produit.
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label asp-for="Product.Description" class="form-label fw-bold">
+                                <i class="bi bi-tag me-1"></i>Description du produit <span class="text-danger">*</span>
+                            </label>
+                            <textarea asp-for="Product.Description" maxlength="500" class="form-control form-control-lg" required></textarea>
+                            <span asp-validation-for="Product.Description" class="text-danger small"></span>
+                            <div class="invalid-feedback">
+                                Veuillez saisir une description pour le produit.
+                            </div>
+                        </div>
+                        
+                        <!-- Catégorie -->
+                        <div class="mb-4">
+                            <label asp-for="Product.CategoryId" class="form-label fw-bold">
+                                <i class="bi bi-grid me-1"></i>Catégorie
+                            </label>
+                            <select asp-for="Product.CategoryId" class="form-select form-select-lg" asp-items="ViewBag.CategoryId">
+                                <option value="" selected disabled>-- Sélectionnez une catégorie --</option>
+                            </select>
+                            <span asp-validation-for="Product.CategoryId" class="text-danger small"></span>
+                        </div>
+                        
+                        <!-- Compagnie -->
+                        <div class="mb-4">
+                            <label asp-for="Product.CompanyId" class="form-label fw-bold">
+                                <i class="bi bi-building me-1"></i>Entreprise
+                            </label>
+                            <select asp-for="Product.CompanyId" class="form-select form-select-lg" asp-items="ViewBag.CompanyId">
+                            </select>
+                            <span asp-validation-for="Product.CompanyId" class="text-danger small"></span>
+                        </div>
+                        
+                        <!-- Boutons -->
+                        <div class="d-grid gap-3 d-md-flex justify-content-md-end mt-4">
+                            <a asp-page="./Index" class="btn btn-outline-secondary me-md-2">
+                                <i class="bi bi-arrow-left me-1"></i>Retour à la liste
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-save me-1"></i>Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Offcanvas Sidebar Mobile -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title">Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <partial name="_SideBarPartial"/>
+        </div>
+    </div>
+    <!-- Bouton menu mobile -->
+    <button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+            style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+            data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+        <i class="bi bi-list fs-4"></i>
+    </button>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle sidebar groups
+            document.querySelectorAll('.sidebar-group').forEach(group => {
+                const item = group.querySelector('.sidebar-item');
+                const submenu = group.querySelector('.sidebar-submenu');
+                
+                // Open if contains active item
+                if (submenu.querySelector('.active')) {
+                    group.classList.add('active');
+                }
+                
+                item.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A') return;
+                    group.classList.toggle('active');
+                });
+            });
+            
+            // Toggle sidebar subgroups
+            document.querySelectorAll('.sidebar-subgroup').forEach(group => {
+                const item = group.querySelector('.sidebar-subitem');
+                const submenu = group.querySelector('.sidebar-subsubmenu');
+                
+                // Open if contains active item
+                if (submenu.querySelector('.active')) {
+                    group.classList.add('active');
+                }
+                
+                item.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A') return;
+                    group.classList.toggle('active');
+                });
+            });
+        });
+    </script>
+    <script>
+        // Validation Bootstrap native
+        (function () {
+            'use strict'
+            
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            const forms = document.querySelectorAll('.needs-validation')
+            
+            // Loop over them and prevent submission
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
+}

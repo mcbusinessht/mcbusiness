@@ -1,0 +1,61 @@
+﻿@page
+@model             MCBusiness.Pages.Users.Admin.Shipments.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Shipment</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Shipment.Id" />
+            <div class="form-group">
+                <label asp-for="Shipment.OrderProductId" class="control-label"></label>
+                <select asp-for="Shipment.OrderProductId" class="form-control" asp-items="ViewBag.OrderProductId"></select>
+                <span asp-validation-for="Shipment.OrderProductId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <span class="text-danger">*</span>
+                <label asp-for="Shipment.TrackingNumber" class="control-label"></label>
+                <input asp-for="Shipment.TrackingNumber" class="form-control" />
+                <span asp-validation-for="Shipment.TrackingNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Shipment.DeliveryPersonId" class="control-label"></label>
+                <select asp-for="Shipment.DeliveryPersonId" class="form-control" asp-items="ViewBag.DeliveryPersonId"></select>
+                <span asp-validation-for="Shipment.DeliveryPersonId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Shipment.ShippingDate" class="control-label"></label>
+                <input asp-for="Shipment.ShippingDate" class="form-control" />
+                <span asp-validation-for="Shipment.ShippingDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Shipment.DeliveryDate" class="control-label"></label>
+                <input asp-for="Shipment.DeliveryDate" class="form-control" />
+                <span asp-validation-for="Shipment.DeliveryDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Shipment.Status" class="control-label"></label>
+                <select asp-for="Shipment.Status" class="form-control"></select>
+                <span asp-validation-for="Shipment.Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

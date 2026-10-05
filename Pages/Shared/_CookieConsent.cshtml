@@ -1,0 +1,228 @@
+﻿<!-- Bannière de consentement des cookies - Conforme RGPD -->
+<div id="cookieConsent" class="fixed bottom-0 left-0 w-full bg-white border-t-4 border-blue-500 shadow-xl transform translate-y-full transition-transform duration-500" style="display: none; max-height: 90vh; overflow-y: auto; z-index: 0;">
+    <div class="container mx-auto p-6">
+        <!-- En-tête avec icône -->
+        <div class="flex items-center mb-4">
+            <span class="text-3xl mr-3">🍪</span>
+            <h3 class="text-xl font-bold text-gray-800">Nous respectons votre vie privée</h3>
+        </div>
+        
+        <!-- Message principal -->
+        <div class="mb-6">
+            <p class="text-gray-700 mb-3">
+                Nous utilisons des cookies pour améliorer votre expérience sur <strong>MCBusiness</strong>. 
+                Certains sont essentiels au fonctionnement du site, d'autres nous aident à comprendre 
+                comment vous l'utilisez pour l'améliorer.
+            </p>
+            <p class="text-sm text-gray-600">
+                Vous pouvez accepter tous les cookies ou gérer vos préférences en détail.
+                <a href="/CookiePolicy" class="text-blue-600 hover:underline font-medium">En savoir plus sur notre politique cookies</a>.
+            </p>
+        </div>
+
+        <!-- Catégories de cookies avec compteurs -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="text-center p-3 bg-green-50 rounded-lg border border-green-200">
+                <div class="text-green-600 font-bold text-lg">4</div>
+                <div class="text-xs text-green-700 font-medium">Essentiels</div>
+                <div class="text-xs text-gray-500">Obligatoires</div>
+            </div>
+            <div class="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div class="text-blue-600 font-bold text-lg">3</div>
+                <div class="text-xs text-blue-700 font-medium">Fonctionnels</div>
+                <div class="text-xs text-gray-500">Optionnels</div>
+            </div>
+            <div class="text-center p-3 bg-orange-50 rounded-lg border border-orange-200">
+                <div class="text-orange-600 font-bold text-lg">2</div>
+                <div class="text-xs text-orange-700 font-medium">Analytics</div>
+                <div class="text-xs text-gray-500">Optionnels</div>
+            </div>
+            <div class="text-center p-3 bg-purple-50 rounded-lg border border-purple-200">
+                <div class="text-purple-600 font-bold text-lg">1</div>
+                <div class="text-xs text-purple-700 font-medium">Performance</div>
+                <div class="text-xs text-gray-500">Optionnels</div>
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="flex flex-col sm:flex-row gap-3 justify-center items-center">
+            <button id="acceptAllCookies" 
+                    class="w-full sm:w-auto px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+                ✅ Accepter tous les cookies
+            </button>
+            
+            <button id="manageCookies" 
+                    class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+                ⚙️ Gérer mes préférences
+            </button>
+            
+            <button id="acceptEssentialOnly" 
+                    class="w-full sm:w-auto px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+                🔒 Essentiels seulement
+            </button>
+        </div>
+
+        <!-- Bouton de fermeture -->
+        <button id="closeCookieBanner" 
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold">
+            ×
+        </button>
+    </div>
+</div>
+
+<!-- Indicateur de statut des cookies (coin inférieur droit) -->
+<div id="cookieStatusIndicator" class="fixed bottom-4 right-4 z-40" style="display: none;">
+    <button onclick="window.location.href='/CookieSettings'" 
+            class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105"
+            title="Gérer les cookies">
+        🍪
+    </button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cookieBanner = document.getElementById('cookieConsent');
+    const statusIndicator = document.getElementById('cookieStatusIndicator');
+    const acceptAllBtn = document.getElementById('acceptAllCookies');
+    const manageCookiesBtn = document.getElementById('manageCookies');
+    const essentialOnlyBtn = document.getElementById('acceptEssentialOnly');
+    const closeBannerBtn = document.getElementById('closeCookieBanner');
+
+    // Vérifier si l'utilisateur a déjà donné son consentement
+    checkCookieConsent();
+
+    function checkCookieConsent() {
+        fetch('/api/cookie-consent/check', {
+            method: 'GET',
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.hasConsent) {
+                showCookieBanner();
+            } else {
+                showStatusIndicator();
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors de la vérification du consentement:', error);
+            showCookieBanner(); // Afficher par défaut en cas d'erreur
+        });
+    }
+
+    function showCookieBanner() {
+        cookieBanner.style.display = 'block';
+        setTimeout(() => {
+            cookieBanner.classList.remove('translate-y-full');
+        }, 100);
+    }
+
+    function hideCookieBanner() {
+        cookieBanner.classList.add('translate-y-full');
+        setTimeout(() => {
+            cookieBanner.style.display = 'none';
+            showStatusIndicator();
+        }, 500);
+    }
+
+    function showStatusIndicator() {
+        statusIndicator.style.display = 'block';
+    }
+
+    // Accepter tous les cookies
+    acceptAllBtn.addEventListener('click', function() {
+        saveCookiePreferences({
+            essential: true,
+            functional: true,
+            analytics: true,
+            performance: true,
+            marketing: false // Garde marketing à false par défaut pour la conformité
+        });
+    });
+
+    // Accepter seulement les essentiels
+    essentialOnlyBtn.addEventListener('click', function() {
+        saveCookiePreferences({
+            essential: true,
+            functional: false,
+            analytics: false,
+            performance: false,
+            marketing: false
+        });
+    });
+
+    // Gérer les préférences
+    manageCookiesBtn.addEventListener('click', function() {
+        window.location.href = '/CookieSettings';
+    });
+
+    // Fermer la bannière (considéré comme refus)
+    closeBannerBtn.addEventListener('click', function() {
+        saveCookiePreferences({
+            essential: true,
+            functional: false,
+            analytics: false,
+            performance: false,
+            marketing: false
+        });
+    });
+
+    function saveCookiePreferences(preferences) {
+        fetch('/api/cookie-consent/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify(preferences)
+        })
+        .then(response => {
+            if (response.ok) {
+                hideCookieBanner();
+                
+                // Recharger la page si des cookies analytiques/performance ont été activés
+                if (preferences.analytics || preferences.performance) {
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                }
+            } else {
+                console.error('Erreur lors de la sauvegarde des préférences');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+        });
+    }
+
+    // Gérer les événements clavier pour l'accessibilité
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && cookieBanner.style.display !== 'none') {
+            essentialOnlyBtn.click();
+        }
+    });
+});
+
+// Fonctions globales pour la gestion des cookies
+window.cookieManager = {
+    showSettings: function() {
+        window.location.href = '/CookieSettings';
+    },
+    checkConsent: function(category) {
+        // Fonction utilitaire pour vérifier si une catégorie de cookies est autorisée
+        const cookies = document.cookie.split(';');
+        const settingsCookie = cookies.find(c => c.trim().startsWith('cookie_settings='));
+        
+        if (settingsCookie) {
+            try {
+                const settings = JSON.parse(decodeURIComponent(settingsCookie.split('=')[1]));
+                return settings[category] || false;
+            } catch (e) {
+                return false;
+            }
+        }
+        return false;
+    }
+};
+</script>

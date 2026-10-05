@@ -1,0 +1,239 @@
+﻿@page
+@using MCBusiness.Models;
+@model MCBusiness.Pages.Orders.MyOrdersModel
+@{
+    ViewData["Title"] = "Mes Commandes";
+}
+
+<div class="container py-4">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="bi bi-receipt me-2"></i>@ViewData["Title"]
+        </h1>
+    </div>
+
+    @if (Model.Orders.Any())
+    {
+        <div class="card mb-4">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>N° Commande</th>
+                                <th>Date</th>
+                                <th>Montant</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model.Orders)
+                            {
+                                <tr>
+                                    <td data-label="Commande">
+                                        <a asp-page="/Orders/OrderTracking" asp-route-id="@order.Id" class="text-decoration-none">
+                                            #@order.Id
+                                        </a>
+                                    </td>
+                                    <td data-label="Date">@LocalTime.Format(order.OrderDate, "dd/MM/yyyy HH:mm")</td>
+                                    <td data-label="Montant">@order.Currency.Code @order.GrandTotal.ToString("N0")</td>
+                                    <td data-label="Statut">
+                                        <span class="badge @Model.GetStatusBadgeClass(order.Status)">
+                                            @order.Status 
+                                        </span> 
+                                    </td>  
+                                    <td data-label="Actions">
+                                        <div class="order-actions d-flex gap-2">
+                                            <a asp-page="/Orders/OrderTracking" asp-route-id="@order.Id" 
+                                               class="btn btn-sm btn-outline-primary" title="Détails">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+
+                                            @if (order.Status == OrderStatus.Pending)
+                                            {
+                                                <a asp-page="/Payments/Payment" asp-route-type="order" asp-route-id="@order.Id" 
+                                                   class="btn btn-sm btn-success" title="Payer">
+                                                    <i class="bi bi-credit-card"></i>                
+                                                </a>
+                                            }
+
+                                            @* @if (order.Status == OrderStatus.Pending || order.Status == OrderStatus.Paid) *@
+                                            @if (order.Status == OrderStatus.Pending)
+                                            {
+                                                <form method="post" asp-page-handler="Cancel" asp-route-id="@order.Id" 
+                                                      onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?');">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Annuler">
+                                                        <i class="bi bi-x-circle"></i>
+                                                    </button>
+                                                </form>
+                                            }
+
+                                            @if (order.Status == OrderStatus.Delivered && !order.IsReceived)
+                                            {
+                                                <form method="post" asp-page-handler="ConfirmDelivery" asp-route-id="@order.Id"
+                                                      onsubmit="return confirm('Confirmer la réception de cette commande ?');">
+                                                    <button type="submit" class="btn btn-sm btn-success" title="Confirmer réception">
+                                                        <i class="bi bi-check-circle"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            else if (order.IsReceived)
+                                            {
+                                                <span class="badge bg-success d-inline-flex align-items-center gap-1"
+                                                      title="Vous avez confirmé la réception de cette commande">
+                                                    <i class="bi bi-check-circle-fill"></i>
+                                                    Réception confirmée
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav aria-label="Pagination">
+                <ul class="pagination justify-content-center">
+                    @if (Model.CurrentPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" asp-route-page="@(Model.CurrentPage - 1)" aria-label="Précédent">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    }
+
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link" asp-route-page="@i">@i</a>
+                        </li>
+                    }
+
+                    @if (Model.CurrentPage < Model.TotalPages)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" asp-route-page="@(Model.CurrentPage + 1)" aria-label="Suivant">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-cart-x text-muted" style="font-size: 3rem;"></i>
+                <h3 class="h5 mt-3">Vous n'avez aucune commande</h3>
+                <p class="text-muted">Commencez votre shopping dès maintenant</p>
+                <a asp-page="/Shop/Index" class="btn btn-primary">
+                    <i class="bi bi-bag me-2"></i>Parcourir nos produits
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+@section Styles {
+    <style>
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        .badge {
+            font-size: 0.85em;
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+        }
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        @@media (max-width: 767.98px) {
+            .container.py-4 {
+                padding-top: 1rem !important;
+            }
+
+            .table-responsive {
+                overflow: visible;
+            }
+
+            table.table,
+            table.table thead,
+            table.table tbody,
+            table.table tr,
+            table.table td {
+                display: block;
+                width: 100%;
+            }
+
+            table.table thead {
+                display: none;
+            }
+
+            table.table tr {
+                border: 1px solid rgba(0, 0, 0, 0.08);
+                border-radius: 0.5rem;
+                margin: 0.75rem;
+                padding: 0.75rem;
+                box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+            }
+
+            table.table td {
+                border: 0;
+                display: flex;
+                justify-content: space-between;
+                gap: 1rem;
+                padding: .45rem 0;
+                text-align: right;
+            }
+
+            table.table td::before {
+                content: attr(data-label);
+                color: #6c757d;
+                font-weight: 700;
+                text-align: left;
+            }
+
+            .order-actions {
+                justify-content: flex-end;
+                flex-wrap: wrap;
+            }
+
+            .order-actions .btn,
+            .order-actions form,
+            .order-actions form button {
+                min-height: 38px;
+            }
+
+            .pagination {
+                flex-wrap: wrap;
+                gap: .25rem;
+            }
+        }
+    </style>
+}

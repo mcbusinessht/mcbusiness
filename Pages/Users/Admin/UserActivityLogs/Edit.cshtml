@@ -1,0 +1,65 @@
+﻿@page
+@model             MCBusiness.Pages.Users.Admin.UserActivityLogs.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>UserActivityLog</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="UserActivityLog.Id" />
+            <div class="form-group">
+                <label asp-for="UserActivityLog.UserName" class="control-label"></label>
+                <input asp-for="UserActivityLog.UserName" class="form-control" />
+                <span asp-validation-for="UserActivityLog.UserName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserActivityLog.Path" class="control-label"></label>
+                <input asp-for="UserActivityLog.Path" class="form-control" />
+                <span asp-validation-for="UserActivityLog.Path" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserActivityLog.Method" class="control-label"></label>
+                <input asp-for="UserActivityLog.Method" class="form-control" />
+                <span asp-validation-for="UserActivityLog.Method" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserActivityLog.IpAddress" class="control-label"></label>
+                <input asp-for="UserActivityLog.IpAddress" class="form-control" />
+                <span asp-validation-for="UserActivityLog.IpAddress" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserActivityLog.ProductId" class="control-label"></label>
+                <input asp-for="UserActivityLog.ProductId" class="form-control" />
+                <span asp-validation-for="UserActivityLog.ProductId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserActivityLog.ActionType" class="control-label"></label>
+                <input asp-for="UserActivityLog.ActionType" class="form-control" />
+                <span asp-validation-for="UserActivityLog.ActionType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserActivityLog.Timestamp" class="control-label"></label>
+                <input asp-for="UserActivityLog.Timestamp" class="form-control" />
+                <span asp-validation-for="UserActivityLog.Timestamp" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

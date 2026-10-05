@@ -1,0 +1,158 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Notices.IndexModel
+
+@{
+    ViewData["Title"] = "Gestion des Annonces";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-megaphone me-2"></i>Gestion des Annonces
+                        </h4>
+                        <a asp-page="./../Dashboard" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Dashboard
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <!-- Bouton d'ajout et statistiques -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <a asp-page="Create" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-1"></i> Ajouter une annonce
+                        </a>
+                        <span class="badge bg-info">
+                            <i class="bi bi-list-ul me-1"></i> @Model.Notice.Count annonces au total
+                        </span>
+                    </div>
+
+                    <!-- Tableau des annonces -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">
+                                        <i class="bi bi-card-heading me-1"></i>@Html.DisplayNameFor(model => model.Notice[0].Name)
+                                    </th>
+                                    <th scope="col">
+                                        <i class="bi bi-card-text me-1"></i>@Html.DisplayNameFor(model => model.Notice[0].Content)
+                                    </th>
+                                    <th scope="col">
+                                        <i class="bi bi-tag me-1"></i>@Html.DisplayNameFor(model => model.Notice[0].Type)
+                                    </th>
+                                    <th scope="col">
+                                        <i class="bi bi-calendar-event me-1"></i>Dates
+                                    </th>
+                                    <th scope="col" class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Notice)
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="d-inline-block text-truncate" style="max-width: 150px;">
+                                                @Html.DisplayFor(modelItem => item.Name)
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="d-inline-block text-truncate" style="max-width: 200px;">
+                                                @Html.DisplayFor(modelItem => item.Content)
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">
+                                                @Html.DisplayFor(modelItem => item.Type)
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <div>Début: @item.StartDate.ToString("dd/MM/yyyy")</div>
+                                                <div>Fin: @item.EndDate.ToString("dd/MM/yyyy")</div>
+                                            </small>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="btn-group" role="group">
+                                                <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Détails">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                @if (User.IsInRole("Admin"))
+                                                {
+                                                    <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="Modifier">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Supprimer">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Message si aucune annonce -->
+                    @if (Model.Notice.Count == 0)
+                    {
+                        <div class="alert alert-info text-center">
+                            <i class="bi bi-info-circle me-2"></i>Aucune annonce trouvée
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 0.75rem 1.25rem;
+        }
+        
+        .table th {
+            font-weight: 500;
+            background-color: #f8f9fa;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .btn-group .btn {
+            border-radius: 0.25rem !important;
+        }
+        
+        .text-truncate {
+            max-width: 0;
+        }
+        
+        .badge {
+            font-size: 0.85em;
+            font-weight: 500;
+            padding: 0.5em 0.75em;
+        }
+        
+        /* Style pour les dates */
+        small {
+            font-size: 0.85em;
+            color: #6c757d;
+        }
+    </style>
+}

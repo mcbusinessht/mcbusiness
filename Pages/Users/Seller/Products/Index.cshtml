@@ -1,0 +1,167 @@
+﻿@page
+@model             MCBusiness.Pages.Users.Seller.Products.IndexModel
+
+@{
+    ViewData["Title"] = "Gestion des Produits";
+}
+
+<div class="container-fluid px-0">
+    <div class="row g-0">
+        <!-- Sidebar -->
+        <div class="col-lg-3 d-none d-lg-block border-end">
+            <partial name="_SideBarPartial"/>
+        </div>
+            <button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+                    style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+                    data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+        
+        <!-- Main Content -->
+        <div class="col-lg-9 px-4 py-3">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="h4 fw-bold text-primary">
+                    <i class="bi bi-box-seam me-2"></i>Liste des Produits
+                </h2>
+                <a asp-page="Create" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-circle me-1"></i>Nouveau Produit
+                </a>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-primary text-white">
+                                <tr>
+                                    <th class="ps-3">Nom</th>
+                                    <th class="ps-3">Description</th>
+                                    <th>Entreprise</th>
+                                    <th>Catégorie</th>
+                                    <th class="text-end pe-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Product)
+                                {
+                                    <tr>
+                                        <td class="ps-3 fw-semibold">@item.Name</td>  
+                                        <td>  
+                                            <span class="badge bg-secondary">@if (string.IsNullOrEmpty(@item.Description)) {<span>Aucune description disponible.</span>} else {@item.Description}</span>  
+                                        </td>
+                                        <td>@item.Company?.Name</td>
+                                        <td>
+                                            <span class="badge bg-secondary">@item.Category?.Name</span>
+                                        </td>
+                                        
+                                        <td class="text-end pe-3">
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                                        type="button" data-bs-toggle="dropdown">
+                                                    <i class="bi bi-gear"></i> Actions
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="./ProductVariants/Create" asp-route-id="@item.Id">
+                                                            <i class="bi bi-plus-circle me-2"></i>Ajouter Variant
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="./ProductVariants/Index" asp-route-id="@item.Id">
+                                                            <i class="bi bi-list-ul me-2"></i>Liste Variants
+                                                        </a>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="./Edit" asp-route-id="@item.Id">
+                                                            <i class="bi bi-pencil me-2"></i>Modifier
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="./Details" asp-route-id="@item.Id">
+                                                            <i class="bi bi-eye me-2"></i>Détails
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item text-danger" asp-page="./Delete" asp-route-id="@item.Id">
+                                                            <i class="bi bi-trash me-2"></i>Supprimer
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            @if (!Model.Product.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-box text-muted" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">Aucun produit trouvé</h5>
+                    <p class="text-muted">Commencez par ajouter votre premier produit</p>
+                    <a asp-page="Create" class="btn btn-primary mt-2">
+                        <i class="bi bi-plus-circle me-1"></i>Ajouter un produit
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Offcanvas Sidebar Mobile -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title">Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <partial name="_SideBarPartial"/>
+        </div>
+    </div>
+    <!-- Bouton menu mobile -->
+    <button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+            style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+            data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+        <i class="bi bi-list fs-4"></i>
+    </button>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle sidebar groups
+        document.querySelectorAll('.sidebar-group').forEach(group => {
+            const item = group.querySelector('.sidebar-item');
+            const submenu = group.querySelector('.sidebar-submenu');
+            
+            // Open if contains active item
+            if (submenu.querySelector('.active')) {
+                group.classList.add('active');
+            }
+            
+            item.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') return;
+                group.classList.toggle('active');
+            });
+        });
+        
+        // Toggle sidebar subgroups
+        document.querySelectorAll('.sidebar-subgroup').forEach(group => {
+            const item = group.querySelector('.sidebar-subitem');
+            const submenu = group.querySelector('.sidebar-subsubmenu');
+            
+            // Open if contains active item
+            if (submenu.querySelector('.active')) {
+                group.classList.add('active');
+            }
+            
+            item.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') return;
+                group.classList.toggle('active');
+            });
+        });
+    });
+</script>

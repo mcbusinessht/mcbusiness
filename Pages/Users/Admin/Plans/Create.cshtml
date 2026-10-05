@@ -1,0 +1,299 @@
+@page
+@model MCBusiness.Pages.Users.Admin.Plans.CreateModel
+
+@{
+    ViewData["Title"] = "Créer un Nouveau Plan";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-plus-circle me-2"></i>Créer un Nouveau Plan
+                        </h4>
+                        <a asp-page="./Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row justify-content-center">
+                        <div class="col-md-8 col-lg-6">
+                            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                                <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+                                <!-- Section Informations de base -->
+                                <div class="card mb-4 border-primary">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Informations de base</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label asp-for="Name" class="form-label fw-bold">Nom du plan</label>
+                                            <input asp-for="Name" class="form-control" required />
+                                            <span asp-validation-for="Name" class="text-danger small"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label asp-for="CategoryId" class="form-label fw-bold">Catégorie</label>
+                                            <select asp-for="CategoryId" class="form-select" asp-items="ViewBag?.CategoryId" required>
+                                                <option value="" disabled selected>-- Sélectionnez une catégorie --</option>
+                                            </select>
+                                            <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label asp-for="Description" class="form-label fw-bold">Description</label>
+                                            <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
+                                            <span asp-validation-for="Description" class="text-danger small"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Section Tarification et Durée -->
+                                <div class="card mb-4 border-primary">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0"><i class="bi bi-currency-exchange me-2"></i>Tarification et Durée</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label asp-for="Price" class="form-label fw-bold">Prix</label>
+                                                <div class="input-group">
+                                                    <input asp-for="Price" class="form-control" type="number" min="0" step="0.01" required />
+                                                    <span class="input-group-text">HTG</span>
+                                                </div>
+                                                <span asp-validation-for="Price" class="text-danger small"></span>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label asp-for="DurationInDays" class="form-label fw-bold">Durée</label>
+                                                <div class="input-group">
+                                                    <input asp-for="DurationInDays" class="form-control" type="number" min="1" max="3650" required />
+                                                    <span class="input-group-text">jours</span>
+                                                </div>
+                                                <span asp-validation-for="DurationInDays" class="text-danger small"></span>
+                                            </div>
+                                            <div class="col-12">
+                                                <label asp-for="Ceiling" class="form-label fw-bold">Plafond des gains</label>
+                                                <div class="input-group">
+                                                    <input asp-for="Ceiling" class="form-control" type="number" min="0" step="0.01" required />
+                                                    <span class="input-group-text">HTG</span>
+                                                </div>
+                                                <span asp-validation-for="Ceiling" class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Section Gains -->
+                                <div class="card mb-4 border-primary">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Commission Ambassadeur</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <label asp-for="AmbassadorCommissionPercentage" class="form-label fw-bold">Taux de commission</label>
+                                                <div class="input-group">
+                                                    <input asp-for="AmbassadorCommissionPercentage" class="form-control" type="number" min="0" max="1" step="0.01" required />
+                                                    <span class="input-group-text">0 à 1</span>
+                                                </div>
+                                                <div class="form-text">Exemple : 0.10 = 10%, 0.25 = 25%, 1 = 100%.</div>
+                                                <span asp-validation-for="AmbassadorCommissionPercentage" class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- NOUVEAU: Section Système de Points de Fidélité -->
+                                <div class="card mb-4 border-success">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0"><i class="bi bi-star-fill text-success me-2"></i>Système de Points de Fidélité</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="alert alert-info mb-3">
+                                            <i class="bi bi-info-circle me-2"></i>
+                                            <small><strong>Séparation argent/fidélité :</strong> Les points sont attribués aux ambassadeurs pour les parrainages, séparés des commissions en argent.</small>
+                                        </div>
+
+                                        <div class="row g-3">
+                                            <!-- Points Generation 1 -->
+                                            <div class="col-md-4">
+                                                <label asp-for="PointsGeneration1" class="form-label fw-bold">
+                                                    <i class="bi bi-star-fill text-success"></i> Points G1
+                                                </label>
+                                                <div class="input-group">
+                                                    <input asp-for="PointsGeneration1" class="form-control" type="number" min="0" value="0" />
+                                                    <span class="input-group-text">pts</span>
+                                                </div>
+                                                <span asp-validation-for="PointsGeneration1" class="text-danger small"></span>
+                                                <small class="text-muted d-block mt-1">Parrainage direct</small>
+                                            </div>
+
+                                            <!-- Points Generation 2 -->
+                                            <div class="col-md-4">
+                                                <label asp-for="PointsGeneration2" class="form-label fw-bold">
+                                                    <i class="bi bi-star-fill text-info"></i> Points G2
+                                                </label>
+                                                <div class="input-group">
+                                                    <input asp-for="PointsGeneration2" class="form-control" type="number" min="0" value="0" />
+                                                    <span class="input-group-text">pts</span>
+                                                </div>
+                                                <span asp-validation-for="PointsGeneration2" class="text-danger small"></span>
+                                                <small class="text-muted d-block mt-1">Niveau 2</small>
+                                            </div>
+
+                                            <!-- Points Generation 3 -->
+                                            <div class="col-md-4">
+                                                <label asp-for="PointsGeneration3" class="form-label fw-bold">
+                                                    <i class="bi bi-star-fill text-warning"></i> Points G3
+                                                </label>
+                                                <div class="input-group">
+                                                    <input asp-for="PointsGeneration3" class="form-control" type="number" min="0" value="0" />
+                                                    <span class="input-group-text">pts</span>
+                                                </div>
+                                                <span asp-validation-for="PointsGeneration3" class="text-danger small"></span>
+                                                <small class="text-muted d-block mt-1">Niveau 3</small>
+                                            </div>
+
+                                            <!-- Welcome Bonus Points -->
+                                            <div class="col-md-6">
+                                                <label asp-for="WelcomeBonusPoints" class="form-label fw-bold">
+                                                    <i class="bi bi-gift-fill text-primary"></i> Points de Bienvenue
+                                                </label>
+                                                <div class="input-group">
+                                                    <input asp-for="WelcomeBonusPoints" class="form-control" type="number" min="0" value="0" />
+                                                    <span class="input-group-text">pts</span>
+                                                </div>
+                                                <span asp-validation-for="WelcomeBonusPoints" class="text-danger small"></span>
+                                                <small class="text-muted d-block mt-1">Bonus nouveaux parrainés</small>
+                                            </div>
+
+                                            <!-- Monthly Points Limit -->
+                                            <div class="col-md-6">
+                                                <label asp-for="MonthlyPointsLimit" class="form-label fw-bold">
+                                                    <i class="bi bi-exclamation-circle text-danger"></i> Plafond Mensuel
+                                                </label>
+                                                <div class="input-group">
+                                                    <input asp-for="MonthlyPointsLimit" class="form-control" type="number" min="0" value="0" />
+                                                    <span class="input-group-text">pts/mois</span>
+                                                </div>
+                                                <span asp-validation-for="MonthlyPointsLimit" class="text-danger small"></span>
+                                                <small class="text-muted d-block mt-1">0 = illimité</small>
+                                            </div>
+
+                                            <!-- IsFreeplan -->
+                                            <div class="col-12">
+                                                <div class="form-check form-switch">
+                                                    <input asp-for="IsFreeplan" class="form-check-input" type="checkbox" />
+                                                    <label asp-for="IsFreeplan" class="form-check-label">
+                                                        <i class="bi bi-unlock-fill"></i> <strong>Plan Gratuit</strong> (créé manuellement par admin)
+                                                    </label>
+                                                </div>
+                                                <span asp-validation-for="IsFreeplan" class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Section Image -->
+                                <div class="card mb-4 border-primary">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0"><i class="bi bi-image me-2"></i>Image du Plan</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label asp-for="UploadedImage" class="form-label fw-bold">Image du plan</label>
+                                            <input asp-for="UploadedImage" type="file" class="form-control" accept="image/*" required>
+                                            <div class="form-text">Format recommandé: 500x500 px (JPEG, PNG)</div>
+                                            <span asp-validation-for="UploadedImage" class="text-danger small"></span>
+                                        </div>
+                                        <div class="text-center mt-3" id="imagePreviewContainer" style="display: none;">
+                                            <img id="imagePreview" class="img-thumbnail" style="max-width: 200px; height: auto;" alt="Aperçu de l'image">
+                                            <p class="small text-muted">Aperçu de l'image</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Statut -->
+                                <div class="card mb-4 border-primary">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0"><i class="bi bi-toggle-on me-2"></i>Statut du Plan</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-check form-switch">
+                                            <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" checked>
+                                            <label asp-for="IsActive" class="form-check-label fw-bold">Plan actif</label>
+                                        </div>
+                                        <div class="form-text">Si désactivé, le plan ne sera pas visible pour les utilisateurs</div>
+                                    </div>
+                                </div>
+
+                                <!-- Boutons d'action -->
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button type="submit" class="btn btn-primary me-md-2 px-4">
+                                        <i class="bi bi-save-fill me-1"></i> Enregistrer
+                                    </button>
+                                    <a asp-page="./Index" class="btn btn-outline-secondary px-4">
+                                        <i class="bi bi-x-circle me-1"></i> Annuler
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Validation des champs du formulaire
+        (function () {
+            'use strict'
+            
+            var forms = document.querySelectorAll('.needs-validation')
+            
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+        
+        // Prévisualisation de l'image uploadée
+        document.getElementById('UploadedImage').addEventListener('change', function(e) {
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            const preview = document.getElementById('imagePreview');
+            
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    preview.src = event.target.result;
+                    previewContainer.style.display = 'block';
+                }
+                
+                reader.readAsDataURL(e.target.files[0]);
+            } else {
+                previewContainer.style.display = 'none';
+            }
+        });
+    </script>
+}
+

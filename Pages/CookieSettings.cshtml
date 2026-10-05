@@ -1,0 +1,280 @@
+﻿@page
+@model CookieSettingsModel
+@{
+    ViewData["Title"] = "Paramètres des Cookies";
+}
+
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <div class="bg-white rounded-lg shadow-lg p-8">
+        <!-- En-tête -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">🍪 Gérer mes cookies</h1>
+            <p class="text-gray-600">
+                Personnalisez vos préférences de cookies pour améliorer votre expérience sur MCBusiness
+            </p>
+        </div>
+
+        <!-- Statut actuel -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div class="flex items-center">
+                <span class="text-2xl mr-3">ℹ️</span>
+                <div>
+                    <h3 class="font-semibold text-blue-800">Statut de consentement</h3>
+                    <p class="text-sm text-blue-700">
+                        @if (Model.CurrentSettings.ConsentDate != DateTimeOffset.MinValue)
+                        {
+                            <span>Dernière modification : @Model.CurrentSettings.ConsentDate.ToString("dd/MM/yyyy à HH:mm")</span>
+                        }
+                        else
+                        {
+                            <span>Aucun consentement enregistré</span>
+                        }
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" id="cookieSettingsForm">
+            <input type="hidden" asp-for="Settings.ConsentVersion" />
+            
+            <!-- Cookies Essentiels -->
+            <div class="border border-green-200 rounded-lg p-6 mb-6 bg-green-50">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <span class="text-3xl mr-3">🔒</span>
+                        <div>
+                            <h3 class="text-xl font-semibold text-green-800">Cookies Essentiels</h3>
+                            <p class="text-sm text-green-700">Nécessaires au bon fonctionnement du site</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" 
+                               asp-for="Settings.Essential" 
+                               checked 
+                               disabled
+                               class="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500">
+                        <span class="ml-2 text-sm text-green-700 font-medium">Toujours activé</span>
+                    </div>
+                </div>
+                <div class="text-sm text-green-700">
+                    <p class="mb-2"><strong>Ces cookies ne peuvent pas être désactivés</strong> car ils sont indispensables pour :</p>
+                    <ul class="list-disc list-inside ml-4 space-y-1">
+                        <li>Maintenir votre session de connexion</li>
+                        <li>Sécuriser vos transactions</li>
+                        <li>Mémoriser le contenu de votre panier</li>
+                        <li>Protéger contre les attaques malveillantes</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Cookies Fonctionnels -->
+            <div class="border border-blue-200 rounded-lg p-6 mb-6 bg-blue-50">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <span class="text-3xl mr-3">⚙️</span>
+                        <div>
+                            <h3 class="text-xl font-semibold text-blue-800">Cookies Fonctionnels</h3>
+                            <p class="text-sm text-blue-700">Améliorent votre expérience de navigation</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" 
+                                   asp-for="Settings.Functional" 
+                                   class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                </div>
+                <div class="text-sm text-blue-700">
+                    <p class="mb-2"><strong>Ces cookies vous permettent de :</strong></p>
+                    <ul class="list-disc list-inside ml-4 space-y-1">
+                        <li>Sauvegarder vos préférences de langue et de thème</li>
+                        <li>Maintenir votre panier entre les sessions</li>
+                        <li>Personnaliser l'interface selon vos goûts</li>
+                        <li>Mémoriser vos filtres de recherche</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Cookies Analytics -->
+            <div class="border border-orange-200 rounded-lg p-6 mb-6 bg-orange-50">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <span class="text-3xl mr-3">📊</span>
+                        <div>
+                            <h3 class="text-xl font-semibold text-orange-800">Cookies Analytiques</h3>
+                            <p class="text-sm text-orange-700">Nous aident à améliorer le site</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" 
+                                   asp-for="Settings.Analytics" 
+                                   class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
+                        </label>
+                    </div>
+                </div>
+                <div class="text-sm text-orange-700">
+                    <p class="mb-2"><strong>Ces cookies nous permettent de :</strong></p>
+                    <ul class="list-disc list-inside ml-4 space-y-1">
+                        <li>Comprendre comment vous utilisez le site (données anonymisées)</li>
+                        <li>Identifier les pages les plus populaires</li>
+                        <li>Détecter et corriger les erreurs</li>
+                        <li>Améliorer les performances et l'expérience utilisateur</li>
+                    </ul>
+                    <p class="text-xs text-orange-600 mt-2 italic">
+                        Note : Aucune donnée personnelle n'est collectée à des fins analytiques
+                    </p>
+                </div>
+            </div>
+
+            <!-- Cookies Performance -->
+            <div class="border border-purple-200 rounded-lg p-6 mb-6 bg-purple-50">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <span class="text-3xl mr-3">⚡</span>
+                        <div>
+                            <h3 class="text-xl font-semibold text-purple-800">Cookies Performance</h3>
+                            <p class="text-sm text-purple-700">Optimisent la vitesse du site</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" 
+                                   asp-for="Settings.Performance" 
+                                   class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                        </label>
+                    </div>
+                </div>
+                <div class="text-sm text-purple-700">
+                    <p class="mb-2"><strong>Ces cookies permettent de :</strong></p>
+                    <ul class="list-disc list-inside ml-4 space-y-1">
+                        <li>Accélérer le chargement des pages</li>
+                        <li>Réduire l'utilisation de bande passante</li>
+                        <li>Optimiser les ressources du serveur</li>
+                        <li>Améliorer la réactivité de l'interface</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Cookies Marketing -->
+            <div class="border border-red-200 rounded-lg p-6 mb-6 bg-red-50">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <span class="text-3xl mr-3">🎯</span>
+                        <div>
+                            <h3 class="text-xl font-semibold text-red-800">Cookies Marketing</h3>
+                            <p class="text-sm text-red-700">Publicités et contenus personnalisés</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" 
+                                   asp-for="Settings.Marketing" 
+                                   class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                        </label>
+                    </div>
+                </div>
+                <div class="text-sm text-red-700">
+                    <p class="mb-2"><strong>Ces cookies nous permettent de :</strong></p>
+                    <ul class="list-disc list-inside ml-4 space-y-1">
+                        <li>Afficher des publicités pertinentes pour vous</li>
+                        <li>Limiter le nombre de fois où vous voyez une pub</li>
+                        <li>Mesurer l'efficacité de nos campagnes</li>
+                        <li>Partager des données avec nos partenaires publicitaires</li>
+                    </ul>
+                    <p class="text-xs text-red-600 mt-2 italic">
+                        Note : Ces cookies peuvent être gérés par des tiers (Facebook, Google, etc.)
+                    </p>
+                </div>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
+                <button type="button" 
+                        id="acceptAllBtn"
+                        class="w-full sm:w-auto px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors">
+                    ✅ Accepter tous les cookies
+                </button>
+                
+                <button type="submit" 
+                        class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors">
+                    💾 Sauvegarder mes préférences
+                </button>
+                
+                <button type="button" 
+                        id="rejectAllBtn"
+                        class="w-full sm:w-auto px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors">
+                    ❌ Refuser tous les optionnels
+                </button>
+            </div>
+
+            <!-- Informations supplémentaires -->
+            <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+                <p class="text-sm text-gray-600 mb-2">
+                    Vous pouvez modifier ces paramètres à tout moment.
+                </p>
+                <p class="text-xs text-gray-500">
+                    Pour plus d'informations, consultez notre 
+                    <a href="/CookiePolicy" class="text-blue-600 hover:underline">politique de cookies complète</a>.
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Message de confirmation -->
+<div id="successMessage" 
+     class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300">
+    <div class="flex items-center">
+        <span class="text-xl mr-2">✅</span>
+        <span>Préférences sauvegardées avec succès !</span>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const acceptAllBtn = document.getElementById('acceptAllBtn');
+    const rejectAllBtn = document.getElementById('rejectAllBtn');
+    const form = document.getElementById('cookieSettingsForm');
+    const successMessage = document.getElementById('successMessage');
+    
+    // Accepter tous les cookies
+    acceptAllBtn.addEventListener('click', function() {
+        document.querySelector('input[name="Settings.Functional"]').checked = true;
+        document.querySelector('input[name="Settings.Analytics"]').checked = true;
+        document.querySelector('input[name="Settings.Performance"]').checked = true;
+        document.querySelector('input[name="Settings.Marketing"]').checked = true;
+        form.submit();
+    });
+    
+    // Refuser tous les cookies optionnels
+    rejectAllBtn.addEventListener('click', function() {
+        document.querySelector('input[name="Settings.Functional"]').checked = false;
+        document.querySelector('input[name="Settings.Analytics"]').checked = false;
+        document.querySelector('input[name="Settings.Performance"]').checked = false;
+        document.querySelector('input[name="Settings.Marketing"]').checked = false;
+        form.submit();
+    });
+    
+    // Afficher le message de succès si présent dans l'URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+        showSuccessMessage();
+        // Supprimer le paramètre de l'URL
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+    }
+    
+    function showSuccessMessage() {
+        successMessage.classList.remove('translate-x-full');
+        setTimeout(function() {
+            successMessage.classList.add('translate-x-full');
+        }, 3000);
+    }
+});
+</script>

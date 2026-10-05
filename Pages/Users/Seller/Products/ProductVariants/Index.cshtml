@@ -1,0 +1,535 @@
+﻿@page
+@model             MCBusiness.Pages.Users.Seller.Products.ProductVariants.IndexModel
+
+@{
+    ViewData["Title"] = "Gestion des Variantes de Produits";
+}
+
+<div class="container-fluid px-0">
+    <div class="row g-0">
+        <!-- Sidebar -->
+        <div class="col-lg-3 d-none d-lg-block border-end">
+            <partial name="_SideBarPartial"/>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-9 px-4 py-3">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="h4 fw-bold text-primary">
+                    <i class="bi bi-box-seam me-2"></i>Liste des Variantes de Produits
+                </h2>
+                @* <a asp-page="Create" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-circle me-1"></i>Nouvelle Variante
+                </a> *@
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-primary text-white">
+                                <tr>
+                                    <th class="ps-3">SKU</th>
+                                    <th>Produit</th>
+                                    <th>Catégorie</th>
+                                    <th>Prix</th>
+                                    <th>Quantité</th>
+                                    <th>Disponibilité</th>
+                                    <th class="text-end pe-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if(Model.ProductVariant == null || !Model.ProductVariant.Any())
+                                {
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5">      
+                                            <i class="bi bi-box text-muted" style="font-size: 2rem;"></i>
+                                            <h5 class="mt-3">Aucune variante trouvée</h5>               
+                                            <p class="text-muted">Commencez par ajouter votre première variante</p>
+                                            <a asp-page="Create" asp-route-id="@Model.idProduct" class="btn btn-primary mt-2 btn-sm">
+                                                <i class="bi bi-plus-circle me-1"></i>Ajouter une variante
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var item in Model.ProductVariant)
+                                    {
+                                        <tr>
+                                            <td class="ps-3 fw-semibold">@item.Sku</td>
+                                            <td>@item.Product.Name</td>
+                                            <td>
+                                                <span class="badge bg-secondary">@item.Product.Category.Name</span>
+                                            </td>
+                                            <td>@item.Price.ToString("C")</td>
+                                            <td>@item.Quantity</td>
+                                            <td>
+                                                @if (item.IsAvailable)
+                                                {
+                                                    <span class="badge bg-success rounded-pill">
+                                                        <i class="bi bi-check-circle me-1"></i>Disponible
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger rounded-pill">
+                                                        <i class="bi bi-x-circle me-1"></i>Indisponible
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="text-end pe-3">
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                                            type="button" data-bs-toggle="dropdown">
+                                                        <i class="bi bi-gear"></i> Actions
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li>
+                                                            <a class="dropdown-item" asp-page="../ProductImages/Create" asp-route-id="@item.Id">
+                                                                <i class="bi bi-image me-2"></i>Ajouter image
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" asp-page="../ProductImages/Index" asp-route-id="@item.Id">
+                                                                <i class="bi bi-images me-2"></i>Liste images
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#characteristicsModal_@item.Id">
+                                                                <i class="bi bi-card-list me-2"></i>Caractéristiques
+                                                            </button>
+                                                        </li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li>
+                                                            <a class="dropdown-item" asp-page="./Edit" asp-route-id="@item.Id">
+                                                                <i class="bi bi-pencil me-2"></i>Modifier
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item text-danger" asp-page="./Delete" asp-route-id="@item.Id">
+                                                                <i class="bi bi-trash me-2"></i>Supprimer
+                                                            </a>
+                                                        </li>   
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Modal for Characteristics -->
+                                        <div class="modal fade" id="characteristicsModal_@item.Id" tabindex="-1" aria-labelledby="characteristicsModalLabel_@item.Id" aria-hidden="true">
+                                            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-primary text-white">
+                                                        <h5 class="modal-title" id="characteristicsModalLabel_@item.Id">
+                                                            Caractéristiques détaillées - @(string.IsNullOrWhiteSpace(item.Sku) ? item.Product.Name : item.Sku)
+                                                        </h5>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="variant-detail-grid">
+                                                            <section class="variant-detail-section">
+                                                                <h6><i class="bi bi-box-seam me-2"></i>Identité du variant</h6>
+                                                                <dl>
+                                                                    <dt>ID variant</dt>
+                                                                    <dd>@item.Id</dd>
+                                                                    <dt>SKU</dt>
+                                                                    <dd>@ValueOrDash(item.Sku)</dd>
+                                                                    <dt>Produit</dt>
+                                                                    <dd>@ValueOrDash(item.Product?.Name)</dd>
+                                                                    <dt>Catégorie</dt>
+                                                                    <dd>@ValueOrDash(item.Product?.Category?.Name)</dd>
+                                                                    <dt>Description produit</dt>
+                                                                    <dd>@ValueOrDash(item.Product?.Description)</dd>
+                                                                </dl>
+                                                            </section>
+
+                                                            <section class="variant-detail-section">
+                                                                <h6><i class="bi bi-cash-coin me-2"></i>Prix et devise</h6>
+                                                                <dl>
+                                                                    <dt>Prix actuel</dt>
+                                                                    <dd class="fw-semibold">@FormatMoney(item.Price, item.Currency)</dd>
+                                                                    <dt>PriceSnapshot</dt>
+                                                                    <dd>@(item.PriceSnapshot.HasValue ? FormatMoney(item.PriceSnapshot.Value, item.Currency) : "-")</dd>
+                                                                    <dt>Devise</dt>
+                                                                    <dd>@ValueOrDash(item.Currency?.Code) @ValueOrDash(item.Currency?.Symbol) <span class="text-muted">(#@item.CurrencyBase)</span></dd>
+                                                                    <dt>Paliers actifs</dt>
+                                                                    <dd>@item.PriceBreaks.Count(pb => !pb.IsDeleted && pb.IsActive)</dd>
+                                                                    <dt>Paliers totaux</dt>
+                                                                    <dd>@item.PriceBreaks.Count(pb => !pb.IsDeleted)</dd>
+                                                                </dl>
+                                                            </section>
+
+                                                            <section class="variant-detail-section">
+                                                                <h6><i class="bi bi-boxes me-2"></i>Stock et disponibilité</h6>
+                                                                <dl>
+                                                                    <dt>Quantité variant</dt>
+                                                                    <dd>@item.Quantity</dd>
+                                                                    <dt>Stock lié</dt>
+                                                                    <dd>@(item.Stock?.Quantity.ToString() ?? "-")</dd>
+                                                                    <dt>Date ajout stock</dt>
+                                                                    <dd>@FormatDate(item.Stock?.DateAdded)</dd>
+                                                                    <dt>WarehouseId</dt>
+                                                                    <dd>@(item.Stock?.WarehouseId?.ToString() ?? "-")</dd>
+                                                                    <dt>Disponible</dt>
+                                                                    <dd>
+                                                                        @if (item.IsAvailable)
+                                                                        {
+                                                                            <span class="badge bg-success">Oui</span>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span class="badge bg-danger">Non</span>
+                                                                        }
+                                                                    </dd>
+                                                                </dl>
+                                                            </section>
+
+                                                            <section class="variant-detail-section">
+                                                                <h6><i class="bi bi-truck me-2"></i>Livraison</h6>
+                                                                <dl>
+                                                                    <dt>Type de colis</dt>
+                                                                    <dd>@item.ShippingPackageType</dd>
+                                                                    <dt>Poids</dt>
+                                                                    <dd>@(item.WeightKg.HasValue ? $"{item.WeightKg.Value:N2} kg" : "-")</dd>
+                                                                    <dt>Manutention spéciale</dt>
+                                                                    <dd>
+                                                                        @if (item.RequiresSpecialHandling)
+                                                                        {
+                                                                            <span class="badge bg-warning text-dark">Oui</span>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span class="badge bg-secondary">Non</span>
+                                                                        }
+                                                                    </dd>
+                                                                    <dt>Devis livraison requis</dt>
+                                                                    <dd>
+                                                                        @if (item.ShippingQuoteRequired)
+                                                                        {
+                                                                            <span class="badge bg-warning text-dark">Oui</span>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span class="badge bg-secondary">Non</span>
+                                                                        }
+                                                                    </dd>
+                                                                </dl>
+                                                            </section>
+
+                                                            <section class="variant-detail-section variant-detail-wide">
+                                                                <h6><i class="bi bi-card-list me-2"></i>Caractéristiques enregistrées</h6>
+                                                                @if (item.ProductVariantCharacteristics.Any(pvc => !pvc.IsDeleted))
+                                                                {
+                                                                    <div class="table-responsive">
+                                                                        <table class="table table-sm align-middle">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>Caractéristique</th>
+                                                                                    <th>Valeur</th>
+                                                                                    <th>ID caractéristique</th>
+                                                                                    <th>ID valeur</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                @foreach (var characteristic in item.ProductVariantCharacteristics.Where(pvc => !pvc.IsDeleted).OrderBy(pvc => pvc.Characteristic.Name))
+                                                                                {
+                                                                                    <tr>
+                                                                                        <td>@ValueOrDash(characteristic.Characteristic?.Name)</td>
+                                                                                        <td class="fw-semibold">@ValueOrDash(characteristic.CharacteristicValue?.Value)</td>
+                                                                                        <td>@characteristic.CharacteristicId</td>
+                                                                                        <td>@characteristic.CharacteristicValueId</td>
+                                                                                    </tr>
+                                                                                }
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <p class="text-muted mb-0">Aucune caractéristique enregistrée pour ce variant.</p>
+                                                                }
+                                                            </section>
+
+                                                            <section class="variant-detail-section variant-detail-wide">
+                                                                <h6><i class="bi bi-calculator me-2"></i>Paliers de prix</h6>
+                                                                @if (item.PriceBreaks.Any(pb => !pb.IsDeleted))
+                                                                {
+                                                                    <div class="table-responsive">
+                                                                        <table class="table table-sm align-middle">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>Quantité min.</th>
+                                                                                    <th>Quantité max.</th>
+                                                                                    <th>Prix unitaire</th>
+                                                                                    <th>Réduction</th>
+                                                                                    <th>Label</th>
+                                                                                    <th>Ordre</th>
+                                                                                    <th>Actif</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                @foreach (var priceBreak in item.PriceBreaks.Where(pb => !pb.IsDeleted).OrderBy(pb => pb.MinQuantity))
+                                                                                {
+                                                                                    <tr>
+                                                                                        <td>@priceBreak.MinQuantity</td>
+                                                                                        <td>@(priceBreak.MaxQuantity?.ToString() ?? "Illimité")</td>
+                                                                                        <td>@FormatMoney(priceBreak.UnitPrice, item.Currency)</td>
+                                                                                        <td>@(priceBreak.DiscountPercentage.HasValue ? $"{priceBreak.DiscountPercentage.Value:N2}%" : "-")</td>
+                                                                                        <td>@ValueOrDash(priceBreak.DisplayLabel)</td>
+                                                                                        <td>@priceBreak.SortOrder</td>
+                                                                                        <td>
+                                                                                            @if (priceBreak.IsActive)
+                                                                                            {
+                                                                                                <span class="badge bg-success">Oui</span>
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                <span class="badge bg-secondary">Non</span>
+                                                                                            }
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                }
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <p class="text-muted mb-0">Aucun palier de prix enregistré pour ce variant.</p>
+                                                                }
+                                                            </section>
+
+                                                            <section class="variant-detail-section variant-detail-wide">
+                                                                <h6><i class="bi bi-images me-2"></i>Images</h6>
+                                                                @if (item.Images.Any(img => !img.IsDeleted))
+                                                                {
+                                                                    <div class="variant-image-list">
+                                                                        @foreach (var image in item.Images.Where(img => !img.IsDeleted))
+                                                                        {
+                                                                            <a href="@image.Url" target="_blank" rel="noopener" class="variant-image-item">
+                                                                                <img src="@image.Url" alt="@item.Product.Name">
+                                                                                <span>ID @image.Id</span>
+                                                                            </a>
+                                                                        }
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <p class="text-muted mb-0">Aucune image enregistrée pour ce variant.</p>
+                                                                }
+                                                            </section>
+
+                                                            <section class="variant-detail-section variant-detail-wide">
+                                                                <h6><i class="bi bi-database me-2"></i>Audit système</h6>
+                                                                <dl class="variant-audit-list">
+                                                                    <dt>Version</dt>
+                                                                    <dd>@item.Version</dd>
+                                                                    <dt>Créé le</dt>
+                                                                    <dd>@FormatDate(item.CreatedAt)</dd>
+                                                                    <dt>Créé par</dt>
+                                                                    <dd>@ValueOrDash(item.CreatedBy)</dd>
+                                                                    <dt>Modifié le</dt>
+                                                                    <dd>@FormatDate(item.ModifiedAt)</dd>
+                                                                    <dt>Modifié par</dt>
+                                                                    <dd>@ValueOrDash(item.ModifiedBy)</dd>
+                                                                    <dt>Supprimé logiquement</dt>
+                                                                    <dd>@(item.IsDeleted ? "Oui" : "Non")</dd>
+                                                                </dl>
+                                                            </section>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                @if (Model.ProductVariant != null && Model.ProductVariant.Any())
+                {
+                    <div class="card-footer bg-light">
+                        <div class="row">
+                            <div class="col-12 text-end">
+                                <small class="text-muted">Total: @Model.ProductVariant.Count() variantes</small>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Offcanvas Sidebar Mobile -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title">Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <partial name="_SideBarPartial"/>
+        </div>
+    </div>
+    <!-- Bouton menu mobile -->
+    <button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+            style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+            data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+        <i class="bi bi-list fs-4"></i>
+    </button>
+
+    <style>
+        .variant-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .variant-detail-section {
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            background: #fff;
+        }
+
+        .variant-detail-section h6 {
+            color: #0d6efd;
+            font-weight: 700;
+            margin-bottom: 0.85rem;
+        }
+
+        .variant-detail-wide {
+            grid-column: 1 / -1;
+        }
+
+        .variant-detail-section dl,
+        .variant-audit-list {
+            display: grid;
+            grid-template-columns: minmax(9rem, 0.4fr) 1fr;
+            margin: 0;
+        }
+
+        .variant-detail-section dt,
+        .variant-detail-section dd {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            padding: 0.55rem 0;
+        }
+
+        .variant-detail-section dt {
+            color: #6c757d;
+            font-weight: 600;
+        }
+
+        .variant-detail-section dd {
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .variant-image-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .variant-image-item {
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 0.5rem;
+            padding: 0.45rem;
+            text-align: center;
+            text-decoration: none;
+            color: #495057;
+        }
+
+        .variant-image-item img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 0.35rem;
+            margin-bottom: 0.35rem;
+        }
+
+        @@media (max-width: 767.98px) {
+            .variant-detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .variant-detail-section dl,
+            .variant-audit-list {
+                grid-template-columns: 1fr;
+            }
+
+            .variant-detail-section dt {
+                border-bottom: 0;
+                padding-bottom: 0.15rem;
+            }
+
+            .variant-detail-section dd {
+                padding-top: 0;
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle sidebar groups
+            document.querySelectorAll('.sidebar-group').forEach(group => {
+                const item = group.querySelector('.sidebar-item');
+                const submenu = group.querySelector('.sidebar-submenu');
+                
+                // Open if contains active item
+                if (submenu.querySelector('.active')) {
+                    group.classList.add('active');
+                }
+                
+                item.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A') return;
+                    group.classList.toggle('active');
+                });
+            });
+            
+            // Toggle sidebar subgroups
+            document.querySelectorAll('.sidebar-subgroup').forEach(group => {
+                const item = group.querySelector('.sidebar-subitem');
+                const submenu = group.querySelector('.sidebar-subsubmenu');
+                
+                // Open if contains active item
+                if (submenu.querySelector('.active')) {
+                    group.classList.add('active');
+                }
+                
+                item.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A') return;
+                    group.classList.toggle('active');
+                });
+            });
+        });
+    </script>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+@functions {
+    private string ValueOrDash(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "-" : value;
+    }
+
+    private string FormatMoney(decimal value, MCBusiness.Models.Currency? currency)
+    {
+        var prefix = !string.IsNullOrWhiteSpace(currency?.Symbol)
+            ? currency.Symbol
+            : currency?.Code;
+
+        return string.IsNullOrWhiteSpace(prefix) ? value.ToString("N2") : $"{prefix} {value:N2}";
+    }
+
+    private string FormatDate(DateTimeOffset? value)
+    {
+        return value.HasValue ? LocalTime.Format(value.Value, "yyyy-MM-dd HH:mm") : "-";
+    }
+}

@@ -1,0 +1,41 @@
+@model IndexModel
+
+<section class="marketplace-categories-section py-5 bg-white">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h6 class="section-subtitle">CATÉGORIES</h6>
+            <h2 class="section-title">Commencez par ce que vous cherchez</h2>
+            <p class="section-description">Accédez rapidement aux rayons actifs de la marketplace.</p>
+        </div>
+
+        @if (Model.FeaturedCategories?.Any() == true)
+        {
+            <div class="category-grid">
+                @foreach (var category in Model.FeaturedCategories)
+                {
+                    var hasActiveSubCategories = category.SubCategories?.Any() == true;
+                    <a asp-page="@(hasActiveSubCategories ? "/Shop/Categories/Index" : "/Shop/Categories/Products/Index")" asp-route-id="@category.Id" class="category-tile">
+                        <div class="category-icon">
+                            @if (!string.IsNullOrWhiteSpace(category.UrlLogo))
+                            {
+                                <img src="@category.UrlLogo" alt="@category.Name">
+                            }
+                            else
+                            {
+                                <i class="bi bi-grid-3x3-gap"></i>
+                            }
+                        </div>
+                        <span>@category.Name</span>
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state text-center">
+                <i class="bi bi-grid text-muted empty-state-icon"></i>
+                <h4>Catégories bientôt disponibles</h4>
+            </div>
+        }
+    </div>
+</section>

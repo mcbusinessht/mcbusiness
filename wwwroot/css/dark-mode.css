@@ -1,0 +1,520 @@
+/* Mode Sombre pour FriKob */
+
+/* Variables CSS pour le mode sombre - MCBUSINESS */
+:root {
+    /* Couleurs MCBusiness en mode clair */
+    --bs-primary: #005fac;  /* Bleu MCBusiness */
+    --bs-primary-rgb: 0, 95, 172;
+    --bs-secondary: #5dab31;  /* Vert MCBusiness */
+    --bs-secondary-rgb: 93, 171, 49;
+    --bs-success: #198754;
+    --bs-info: #0dcaf0;
+    --bs-warning: #ffc107;
+    --bs-danger: #dc3545;
+    --bs-light: #f8f9fa;
+    --bs-dark: #212529;
+    
+    /* Mode clair par défaut */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --border-color: #dee2e6;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --card-bg: #ffffff;
+    --navbar-bg: #ffffff;
+    --sidebar-bg: #f8f9fa;
+    
+    /* Couleurs MCBusiness principales */
+    --mcbusiness-blue: #005fac;
+    --mcbusiness-green: #5dab31;
+}
+
+/* Mode sombre amélioré - PALETTE MCBUSINESS */
+[data-theme="dark"] {
+    /* Arrière-plans - Élégants avec identité MCBusiness */
+    --bg-primary: linear-gradient(135deg, #0a0e14 0%, #151b23 100%);
+    --bg-primary-solid: #0a0e14;
+    --bg-secondary: #151b23;
+    --bg-tertiary: #1e2732;
+    
+    /* Couleurs de texte - Excellent contraste */
+    --text-primary: #f0f4f8;
+    --text-secondary: #b8c5d6;
+    --text-muted: #94a3b8;        /* Amélioré pour meilleure lisibilité (6.5:1) */
+    --text-disabled: #64748b;
+    
+    /* Couleurs MCBusiness adaptées pour mode sombre */
+    --color-primary: #1a8cff;        /* Bleu MCBusiness éclairci pour contraste */
+    --color-primary-hover: #0066cc;  /* Bleu MCBusiness hover */
+    --color-secondary: #7ed957;      /* Vert MCBusiness éclairci */
+    --color-secondary-hover: #5dab31; /* Vert MCBusiness original */
+    
+    /* Couleurs d'accent (gardées pour compatibilité) */
+    --accent-primary: #1a8cff;       /* = color-primary */
+    --accent-secondary: #7ed957;     /* = color-secondary */
+    --accent-success: #22c55e;
+    --accent-warning: #f59e0b;
+    --accent-danger: #ef4444;
+    
+    /* Bordures subtiles avec teinte bleue MCBusiness */
+    --border-color: rgba(26, 140, 255, 0.15);
+    --border-hover: rgba(26, 140, 255, 0.3);
+    --border-focus: rgba(26, 140, 255, 0.5);
+    
+    /* Ombres sophistiquées */
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --shadow-glow: rgba(26, 140, 255, 0.2);        /* Glow bleu MCBusiness */
+    --shadow-glow-green: rgba(126, 217, 87, 0.2);  /* Glow vert MCBusiness */
+    
+    /* Surfaces et cartes */
+    --card-bg: rgba(21, 27, 35, 0.95);
+    --card-hover: rgba(30, 39, 50, 0.98);
+    --navbar-bg: rgba(10, 14, 20, 0.98);
+    --sidebar-bg: rgba(21, 27, 35, 0.95);
+    --modal-bg: rgba(10, 14, 20, 0.98);
+    
+    /* Glassmorphism effect avec identité MCBusiness */
+    --glass-bg: rgba(21, 27, 35, 0.1);
+    --glass-border: rgba(26, 140, 255, 0.1);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Application du thème */
+[data-theme="dark"] body {
+    background: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 100vh;
+}
+
+/* Cards avec effet glassmorphism moderne */
+[data-theme="dark"] .card {
+    background: var(--card-bg) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    box-shadow: var(--glass-shadow) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 12px !important;
+}
+
+[data-theme="dark"] .card:hover {
+    background: var(--card-hover) !important;
+    border-color: var(--border-hover) !important;
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 24px rgba(26, 140, 255, 0.2) !important;
+}
+
+.card-header {
+    background-color: var(--bg-secondary) !important;
+    border-bottom-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+.card-footer {
+    background-color: var(--bg-secondary) !important;
+    border-top-color: var(--border-color) !important;
+}
+
+/* Navbar glassmorphism */
+[data-theme="dark"] .navbar {
+    background: var(--navbar-bg) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] .navbar-brand, 
+[data-theme="dark"] .navbar-nav .nav-link {
+    color: var(--text-primary) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] .navbar-nav .nav-link:hover {
+    color: var(--color-primary) !important;
+    text-shadow: 0 0 8px rgba(26, 140, 255, 0.5);
+    transform: translateY(-1px);
+}
+
+/* Sidebar */
+.sidebar {
+    background-color: var(--sidebar-bg) !important;
+    border-right: 1px solid var(--border-color) !important;
+}
+
+.sidebar .nav-link {
+    color: var(--text-secondary) !important;
+    transition: all 0.3s ease;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    color: var(--bs-primary) !important;
+    background-color: rgba(13, 110, 253, 0.1) !important;
+}
+.sidebar-nav>{
+    background-color: rgba(13, 110, 253, 0.1) !important;
+}
+/* Forms améliorées */s
+[data-theme="dark"] .form-control {
+    background: rgba(21, 27, 35, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    border-radius: 8px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] .form-control:focus {
+    background: rgba(21, 27, 35, 0.8) !important;
+    border-color: var(--color-primary) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 0 0 3px rgba(26, 140, 255, 0.15), 0 0 20px rgba(26, 140, 255, 0.2) !important;
+    transform: translateY(-1px);
+}
+
+[data-theme="dark"] .form-select {
+    background: rgba(21, 27, 35, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    border-radius: 8px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Boutons modernes - Couleurs MCBusiness */
+[data-theme="dark"] .btn-primary {
+    background: linear-gradient(135deg, #1a8cff, #0066cc) !important;
+    border: none !important;
+    color: white !important;
+    border-radius: 8px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(26, 140, 255, 0.3) !important;
+}
+
+[data-theme="dark"] .btn-primary:hover {
+    background: linear-gradient(135deg, #0066cc, #004c99) !important;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 24px rgba(26, 140, 255, 0.4), 0 0 20px rgba(26, 140, 255, 0.3) !important;
+}
+
+[data-theme="dark"] .btn-secondary {
+    background: linear-gradient(135deg, #7ed957, #5dab31) !important;
+    border: none !important;
+    color: white !important;
+    border-radius: 8px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(93, 171, 49, 0.3) !important;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+    background: linear-gradient(135deg, #5dab31, #4a8827) !important;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 24px rgba(93, 171, 49, 0.4), 0 0 20px rgba(126, 217, 87, 0.3) !important;
+}
+
+[data-theme="dark"] .btn-outline-primary {
+    background: transparent !important;
+    border: 2px solid var(--color-primary) !important;
+    color: var(--color-primary) !important;
+    backdrop-filter: blur(10px) !important;
+    border-radius: 8px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] .btn-outline-primary:hover {
+    background: var(--color-primary) !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(26, 140, 255, 0.3) !important;
+}
+
+/* Tables */
+.table {
+    color: var(--text-primary) !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > td,
+.table-striped > tbody > tr:nth-of-type(odd) > th {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > td,
+[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > th {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Buttons */
+.btn-outline-secondary {
+    color: var(--text-secondary) !important;
+    border-color: var(--border-color) !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--text-secondary) !important;
+    color: var(--bg-primary) !important;
+}
+
+/* Modal */
+.modal-content {
+    background-color: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+.modal-header {
+    border-bottom-color: var(--border-color) !important;
+}
+
+.modal-footer {
+    border-top-color: var(--border-color) !important;
+}
+
+/* Dropdown - Mode sombre */
+[data-theme="dark"] .dropdown-menu {
+    background: rgba(21, 27, 35, 1) !important;  /* 100% opaque */
+    backdrop-filter: none !important;  /* Pas de blur */
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    position: absolute !important;  /* Position absolue pour échapper au contexte parent */
+    z-index: 99999 !important;  /* Z-INDEX LE PLUS ÉLEVÉ */
+    transform: translateZ(100px) !important;  /* Contexte 3D pour forcer au premier plan */
+    will-change: transform;
+}
+
+/* La navbar nav-main-links doit être SOUS les dropdowns */
+[data-theme="dark"] .nav-main-links {
+    position: relative;
+    z-index: 50 !important;
+}
+
+[data-theme="dark"] .dropdown-item {
+    color: var(--text-primary) !important;
+    background: transparent;
+}
+
+[data-theme="dark"] .dropdown-item:hover,
+[data-theme="dark"] .dropdown-item:focus {
+    background: rgba(26, 140, 255, 0.15) !important;
+    color: #1a8cff !important;
+}
+
+[data-theme="dark"] .dropdown-item:active {
+    background: rgba(26, 140, 255, 0.2) !important;
+}
+
+/* Navbar et navigation - Mode sombre */
+[data-theme="dark"] .navbar {
+    position: relative;
+    z-index: 100 !important;  /* En dessous des dropdowns */
+}
+
+[data-theme="dark"] .navbar-nav {
+    position: relative;
+    z-index: 1 !important;  /* Très bas pour ne pas interférer avec les dropdowns */
+}
+
+[data-theme="dark"] .nav-item {
+    position: relative;
+    z-index: 1 !important;  /* Très bas */
+}
+
+/* LE PARENT .dropdown DOIT AVOIR UN Z-INDEX TRÈS ÉLEVÉ */
+[data-theme="dark"] .dropdown {
+    position: relative !important;
+    z-index: 99998 !important;
+}
+
+[data-theme="dark"] .dropdown.show {
+    z-index: 99998 !important;
+}
+
+[data-theme="dark"] .breadcrumb,
+[data-theme="dark"] .breadcrumb-modern {
+    position: relative;
+    z-index: 10 !important;  /* En dessous des dropdowns */
+}
+
+/* Offcanvas - Mode sombre */
+[data-theme="dark"] .offcanvas {
+    background: rgba(21, 27, 35, 0.98) !important;
+    backdrop-filter: blur(20px) saturate(150%) !important;
+    border-left: 1px solid var(--border-color);
+    z-index: 10000 !important;
+}
+
+[data-theme="dark"] .offcanvas-backdrop {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    z-index: 9999 !important;
+}
+
+/* Alerts */
+.alert {
+    border-color: var(--border-color) !important;
+}
+
+/* Text colors */
+[data-theme="dark"] .text-muted {
+    color: #94a3b8 !important;  /* Gris lisible avec contraste 6.5:1 */
+}
+
+/* Badge adjustments */
+.badge {
+    color: white !important;
+}
+
+/* List group */
+.list-group-item {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Toggle button pour le mode sombre */
+.theme-toggle {
+    background: none;
+    border: 2px solid var(--border-color);
+    border-radius: 50px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-primary);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.theme-toggle:hover {
+    border-color: var(--bs-primary);
+    color: var(--bs-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.theme-toggle i {
+    font-size: 16px;
+}
+
+/* Animation pour le switch */
+.theme-toggle .sun-icon {
+    display: block;
+}
+
+.theme-toggle .moon-icon {
+    display: none;
+}
+
+[data-theme="dark"] .theme-toggle .sun-icon {
+    display: none;
+}
+
+[data-theme="dark"] .theme-toggle .moon-icon {
+    display: block;
+}
+
+/* Chart.js adjustments for dark mode */
+[data-theme="dark"] .chartjs-render-monitor {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+[data-theme="dark"] .chart-container {
+    background-color: var(--card-bg) !important;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+/* Specific overrides for gradients in dark mode */
+[data-theme="dark"] .bg-gradient-primary,
+[data-theme="dark"] .bg-gradient-success,
+[data-theme="dark"] .bg-gradient-info,
+[data-theme="dark"] .bg-gradient-warning,
+[data-theme="dark"] .bg-gradient-danger {
+    opacity: 0.9;
+}
+
+/* === COMPOSANTS SPÉCIFIQUES MCBUSINESS === */
+
+/* Header announcement bar */
+.header-announcement-bar {
+    background-color: #005fac !important;
+}
+
+[data-theme="dark"] .header-announcement-bar {
+    background: linear-gradient(90deg, #0a0e14 0%, #151b23 50%, #0a0e14 100%) !important;
+    border-bottom: 1px solid rgba(26, 140, 255, 0.3) !important;
+}
+
+/* Navbar MCBusiness */
+.navbar-mcbusiness {
+    background-color: #ffffff !important;
+}
+
+[data-theme="dark"] .navbar-mcbusiness {
+    background: rgba(10, 14, 20, 0.98) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    border-bottom-color: rgba(26, 140, 255, 0.2) !important;
+}
+
+[data-theme="dark"] .navbar-mcbusiness .navbar-brand,
+[data-theme="dark"] .navbar-mcbusiness .nav-link {
+    color: #f0f4f8 !important;
+}
+
+[data-theme="dark"] .navbar-mcbusiness .nav-link:hover {
+    color: #1a8cff !important;
+}
+
+/* Footer MCBusiness */
+.footer-mcbusiness {
+    background-color: #005fac !important;
+}
+
+[data-theme="dark"] .footer-mcbusiness {
+    background: linear-gradient(135deg, #0a0e14 0%, #151b23 100%) !important;
+    border-top: 1px solid rgba(26, 140, 255, 0.2) !important;
+}
+
+[data-theme="dark"] .footer-mcbusiness a:hover {
+    color: #1a8cff !important;
+}
+
+/* Background primary pour éléments génériques */
+[data-theme="dark"] .bg-primary {
+    background-color: var(--color-primary) !important;
+}
+
+/* Text colors override */
+[data-theme="dark"] .text-primary {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .text-secondary {
+    color: var(--text-secondary) !important;
+}
+
+/* Classes texte gris supplémentaires pour meilleure lisibilité */
+[data-theme="dark"] small,
+[data-theme="dark"] .small {
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .caption,
+[data-theme="dark"] .text-caption {
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .lead {
+    color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] p {
+    color: #b8c5d6 !important;
+}
+
+[data-theme="dark"] .text-gray-400,
+[data-theme="dark"] .text-gray-500,
+[data-theme="dark"] .text-gray-600 {
+    color: #94a3b8 !important;
+}

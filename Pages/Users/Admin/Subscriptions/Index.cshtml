@@ -1,0 +1,273 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Subscriptions.IndexModel
+
+@{
+    ViewData["Title"] = "Gestion des Abonnements";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-credit-card me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <div>
+                            <a asp-page="./../Dashboard" class="btn btn-sm btn-light me-2">
+                                <i class="bi bi-arrow-return-left me-1"></i> Dashboard
+                            </a>
+                            <a asp-page="Create" class="btn btn-sm btn-light">
+                                <i class="bi bi-plus-circle me-1"></i> Nouvel Abonnement
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                                <input type="text" id="searchInput" class="form-control" placeholder="Rechercher un abonnement...">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">Tous les statuts</option>
+                                @foreach (var status in Enum.GetValues(typeof(MCBusiness.Models.SubscriptionStatus)))
+                                {
+                                    <option value="@status">@status</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex justify-content-end">
+                            <button class="btn btn-outline-secondary" id="resetFilters">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="subscriptionsTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="sortable" data-sort="user">
+                                        <i class="bi bi-person me-1"></i>
+                                        Utilisateur
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-sort="plan">
+                                        <i class="bi bi-card-checklist me-1"></i>
+                                        Plan
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-sort="start">
+                                        <i class="bi bi-calendar-plus me-1"></i>
+                                        Date début
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-sort="end">
+                                        <i class="bi bi-calendar-minus me-1"></i>
+                                        Date fin
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-sort="status">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Statut
+                                        <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="text-end">
+                                        <i class="bi bi-gear me-1"></i>
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Subscription)
+                                {
+                                    <tr data-status="@item.Status">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-primary me-2">@item.User.UserName</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @item.Plan.Name
+                                        </td>
+                                        <td>
+                                            @item.StartDate.ToString("dd/MM/yyyy")
+                                        </td>
+                                        <td>
+                                            @item.EndDate.ToString("dd/MM/yyyy")
+                                        </td>
+                                        <td>
+                                            @{
+                                                var statusBadgeClass = item.Status switch
+                                                {
+                                                    MCBusiness.Models.SubscriptionStatus.Active => "bg-success",
+                                                    MCBusiness.Models.SubscriptionStatus.Inactive => "bg-secondary",
+                                                    MCBusiness.Models.SubscriptionStatus.Cancelled => "bg-danger",
+                                                    _ => "bg-warning"
+                                                };
+                                            }
+                                            <span class="badge @statusBadgeClass">@item.Status</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="btn-group" role="group">
+                                                <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Détails">
+                                                    <i class="bi bi-info-circle"></i>
+                                                </a>
+                                                @if (User.IsInRole("Admin"))
+                                                {
+                                                    <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Modifier">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Supprimer">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="small text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <span id="totalCount">@Model.Subscription.Count</span> abonnements enregistrés
+                        </div>
+                        <a asp-page="Create" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-circle me-1"></i> Ajouter un abonnement
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Filtrage par recherche
+            $('#searchInput').keyup(function() {
+                const searchText = $(this).val().toLowerCase();
+                filterTable(searchText);
+            });
+
+            // Filtrage par statut
+            $('#statusFilter').change(function() {
+                const status = $(this).val();
+                filterTable('', status);
+            });
+
+            // Réinitialisation des filtres
+            $('#resetFilters').click(function() {
+                $('#searchInput').val('');
+                $('#statusFilter').val('');
+                filterTable('', '');
+            });
+
+            // Tri des colonnes
+            $('.sortable').click(function() {
+                const sortBy = $(this).data('sort');
+                // Implémentez la logique de tri ici
+                console.log('Tri par: ' + sortBy);
+            });
+
+            function filterTable(searchText = '', status = '') {
+                let visibleCount = 0;
+                
+                $('#subscriptionsTable tbody tr').each(function() {
+                    const userName = $(this).find('td:first').text().toLowerCase();
+                    const planName = $(this).find('td:nth-child(2)').text().toLowerCase();
+                    const rowStatus = $(this).data('status').toString();
+                    const matchSearch = searchText === '' || 
+                                      userName.includes(searchText) || 
+                                      planName.includes(searchText);
+                    const matchStatus = status === '' || rowStatus === status;
+                    
+                    if (matchSearch && matchStatus) {
+                        $(this).show();
+                        visibleCount++;
+                    } else {
+                        $(this).hide();
+                    }
+                });
+                
+                $('#totalCount').text(visibleCount);
+            }
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .sort-icon {
+            font-size: 0.8em;
+            opacity: 0.5;
+            margin-left: 5px;
+        }
+        
+        .sortable:hover .sort-icon {
+            opacity: 1;
+        }
+        
+        .badge {
+            font-size: 0.85em;
+            padding: 0.35em 0.65em;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .btn-group .btn {
+            border-radius: 0.25rem !important;
+        }
+        
+        .input-group-text {
+            background-color: #f8f9fa;
+        }
+        
+        .card-header {
+            border-bottom: none;
+        }
+        
+        /* Style pour les statuts */
+        .bg-success {
+            background-color: #28a745 !important;
+        }
+        .bg-danger {
+            background-color: #dc3545 !important;
+        }
+        .bg-warning {
+            background-color: #ffc107 !important;
+            color: #212529;
+        }
+        .bg-secondary {
+            background-color: #6c757d !important;
+        }
+    </style>
+}

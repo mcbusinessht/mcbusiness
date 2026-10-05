@@ -1,0 +1,295 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_Categories.DeleteModel
+@using MCBusiness.Models
+
+@{
+    ViewData["Title"] = "Supprimer la Catégorie";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-danger text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-exclamation-triangle me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <!-- Alerte de confirmation -->
+                            <div class="alert alert-warning border-0 shadow-sm mb-4">
+                                <div class="d-flex">
+                                    <i class="bi bi-exclamation-triangle-fill me-3 fs-3"></i>
+                                    <div>
+                                        <h5 class="alert-heading">Attention ! Action irréversible</h5>
+                                        <p class="mb-0">Êtes-vous sûr de vouloir supprimer cette catégorie ? Cette action ne peut pas être annulée.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Informations de la catégorie -->
+                            <div class="card border-0 bg-light mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-4">
+                                        <i class="bi bi-info-circle me-2"></i>Détails de la catégorie
+                                    </h5>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="fw-bold text-muted">Nom</label>
+                                            <div class="fs-5">
+                                                @if (!string.IsNullOrEmpty(Model.Category.UrlLogo))
+                                                {
+                                                    <img src="@Model.Category.UrlLogo" alt="Logo" class="rounded me-2" style="width: 30px; height: 30px; object-fit: cover;">
+                                                }
+                                                @Model.Category.Name
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="fw-bold text-muted">Type</label>
+                                            <div>
+                                                <span class="badge bg-info fs-6">@Model.Category.Type</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="fw-bold text-muted">Catégorie parente</label>
+                                            <div>
+                                                @if (Model.Category.ParentCategory != null)
+                                                {
+                                                    <span class="text-muted">@Model.Category.ParentCategory.Name</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-primary">Catégorie principale</span>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="fw-bold text-muted">Statut</label>
+                                            <div>
+                                                @if (Model.Category.IsDeleted)
+                                                {
+                                                    <span class="badge bg-danger fs-6">
+                                                        <i class="bi bi-x-circle me-1"></i>Désactivée
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success fs-6">
+                                                        <i class="bi bi-check-circle me-1"></i>Active
+                                                    </span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="fw-bold text-muted">Date de création</label>
+                                            <div class="text-muted">
+                                                <i class="bi bi-calendar me-1"></i>
+                                                @LocalTime.Format(Model.Category.CreatedAt, "dd/MM/yyyy à HH:mm")
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="fw-bold text-muted">ID</label>
+                                            <div class="text-muted">
+                                                <i class="bi bi-hash me-1"></i>@Model.Category.Id
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(Model.Category.UrlLogo))
+                                    {
+                                        <div class="row">
+                                            <div class="col-12 mb-3">
+                                                <label class="fw-bold text-muted">Logo</label>
+                                                <div>
+                                                    <img src="@Model.Category.UrlLogo" alt="Logo de la catégorie" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- Vérifications de sécurité -->
+                                    <div class="mt-4 p-3 bg-white rounded border">
+                                        <h6 class="fw-bold text-danger mb-3">
+                                            <i class="bi bi-shield-exclamation me-2"></i>Vérifications avant suppression
+                                        </h6>
+                                        
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="confirmDelete" required>
+                                            <label class="form-check-label" for="confirmDelete">
+                                                Je confirme vouloir supprimer cette catégorie
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="understandConsequences" required>
+                                            <label class="form-check-label" for="understandConsequences">
+                                                Je comprends que cette action est irréversible
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Formulaire de suppression -->
+                            <form method="post" id="deleteForm">
+                                <input type="hidden" asp-for="Category.Id" />
+                                
+                                <div class="d-flex justify-content-between mt-4">
+                                    <a asp-page="Index" class="btn btn-outline-secondary">
+                                        <i class="bi bi-x-circle me-1"></i> Annuler
+                                    </a>
+                                    <button type="submit" class="btn btn-danger" id="deleteButton" disabled>
+                                        <i class="bi bi-trash me-1"></i> Supprimer définitivement
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const confirmDelete = document.getElementById('confirmDelete');
+            const understandConsequences = document.getElementById('understandConsequences');
+            const deleteButton = document.getElementById('deleteButton');
+            const deleteForm = document.getElementById('deleteForm');
+
+            function updateDeleteButton() {
+                deleteButton.disabled = !(confirmDelete.checked && understandConsequences.checked);
+            }
+
+            confirmDelete.addEventListener('change', updateDeleteButton);
+            understandConsequences.addEventListener('change', updateDeleteButton);
+
+            // Confirmation supplémentaire avant soumission
+            deleteForm.addEventListener('submit', function(e) {
+                if (!confirm('⚠️ DERNIÈRE CONFIRMATION\n\nÊtes-vous absolument sûr de vouloir supprimer cette catégorie ?\n\nCette action supprimera définitivement la catégorie et pourrait affecter les produits associés.')) {
+                    e.preventDefault();
+                }
+            });
+
+            // Animation du bouton de suppression
+            deleteButton.addEventListener('mouseenter', function() {
+                if (!this.disabled) {
+                    this.style.transform = 'scale(1.05)';
+                }
+            });
+
+            deleteButton.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+        
+        .card-header {
+            border-radius: 1rem 1rem 0 0 !important;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border-bottom: none;
+        }
+        
+        .btn {
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border: none;
+        }
+        
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .alert {
+            border-radius: 0.75rem;
+            border: none;
+        }
+        
+        .badge {
+            border-radius: 0.375rem;
+            font-weight: 500;
+            padding: 0.5em 0.75em;
+        }
+        
+        .form-check-input:checked {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        
+        .form-check-input:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        
+        .bg-light {
+            background-color: #f8f9fa !important;
+        }
+        
+        .img-thumbnail {
+            border-radius: 0.5rem;
+            border: 2px solid #dee2e6;
+        }
+        
+        .bi {
+            font-size: 1.1em;
+        }
+        
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .card-body {
+                padding: 1.5rem;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            .d-flex.justify-content-between {
+                flex-direction: column;
+            }
+        }
+    </style>
+}

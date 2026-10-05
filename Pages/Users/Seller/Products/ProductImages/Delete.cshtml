@@ -1,0 +1,19 @@
+﻿@page
+@model             MCBusiness.Pages.Users.Seller.Products.ProductImages.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+<div class="row mb-3">
+    <div class="col-md-6 mx-auto text-center ">
+        <h3 class="text-center text-danger">Voulez vous vraiment supprimer cette photo ?</h3>
+        <hr />
+        <img src="@Model.ProductImage.Url" width="250px" class="mb-3" alt="Photo de Produit"> 
+        <form method="post" class="text-center mb-3">
+            <input type="hidden" asp-for="ProductImage.Id" />
+            <a asp-page="./Index" class="btn btn-primary w-25" asp-route-id="@Model.ProductImage.Id">Retour a la Liste</a>
+            <button type="submit" class="btn btn-danger w-25" ><i class="bi bi-trash text-light"></i> Supprimer</button> 
+        </form>
+    </div>
+
+</div>

@@ -1,0 +1,426 @@
+﻿@page
+@model MCBusiness.Pages.MyCart
+@{
+    ViewData["Title"] = "Mon Panier";
+}
+
+<div class="container mt-4 mb-4">
+    @Html.AntiForgeryToken()
+    @if(Model.Cart != null)
+    {
+        <div class="row">
+            <!-- Liste des articles -->
+            <div class="col-lg-8">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="text-primary">Votre Panier MCBusiness</h3>
+                    <span class="badge bg-primary" id="cartItemCount">@Model.CI.Count article(s)</span>
+                </div>
+
+                @if (Model.CI != null && Model.CI.Any())
+                {
+                    foreach (var item in Model.CI)
+                    {
+                        var correctUnitPrice = Model.GetCorrectUnitPrice(item);
+                        var totalPrice = Model.GetCorrectTotalPrice(item);
+                        var maxQuantity = item.ProductVariant.Quantity;
+                        <div class="card mb-3 cart-item" data-item-id="@item.Id" data-max="@maxQuantity">
+                            <div class="row g-0">
+                                <div class="col-md-3">
+                                    @if (item.ProductVariant.Images?.FirstOrDefault() != null)
+                                    {
+                                        <img src="@item.ProductVariant.Images.First().Url" 
+                                             class="img-fluid rounded-start" 
+                                             style="object-fit: cover; height: 200px; width: 100%;"
+                                             alt="@item.ProductVariant.Product.Name" />
+                                    }
+                                    else
+                                    {
+                                        <img src="/images/NoPicture.jpg" 
+                                             class="img-fluid rounded-start" 
+                                             style="object-fit: cover; height: 200px; width: 100%;"
+                                             alt="Image non disponible" />
+                                    }
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-primary">@item.ProductVariant.Product.Name</h5>
+                                        <div class="mb-2">
+                                            @foreach (var ch in item.ProductVariant.ProductVariantCharacteristics)
+                                            {
+                                                <span class="badge bg-light text-dark me-1">
+                                                    @ch.Characteristic.Name: @ch.CharacteristicValue.Value
+                                                </span>
+                                            }
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <button class="btn btn-outline-secondary btn-sm me-2 quantity-btn decrement-btn" 
+                                                    onclick="updateQuantity(@item.Id, -1)" 
+                                                    @(item.Quantity <= 1 ? "disabled" : "")>
+                                                <i class="bi bi-dash"></i>
+                                            </button>
+                                            <span class="fw-bold quantity">@item.Quantity</span>
+                                            <button class="btn btn-outline-secondary btn-sm ms-2 quantity-btn increment-btn" 
+                                                    onclick="updateQuantity(@item.Id, 1)" 
+                                                    @(item.Quantity >= maxQuantity ? "disabled" : "")>
+                                                <i class="bi bi-plus"></i>
+                                            </button>
+                                        </div>
+                                        <p class="card-text price-details">
+                                            <small class="text-muted">
+                                                @if (correctUnitPrice != item.ProductVariant.Price)
+                                                {
+                                                    <span class="text-muted text-decoration-line-through me-2">
+                                                        Prix de base: <span class="base-price">@item.ProductVariant.Price.ToString("N0")</span> @item.ProductVariant.Currency.Symbol
+                                                    </span>
+                                                    <br />
+                                                    <span class="text-success fw-bold">
+                                                        Prix palier: <span class="unit-price">@correctUnitPrice.ToString("N0")</span> @item.ProductVariant.Currency.Symbol
+                                                        @{
+                                                            var savings = item.ProductVariant.Price - correctUnitPrice;
+                                                            var savingsPercent = item.ProductVariant.Price > 0 ? (savings / item.ProductVariant.Price * 100) : 0;
+                                                        }
+                                                        @if (savings > 0)
+                                                        {
+                                                            <span class="badge bg-success ms-1 savings-badge">-@savingsPercent.ToString("F1")%</span>
+                                                        }
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span>
+                                                        Prix: <span class="unit-price">@correctUnitPrice.ToString("N0")</span> @item.ProductVariant.Currency.Symbol
+                                                    </span>
+                                                }
+                                                  @if (maxQuantity < 10)
+                                                    {
+                                                        <span class="badge bg-warning text-dark ms-2">
+                                                            Seulement @maxQuantity disponible(s)
+                                                        </span>
+                                                    }
+                                            </small>
+                                        </p>
+                                        <div class="overstock-warning-container text-danger small"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="card-body d-flex flex-column h-100 justify-content-between">
+                                        <div class="text-end">
+                                            <button class="btn btn-danger btn-sm" 
+                                                    onclick="removeItem(@item.Id)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                        <div class="text-end mt-auto">
+                                            <h5 class="text-danger line-total">@totalPrice.ToString("N0") @item.ProductVariant.Currency.Symbol</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        Votre panier est vide. <a href="/Shop/Index" class="alert-link">Continuer vos achats</a>
+                    </div>
+                }
+            </div>
+
+            <!-- Récapitulatif -->
+            <div class="col-lg-4">
+                <div class="card sticky-top">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Récapitulatif</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Sous-total (<span id="summaryItemCount">@Model.CI.Count</span> article(s))</span>
+                            <span id="cartSubtotal">@Model.SubTotal.ToString("N0") @(Model.CI.FirstOrDefault()?.ProductVariant.Currency.Symbol ?? "")</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Total</span>
+                            <span class="text-danger" id="cartTotal">@Model.SubTotal.ToString("N0") @(Model.CI.FirstOrDefault()?.ProductVariant.Currency.Symbol ?? "")</span>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <button id="checkoutBtn" 
+                                class="btn btn-primary w-100" 
+                                disabled
+                                onclick="window.location.href='/PlaceOrder'">
+                            Passer la commande
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">Panier non connecté</h3>
+                        <p class="card-text mt-4">Connectez-vous pour accéder à votre panier.</p>
+                        <div class="d-flex gap-2 justify-content-center">
+                            <a asp-page="/Account/Login" class="btn btn-primary">Se connecter</a>
+                            <a href="/Shop/Index" class="btn btn-outline-primary">Boutique</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            validateQuantities();
+        });
+
+        const moneyFormatter = new Intl.NumberFormat('fr-FR', {
+            maximumFractionDigits: 0
+        });
+
+        function formatMoney(amount, currency) {
+            return `${moneyFormatter.format(Number(amount || 0))} ${currency || ''}`.trim();
+        }
+
+        function validateQuantities() {
+            const cartItems = document.querySelectorAll('.cart-item');
+            let isValid = cartItems.length > 0;
+            cartItems.forEach(item => {
+                const quantity = parseInt(item.querySelector('.quantity').textContent);
+                const max = parseInt(item.dataset.max);
+                const warningContainer = item.querySelector('.overstock-warning-container');
+                
+                warningContainer.innerHTML = '';
+                
+                if (quantity > max) {
+                    isValid = false;
+                    const warning = document.createElement('div');
+                    warning.className = 'text-danger mt-2';
+                    warning.innerHTML = `<i class="bi bi-exclamation-triangle"></i> Stock maximal : ${max}`;
+                    warningContainer.appendChild(warning);
+                }
+            });
+            
+            document.getElementById('checkoutBtn').disabled = !isValid;
+            return isValid;
+        }
+
+        async function updateQuantity(itemId, change) {
+            const item = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+            const quantityElement = item.querySelector('.quantity');
+            const buttons = item.querySelectorAll('.quantity-btn');
+            const currentQty = parseInt(quantityElement.textContent);
+
+            try {
+                buttons.forEach(button => button.disabled = true);
+                item.classList.add('opacity-75');
+
+                const response = await fetch(`/MyCart?handler=UpdateQuantity&itemId=${itemId}&change=${change}`, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    if (!result.success) {
+                        alert(result.message || 'Erreur lors de la mise à jour');
+                        return;
+                    }
+
+                    quantityElement.textContent = result.quantity;
+                    item.dataset.max = result.maxStock;
+                    updateItemPriceDisplay(item, result);
+                    updateCartSummary(result);
+                    validateQuantities();
+                } else {
+                    alert(result.message || 'Erreur lors de la mise à jour');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Erreur lors de la mise à jour');
+            } finally {
+                item.classList.remove('opacity-75');
+                const quantity = parseInt(quantityElement.textContent);
+                const max = parseInt(item.dataset.max);
+                item.querySelector('.decrement-btn').disabled = quantity <= 1;
+                item.querySelector('.increment-btn').disabled = quantity >= max;
+            }
+        }
+
+        function updateItemPriceDisplay(item, result) {
+            const priceDetails = item.querySelector('.price-details small');
+            const lineTotal = item.querySelector('.line-total');
+            const currency = result.currency || '';
+
+            if (result.isTierPrice) {
+                priceDetails.innerHTML = `
+                    <span class="text-muted text-decoration-line-through me-2">
+                        Prix de base: <span class="base-price">${formatMoney(result.basePrice, currency)}</span>
+                    </span>
+                    <br />
+                    <span class="text-success fw-bold">
+                        Prix palier: <span class="unit-price">${formatMoney(result.unitPrice, currency)}</span>
+                        <span class="badge bg-success ms-1 savings-badge">-${Number(result.savingsPercent || 0).toFixed(1)}%</span>
+                    </span>
+                `;
+            } else {
+                priceDetails.innerHTML = `
+                    <span>Prix: <span class="unit-price">${formatMoney(result.unitPrice, currency)}</span></span>
+                `;
+            }
+
+            if (result.maxStock < 10) {
+                priceDetails.insertAdjacentHTML('beforeend', `
+                    <span class="badge bg-warning text-dark ms-2">
+                        Seulement ${result.maxStock} disponible(s)
+                    </span>
+                `);
+            }
+
+            lineTotal.textContent = formatMoney(result.totalPrice, currency);
+            lineTotal.classList.add('bg-warning-subtle');
+            setTimeout(() => lineTotal.classList.remove('bg-warning-subtle'), 500);
+        }
+
+        function updateCartSummary(result) {
+            const subtotal = formatMoney(result.subtotal, result.currency);
+            document.getElementById('cartSubtotal').textContent = subtotal;
+            document.getElementById('cartTotal').textContent = subtotal;
+            document.getElementById('summaryItemCount').textContent = result.itemCount;
+            document.getElementById('cartItemCount').textContent = `${result.itemCount} article(s)`;
+        }
+
+        async function removeItem(itemId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
+                try {
+                    const response = await fetch(`/MyCart?handler=RemoveItem&itemId=${itemId}`, {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        }
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        document.querySelector(`.cart-item[data-item-id="${itemId}"]`).remove();
+                        updateCartSummary(result);
+                        validateQuantities();
+                    } else {
+                        alert('Erreur lors de la suppression');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+        }
+    </script>
+}
+
+@section Styles {
+    <style>
+        .cart-item {
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+        }
+
+        .quantity-btn {
+            min-width: 36px;
+            min-height: 36px;
+        }
+
+        @@media (max-width: 767.98px) {
+            .container.mt-4 {
+                margin-top: 1rem !important;
+            }
+
+            .container > .row {
+                gap: 1rem;
+            }
+
+            .col-lg-8 > .d-flex.justify-content-between {
+                align-items: flex-start !important;
+                flex-direction: column;
+                gap: .5rem;
+                margin-bottom: 1rem !important;
+            }
+
+            .col-lg-8 h3 {
+                font-size: 1.35rem;
+                margin-bottom: 0;
+            }
+
+            .cart-item .row.g-0 {
+                display: grid;
+                grid-template-columns: 96px minmax(0, 1fr);
+            }
+
+            .cart-item .col-md-3,
+            .cart-item .col-md-7,
+            .cart-item .col-md-2 {
+                width: auto;
+            }
+
+            .cart-item img {
+                height: 100% !important;
+                min-height: 148px;
+                border-radius: 0 !important;
+            }
+
+            .cart-item .col-md-2 {
+                grid-column: 1 / -1;
+                border-top: 1px solid rgba(0, 0, 0, 0.08);
+            }
+
+            .cart-item .col-md-2 .card-body {
+                align-items: center;
+                flex-direction: row !important;
+                padding: .75rem 1rem;
+            }
+
+            .cart-item .text-end {
+                text-align: left !important;
+            }
+
+            .cart-item .line-total {
+                margin: 0;
+                font-size: 1.05rem;
+            }
+
+            .card.sticky-top {
+                position: static !important;
+            }
+
+            .card-header.bg-primary {
+                background: #fff !important;
+                color: #212529 !important;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            }
+
+            #checkoutBtn {
+                min-height: 48px;
+            }
+        }
+
+        @@media (max-width: 380px) {
+            .cart-item .row.g-0 {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-item img {
+                height: 180px !important;
+            }
+        }
+    </style>
+}

@@ -1,0 +1,38 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Accueil";
+    ViewData["Description"] = "Bienvenue sur MC Business" ;
+    ViewData["Keywords"] = "MC Business,Acceuil,haiti,MCBusiness,";
+}
+
+<partial name="_IndexHero" model="Model" />
+
+<partial name="_IndexCategories" model="Model" />
+
+<partial name="_IndexProducts" model="Model" />
+
+<partial name="_IndexVendors" model="Model" />
+
+
+<partial name="_IndexWhyUs" model="Model" />
+
+<partial name="_IndexPlans" model="Model" />
+
+<partial name="_IndexSellerCta" model="Model" />
+
+<partial name="_IndexStats" model="Model" />
+
+<partial name="_IndexFaq" model="Model" />
+
+<partial name="_IndexNewsletter" model="Model" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+@section Styles {
+    <partial name="_IndexStyles" model="Model" />
+}
+
+@section Scripts {
+    <partial name="_IndexScripts" model="Model" />
+    }

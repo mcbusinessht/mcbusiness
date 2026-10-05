@@ -1,0 +1,434 @@
+@page
+@model MCBusiness.Pages_Users_Admin_Transactions_PlatformTransactions.DetailsModel
+@using MCBusiness.Models
+
+@{
+    ViewData["Title"] = "Détails Transaction #" + Model.PlatformTransaction.Id;
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar Admin -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-info text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-receipt me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <div class="d-flex gap-2">
+                            <a asp-page="./Edit" asp-route-id="@Model.PlatformTransaction.Id" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil me-1"></i> Modifier
+                            </a>
+                            <a asp-page="./Index" class="btn btn-sm btn-light">
+                                <i class="bi bi-arrow-left me-1"></i> Retour
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Informations principales -->
+                        <div class="col-lg-8">
+                            <!-- Résumé de la transaction -->
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6">
+                                            <h2 class="mb-3">
+                                                @if (Model.PlatformTransaction.Type.ToString() == "Revenue")
+                                                {
+                                                    <span class="text-success">
+                                                        <i class="bi bi-arrow-up-circle me-2"></i>+@Model.PlatformTransaction.Amount.ToString("C")
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-danger">
+                                                        <i class="bi bi-arrow-down-circle me-2"></i>-@Model.PlatformTransaction.Amount.ToString("C")
+                                                    </span>
+                                                }
+                                            </h2>
+                                            <p class="text-muted mb-2">@Model.PlatformTransaction.Description</p>
+                                            <span class="badge bg-secondary">@Model.PlatformTransaction.Category</span>
+                                        </div>
+                                        <div class="col-md-6 text-end">
+                                            <div class="mb-2">
+                                                @if (Model.PlatformTransaction.IsDeleted)
+                                                {
+                                                    <span class="badge bg-danger fs-6">Supprimée</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success fs-6">Active</span>
+                                                }
+                                            </div>
+                                            <div class="mb-2">
+                                                @if (Model.PlatformTransaction.IsManual)
+                                                {
+                                                    <span class="badge bg-warning fs-6">Manuelle</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-info fs-6">Automatique</span>
+                                                }
+                                            </div>
+                                            <small class="text-muted">
+                                                Créée le @LocalTime.Format(Model.PlatformTransaction.CreatedAt, "dd/MM/yyyy à HH:mm")
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Informations détaillées -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Informations Détaillées</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <dl class="row">
+                                                <dt class="col-sm-5 text-muted">ID :</dt>
+                                                <dd class="col-sm-7"><strong>#@Model.PlatformTransaction.Id</strong></dd>
+                                                
+                                                <dt class="col-sm-5 text-muted">Type :</dt>
+                                                <dd class="col-sm-7">
+                                                    @if (Model.PlatformTransaction.Type.ToString() == "Revenue")
+                                                    {
+                                                        <span class="badge bg-success">Revenu</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-danger">Dépense</span>
+                                                    }
+                                                </dd>
+                                                
+                                                <dt class="col-sm-5 text-muted">Catégorie :</dt>
+                                                <dd class="col-sm-7">
+                                                    <span class="badge bg-secondary">@Model.PlatformTransaction.Category</span>
+                                                </dd>
+                                                
+                                                <dt class="col-sm-5 text-muted">Montant :</dt>
+                                                <dd class="col-sm-7">
+                                                    <strong class="@(Model.PlatformTransaction.Type.ToString() == "Revenue" ? "text-success" : "text-danger")">
+                                                        @Model.PlatformTransaction.Amount.ToString("C")
+                                                    </strong>
+                                                </dd>
+                                            </dl>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <dl class="row">
+                                                <dt class="col-sm-5 text-muted">Créée le :</dt>
+                                                <dd class="col-sm-7">@LocalTime.Format(Model.PlatformTransaction.CreatedAt, "dd/MM/yyyy HH:mm")</dd>
+                                                
+                                                <dt class="col-sm-5 text-muted">Mode :</dt>
+                                                <dd class="col-sm-7">
+                                                    @if (Model.PlatformTransaction.IsManual)
+                                                    {
+                                                        <span class="badge bg-warning">
+                                                            <i class="bi bi-hand-index me-1"></i>Manuelle
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-info">
+                                                            <i class="bi bi-cpu me-1"></i>Automatique
+                                                        </span>
+                                                    }
+                                                </dd>
+                                                
+                                                <dt class="col-sm-5 text-muted">Statut :</dt>
+                                                <dd class="col-sm-7">
+                                                    @if (Model.PlatformTransaction.IsDeleted)
+                                                    {
+                                                        <span class="text-danger"><i class="bi bi-x-circle me-1"></i>Supprimée</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-success"><i class="bi bi-check-circle me-1"></i>Active</span>
+                                                    }
+                                                </dd>
+                                                
+                                                <dt class="col-sm-5 text-muted">Description :</dt>
+                                                <dd class="col-sm-7">@Model.PlatformTransaction.Description</dd>
+                                            </dl>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Associations -->
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="bi bi-link-45deg me-2"></i>Associations du Système</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        @if (Model.PlatformTransaction.Order != null)
+                                        {
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-cart text-primary fs-4 me-3"></i>
+                                                    <div>
+                                                        <strong>Commande Produit</strong><br>
+                                                        <small class="text-muted">ID: #@Model.PlatformTransaction.Order.Id</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        
+                                        @if (Model.PlatformTransaction.AmbassadorSubscription != null)
+                                        {
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-gear text-info fs-4 me-3"></i>
+                                                    <div>
+                                                        <strong>Service IT</strong><br>
+                                                        <small class="text-muted">ID: #@Model.PlatformTransaction.AmbassadorSubscription.Id</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        
+                                        @if (Model.PlatformTransaction.Wallet != null)
+                                        {
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-wallet text-success fs-4 me-3"></i>
+                                                    <div>
+                                                        <strong>Portefeuille</strong><br>
+                                                        <small class="text-muted">ID: #@Model.PlatformTransaction.Wallet.Id</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        
+                                        @if (Model.PlatformTransaction.Seller != null)
+                                        {
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-building text-warning fs-4 me-3"></i>
+                                                    <div>
+                                                        <strong>Fournisseur</strong><br>
+                                                        <small class="text-muted">ID: #@Model.PlatformTransaction.Seller.Id</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        
+                                        @if (Model.PlatformTransaction.Employee != null)
+                                        {
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-person-badge text-secondary fs-4 me-3"></i>
+                                                    <div>
+                                                        <strong>Employé</strong><br>
+                                                        <small class="text-muted">ID: #@Model.PlatformTransaction.Employee.Id</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        
+                                        @if (Model.PlatformTransaction.AmbassadorSubscription != null)
+                                        {
+                                            <div class="col-md-6 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-star text-danger fs-4 me-3"></i>
+                                                    <div>
+                                                        <strong>Abonnement Ambassadeur</strong><br>
+                                                        <small class="text-muted">ID: #@Model.PlatformTransaction.AmbassadorSubscription.Id</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    @if (Model.PlatformTransaction.Order == null && Model.PlatformTransaction.AmbassadorSubscription == null && 
+                                         Model.PlatformTransaction.Wallet == null && Model.PlatformTransaction.Seller == null && 
+                                         Model.PlatformTransaction.Employee == null && Model.PlatformTransaction.AmbassadorSubscription == null)
+                                    {
+                                        <div class="text-center text-muted py-3">
+                                            <i class="bi bi-link-slash fs-2"></i>
+                                            <p class="mt-2 mb-0">Aucune association système</p>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions et navigation -->
+                        <div class="col-lg-4">
+                            <!-- Actions rapides -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="bi bi-lightning-charge me-2"></i>Actions Rapides</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <a asp-page="./Edit" asp-route-id="@Model.PlatformTransaction.Id" class="btn btn-warning">
+                                            <i class="bi bi-pencil me-1"></i>Modifier cette transaction
+                                        </a>
+                                        
+                                        @if (!Model.PlatformTransaction.IsDeleted)
+                                        {
+                                            <button class="btn btn-success" onclick="duplicateTransaction()">
+                                                <i class="bi bi-files me-1"></i>Dupliquer
+                                            </button>
+                                        }
+                                        
+                                        <a asp-page="./Index" class="btn btn-outline-primary">
+                                            <i class="bi bi-list me-1"></i>Toutes les transactions
+                                        </a>
+                                        
+                                        <a asp-page="./Create" class="btn btn-outline-success">
+                                            <i class="bi bi-plus me-1"></i>Nouvelle transaction
+                                        </a>
+                                        
+                                        <hr>
+                                        
+                                        @if (!Model.PlatformTransaction.IsDeleted)
+                                        {
+                                            <a asp-page="./Delete" asp-route-id="@Model.PlatformTransaction.Id" class="btn btn-outline-danger">
+                                                <i class="bi bi-trash me-1"></i>Supprimer
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Informations audit -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>Informations d'Audit</h6>
+                                </div>
+                                <div class="card-body">
+                                    <small class="text-muted">
+                                        <strong>Créée :</strong> @LocalTime.Format(Model.PlatformTransaction.CreatedAt, "dd/MM/yyyy à HH:mm:ss")<br>
+                                        <strong>Type :</strong> 
+                                        @if (Model.PlatformTransaction.IsManual)
+                                        {
+                                            <span class="text-warning">Transaction manuelle</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-info">Transaction automatique</span>
+                                        }
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Navigation contextuelles -->
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="bi bi-compass me-2"></i>Navigation</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group list-group-flush">
+                                        <a asp-page="./Index" class="list-group-item list-group-item-action">
+                                            <i class="bi bi-list me-2"></i>Toutes les transactions
+                                        </a>
+                                        
+                                        @if (Model.PlatformTransaction.Order != null)
+                                        {
+                                            <a asp-page="/Users/Admin/Orders/Details" asp-route-id="@Model.PlatformTransaction.Order.Id" class="list-group-item list-group-item-action">
+                                                <i class="bi bi-cart me-2"></i>Voir la commande liée
+                                            </a>
+                                        }
+                                        
+                                        @if (Model.PlatformTransaction.AmbassadorSubscription != null)
+                                        {
+                                            <a asp-page="/Users/Admin/Services/ServiceOrders/Details" asp-route-id="@Model.PlatformTransaction.AmbassadorSubscription.Id" class="list-group-item list-group-item-action">
+                                                <i class="bi bi-gear me-2"></i>Voir le service IT
+                                            </a>
+                                        }
+                                        
+                                        @if (Model.PlatformTransaction.Seller != null)
+                                        {
+                                            <a asp-page="/Users/Admin/Sellers/Details" asp-route-id="@Model.PlatformTransaction.Seller.Id" class="list-group-item list-group-item-action">
+                                                <i class="bi bi-building me-2"></i>Voir le fournisseur
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animation d'entrée pour les cartes
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+
+        function duplicateTransaction() {
+            if (confirm('Voulez-vous créer une nouvelle transaction basée sur celle-ci?')) {
+                // Redirection vers Create avec paramètres pré-remplis
+                const params = new URLSearchParams({
+                    type: '@Model.PlatformTransaction.Type',
+                    category: '@Model.PlatformTransaction.Category',
+                    amount: '@Model.PlatformTransaction.Amount',
+                    description: 'Copie de: @Model.PlatformTransaction.Description'
+                });
+                window.location.href = '@Url.Page("./Create")?' + params.toString();
+            }
+        }
+    </script>
+}
+
+@section Styles {
+    <style>
+        .card {
+            transition: transform 0.2s ease-in-out;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .list-group-item {
+            border: none;
+            padding: 0.75rem 0;
+        }
+        
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+            padding-left: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        dt {
+            font-weight: 500;
+        }
+        
+        .card-header {
+            border-bottom: 2px solid #f8f9fa;
+        }
+        
+        .badge {
+            font-size: 0.8rem;
+        }
+    </style>
+}

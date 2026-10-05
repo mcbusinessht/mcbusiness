@@ -1,0 +1,453 @@
+﻿@page
+@model             MCBusiness.Pages.Users.Seller.Products.ProductVariants.CreateModel
+
+@{
+    ViewData["Title"] = Model.Product != null ? $"Ajouter un variant de {Model.Product.Name}" : "Ajouter un variant";
+}
+
+<!-- Bouton menu mobile -->
+<button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+        style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+        data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+    <i class="bi bi-list fs-4"></i>
+</button>
+
+<!-- Offcanvas Sidebar Mobile -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <partial name="_SideBarPartial"/>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar version desktop -->
+        <div class="col-lg-3 col-md-3 col-xl-3 d-none d-lg-block bg-white border-end vh-100 sticky-top">
+            <partial name="_SideBarPartial"/>
+        </div>
+
+        <div class="col-lg-9 col-md-9">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0 text-center">
+                        <i class="bi bi-plus-circle me-2"></i>@ViewData["Title"]
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        
+                        <!-- Produit parent -->
+                        <div class="mb-4">
+                            <label asp-for="ProductVariant.ProductId" class="form-label fw-bold">
+                                <i class="bi bi-box-seam me-1"></i>Produit parent
+                            </label>
+                            <select asp-for="ProductVariant.ProductId" class="form-select form-select-lg" asp-items="ViewBag.ProductId">
+                                <option value="" selected disabled>-- Sélectionnez un produit --</option>
+                            </select>
+                            <span asp-validation-for="ProductVariant.ProductId" class="text-danger small"></span>
+                        </div>
+                        
+                        <input asp-for="ProductVariant.Sku" type="hidden" />
+                        
+                        <!-- Prix -->
+                        <div class="mb-4">
+                            <label asp-for="ProductVariant.Price" class="form-label fw-bold">
+                                <i class="bi bi-currency-dollar me-1"></i>Prix <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">HTG</span>
+                                <input asp-for="ProductVariant.Price" type="number" step="0.01" class="form-control" required />
+                            </div>
+                            <span asp-validation-for="ProductVariant.Price" class="text-danger small"></span>
+                            <div class="invalid-feedback">
+                                Veuillez saisir un prix valide.
+                            </div>
+                        </div>
+
+                        <!-- Paliers de prix (PriceBreaks) -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-calculator text-primary me-1"></i>
+                                Paliers de prix (optionnel)
+                            </label>
+                            <small class="text-muted d-block mb-2">
+                                Définissez des prix dégressifs selon la quantité (comme sur Alibaba). Laissez vide si vous ne souhaitez pas utiliser cette fonctionnalité.
+                            </small>
+                            
+                            <div id="priceBreaksContainer">
+                                <!-- Les paliers seront ajoutés ici dynamiquement -->
+                            </div>
+                            
+                            <button type="button" id="addPriceBreak" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-plus-circle me-1"></i>
+                                Ajouter un palier de prix
+                            </button>
+                            
+                            <div class="mt-2">
+                                <small class="text-info">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    <strong>Exemple :</strong> 1-9 pcs = 30 HTG, 10-49 pcs = 25 HTG, 50+ pcs = 20 HTG
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <!-- Quantité -->
+                        <div class="mb-4">
+                            <label asp-for="ProductVariant.Quantity" class="form-label fw-bold">
+                                <i class="bi bi-boxes me-1"></i>Quantité <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="ProductVariant.Quantity" type="number" class="form-control" required />
+                            <span asp-validation-for="ProductVariant.Quantity" class="text-danger small"></span>
+                            <div class="invalid-feedback">
+                                Veuillez saisir une quantité valide.
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-truck me-1"></i>Livraison
+                            </label>
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label asp-for="ProductVariant.ShippingPackageType" class="form-label">Type de colis</label>
+                                            <select asp-for="ProductVariant.ShippingPackageType" class="form-select" asp-items="Html.GetEnumSelectList<MCBusiness.Models.ShippingPackageType>()"></select>
+                                            <small class="text-muted">Choisissez le profil le plus proche. Les tarifs sont calculés avec vos règles de livraison par zone.</small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label asp-for="ProductVariant.WeightKg" class="form-label">Poids optionnel (kg)</label>
+                                            <input asp-for="ProductVariant.WeightKg" type="number" step="0.01" min="0" class="form-control" placeholder="Ex: 1.5" />
+                                            <span asp-validation-for="ProductVariant.WeightKg" class="text-danger small"></span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" role="switch" asp-for="ProductVariant.RequiresSpecialHandling" />
+                                                <label class="form-check-label" asp-for="ProductVariant.RequiresSpecialHandling">Fragile ou manutention spéciale</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" role="switch" asp-for="ProductVariant.ShippingQuoteRequired" />
+                                                <label class="form-check-label" asp-for="ProductVariant.ShippingQuoteRequired">Livraison sur devis</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Description -->
+                        
+                        
+                        <!-- Caractéristiques -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-tags me-1"></i>Caractéristiques <span class="text-danger">*</span>
+                            </label>
+                            <span id="characteristicError" class="text-danger small d-none">Au moins une caractéristique est requise.</span>
+                            <div class="row g-2">
+                                <div class="col-md-5">
+                                    <select id="characteristicSelect" class="form-select" asp-items="ViewBag.Characteristic">
+                                        <option value="" selected>-- Sélectionnez une caractéristique --</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <select id="valueSelect" class="form-select">
+                                        <option value="" selected>-- Sélectionnez d'abord une caractéristique --</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" id="addCharacteristic" class="btn btn-success w-100">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="text-muted">Après avoir choisi une caractéristique, cliquez sur + pour l'ajouter</small>
+                        </div>
+                        
+                        <!-- Liste des caractéristiques -->
+                        <ul id="characteristicList" class="list-group mb-4"></ul>
+                        <input type="hidden" id="hiddenCharacteristics" name="SelectedCharacteristics" required />
+                        
+                        <!-- Disponibilité -->
+                        <div class="mb-4 form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ProductVariant.IsAvailable" />
+                            <label class="form-check-label fw-bold" asp-for="ProductVariant.IsAvailable">
+                                <i class="bi bi-toggle-on me-1"></i>Disponible à la vente
+                            </label>  
+                        </div>             
+                        
+                        <!-- Boutons -->
+                        <div class="d-grid gap-3 d-md-flex justify-content-md-end mt-4">
+                            <a asp-page="Index" class="btn btn-outline-secondary me-md-2">
+                                <i class="bi bi-arrow-left me-1"></i>Retour
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-save me-1"></i>Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // ✅ Toggle Sidebar Menus
+            document.querySelectorAll('.sidebar-group').forEach(group => {
+                const item = group.querySelector('.sidebar-item');
+                const submenu = group.querySelector('.sidebar-submenu');
+
+                if (submenu && submenu.querySelector('.active')) {
+                    group.classList.add('active');
+                }
+
+                item?.addEventListener('click', function (e) {
+                    if (e.target.tagName === 'A') return;
+                    group.classList.toggle('active');
+                });
+            });
+
+            document.querySelectorAll('.sidebar-subgroup').forEach(group => {
+                const item = group.querySelector('.sidebar-subitem');
+                const submenu = group.querySelector('.sidebar-subsubmenu');
+
+                if (submenu && submenu.querySelector('.active')) {
+                    group.classList.add('active');
+                }
+
+                item?.addEventListener('click', function (e) {
+                    if (e.target.tagName === 'A') return;
+                    group.classList.toggle('active');
+                });
+            });
+
+            // ✅ Form Validation + Custom Characteristic Check
+            (function () {
+                'use strict';
+                const forms = document.querySelectorAll('.needs-validation');
+                const characteristics = document.getElementById('hiddenCharacteristics');
+                const errorSpan = document.getElementById('characteristicError');
+
+                forms.forEach(form => {
+                    form.addEventListener('submit', event => {
+                        const isValid = form.checkValidity();
+                        const hasCharacteristics = characteristics?.value?.trim() !== '';
+
+                        if (!isValid || !hasCharacteristics) {
+                            event.preventDefault();
+                            event.stopPropagation();
+
+                            if (!hasCharacteristics) {
+                                errorSpan?.classList.remove('d-none');
+                            } else {
+                                errorSpan?.classList.add('d-none');
+                            }
+                        }
+
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            })();
+
+            // ✅ Caractéristique Management
+            const characteristicSelect = document.getElementById("characteristicSelect");
+            const valueSelect = document.getElementById("valueSelect");
+            const addBtn = document.getElementById("addCharacteristic");
+            const characteristicList = document.getElementById("characteristicList");
+            const hiddenField = document.getElementById("hiddenCharacteristics");
+            const errorSpan = document.getElementById("characteristicError");
+
+            // Charger les valeurs d'une caractéristique
+            characteristicSelect?.addEventListener("change", function () {
+                const characteristicId = this.value;
+                valueSelect.innerHTML = "<option value=''>Chargement...</option>";
+
+                if (characteristicId) {
+                    fetch(`/Users/Seller/Products/ProductVariants/Create?handler=CharacteristicValues&characteristicId=${characteristicId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            valueSelect.innerHTML = "<option value='' selected>-- Sélectionnez une valeur --</option>";
+                            data.forEach(item => {
+                                const option = new Option(item.value, item.id);
+                                valueSelect.add(option);
+                            });
+                        })
+                        .catch(error => {
+                            console.error("Erreur lors du chargement des valeurs :", error);
+                            valueSelect.innerHTML = "<option value='' selected>Erreur de chargement</option>";
+                        });
+                } else {
+                    valueSelect.innerHTML = "<option value='' selected>-- Sélectionnez une caractéristique d'abord --</option>";
+                }
+            });
+
+            // Ajouter une caractéristique
+            addBtn?.addEventListener("click", function () {
+                const charId = characteristicSelect?.value;
+                const charText = characteristicSelect?.options[characteristicSelect.selectedIndex]?.text;
+                const valId = valueSelect?.value;
+                const valText = valueSelect?.options[valueSelect.selectedIndex]?.text;
+
+                if (!charId || !valId) {
+                    alert("Veuillez sélectionner une caractéristique et une valeur.");
+                    return;
+                }
+
+                const newValue = `${charId}-${valId}`;
+                const existingValues = hiddenField?.value ? hiddenField.value.split(',') : [];
+
+                if (existingValues.includes(newValue)) {
+                    alert("Cette combinaison caractéristique-valeur existe déjà.");
+                    return;
+                }
+
+                const li = document.createElement("li");
+                li.className = "list-group-item d-flex justify-content-between align-items-center";
+                li.innerHTML = `
+                    <span>${charText}: ${valText}</span>
+                    <button type="button" class="btn btn-sm btn-danger" title="Supprimer">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                `;
+
+                // Supprimer une ligne
+                li.querySelector('button')?.addEventListener('click', function () {
+                    li.remove();
+                    const updatedValues = hiddenField.value.split(',').filter(v => v !== newValue);
+                    hiddenField.value = updatedValues.join(',');
+                    errorSpan?.classList.toggle('d-none', updatedValues.length > 0);
+                });
+
+                characteristicList?.appendChild(li);
+                hiddenField.value = hiddenField.value ? `${hiddenField.value},${newValue}` : newValue;
+
+                // Reset
+                characteristicSelect.value = '';
+                valueSelect.innerHTML = '<option value="" selected>-- Sélectionnez une caractéristique d\'abord --</option>';
+                errorSpan?.classList.add('d-none');
+            });
+
+        });
+
+        // Gestion des paliers de prix
+        let priceBreakIndex = 0;
+
+        document.getElementById('addPriceBreak')?.addEventListener('click', function() {
+            const container = document.getElementById('priceBreaksContainer');
+            
+            const priceBreakRow = document.createElement('div');
+            priceBreakRow.className = 'row g-3 mb-3 price-break-row';
+            priceBreakRow.innerHTML = `
+                <div class="col-md-3">
+                    <label class="form-label small">Qté minimum</label>
+                    <input type="number" name="PriceBreaks[${priceBreakIndex}].MinQuantity" 
+                           class="form-control" min="1" required placeholder="Ex: 10">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small">Qté maximum</label>
+                    <input type="number" name="PriceBreaks[${priceBreakIndex}].MaxQuantity" 
+                           class="form-control" min="1" placeholder="Ex: 49 (vide = illimité)">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small">Prix unitaire</label>
+                    <div class="input-group">
+                        <input type="number" name="PriceBreaks[${priceBreakIndex}].UnitPrice" 
+                               class="form-control" step="0.01" min="0.01" required placeholder="Ex: 25.00">
+                        <span class="input-group-text">HTG</span>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Label (optionnel)</label>
+                    <input type="text" name="PriceBreaks[${priceBreakIndex}].DisplayLabel" 
+                           class="form-control" placeholder="Ex: Gros">
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label small">&nbsp;</label>
+                    <button type="button" class="btn btn-danger w-100 remove-price-break">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+                
+                <!-- Hidden fields -->
+                <input type="hidden" name="PriceBreaks[${priceBreakIndex}].SortOrder" value="${priceBreakIndex + 1}">
+                <input type="hidden" name="PriceBreaks[${priceBreakIndex}].IsActive" value="true">
+            `;
+
+            // Ajouter l'événement pour supprimer
+            priceBreakRow.querySelector('.remove-price-break')?.addEventListener('click', function() {
+                priceBreakRow.remove();
+                updatePriceBreakPreview();
+            });
+
+            // Ajouter l'événement pour la prévisualisation
+            priceBreakRow.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', updatePriceBreakPreview);
+            });
+
+            container.appendChild(priceBreakRow);
+            priceBreakIndex++;
+            updatePriceBreakPreview();
+        });
+
+        // Prévisualisation des paliers de prix
+        function updatePriceBreakPreview() {
+            const basePrice = parseFloat(document.querySelector('input[name="ProductVariant.Price"]')?.value) || 0;
+            const rows = document.querySelectorAll('.price-break-row');
+            
+            // Supprimer l'ancienne prévisualisation
+            const existingPreview = document.getElementById('priceBreakPreview');
+            if (existingPreview) existingPreview.remove();
+
+            if (rows.length === 0 || basePrice <= 0) return;
+
+            // Créer la nouvelle prévisualisation
+            const preview = document.createElement('div');
+            preview.id = 'priceBreakPreview';
+            preview.className = 'alert alert-info mt-3';
+            
+            let previewContent = '<strong><i class="bi bi-eye me-1"></i>Prévisualisation des paliers :</strong><br><small>';
+            
+            rows.forEach(row => {
+                const minQty = row.querySelector('input[name*="MinQuantity"]')?.value;
+                const maxQty = row.querySelector('input[name*="MaxQuantity"]')?.value;
+                const unitPrice = parseFloat(row.querySelector('input[name*="UnitPrice"]')?.value) || 0;
+                const label = row.querySelector('input[name*="DisplayLabel"]')?.value;
+
+                if (minQty && unitPrice > 0) {
+                    const qtyRange = maxQty ? `${minQty}-${maxQty}` : `${minQty}+`;
+                    const savings = basePrice - unitPrice;
+                    const savingsPercent = basePrice > 0 ? ((savings / basePrice) * 100).toFixed(1) : 0;
+                    
+                    previewContent += `
+                        <div class="d-flex justify-content-between">
+                            <span>${qtyRange} pcs${label ? ` (${label})` : ''}: <strong>${unitPrice} HTG</strong></span>
+                            ${savings > 0 ? `<span class="text-success">-${savings.toFixed(2)} HTG (${savingsPercent}%)</span>` : ''}
+                        </div>
+                    `;
+                }
+            });
+            
+            previewContent += '</small>';
+            preview.innerHTML = previewContent;
+            
+            document.getElementById('priceBreaksContainer').appendChild(preview);
+        }
+
+        // Mettre à jour la prévisualisation quand le prix de base change
+        document.querySelector('input[name="ProductVariant.Price"]')?.addEventListener('input', updatePriceBreakPreview);
+
+    </script>
+}

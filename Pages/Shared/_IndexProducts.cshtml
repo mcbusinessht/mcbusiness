@@ -1,0 +1,149 @@
+@model IndexModel
+
+<section class="products-section py-5 bg-white">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h6 class="section-subtitle">PRODUITS POPULAIRES</h6>
+            <h2 class="section-title">Offres et nouveautés de la marketplace</h2>
+            <p class="section-description">Une sélection de produits actifs proposés par nos boutiques et vendeurs partenaires.</p>
+            <div class="promotion-banner mt-3">
+                <span class="badge bg-success fs-6 px-3 py-2">
+                    <i class="bi bi-truck me-2"></i>Livraison gratuite pour certaines zones
+                </span>
+                <span class="badge bg-primary fs-6 px-3 py-2 ms-2">
+                    <i class="bi bi-shield-check me-2"></i>Paiements sécurisés
+                </span>
+            </div>
+        </div>
+
+        @if (Model.ProductList != null && Model.ProductList.Any(p => p.Variants?.Count > 0))
+        {
+            <div class="products-scroll-container">
+                <div class="products-scroll-wrapper">
+                    @foreach (var pr in Model.ProductList.Where(p => p.Variants?.Count > 0))
+                    {
+                        var variant = pr.Variants.FirstOrDefault(v => v.IsAvailable && !v.IsDeleted);
+                        if (variant == null) continue;
+
+                        var imageUrl = variant.Images?.FirstOrDefault()?.Url ?? "/image/NoProductAvailable.jpg";
+                        var hasDiscount = variant.PriceSnapshot > variant.Price;
+
+                        <div class="product-card">
+                            @if (hasDiscount)
+                            {
+                                <div class="product-badge sale">
+                                    -@(Math.Round((1 - (double)variant.Price / (double)variant.PriceSnapshot) * 100, 0))%
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="product-badge new">Nouveau</div>
+                            }
+
+                            <div class="product-image-container">
+                                <img src="@imageUrl" alt="@pr.Name" class="product-image">
+                                <div class="product-overlay">
+                                    <div class="product-actions">
+                                        <a asp-page="/Shop/Categories/Products/Details/Index"
+                                           asp-route-id="@pr.Id"
+                                           class="btn btn-outline-light btn-sm">
+                                            <i class="bi bi-eye me-1"></i>Détails
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="product-info">
+                                <div class="product-category">
+                                    <small class="text-muted">@(pr.Category?.Name ?? "Général")</small>
+                                </div>
+                                <h5 class="product-name">@pr.Name</h5>
+                                <div class="product-price-section">
+                                    <span class="price-current">@($"{variant.Price:N0}") @variant.Currency?.Symbol</span>
+                                    @if (hasDiscount)
+                                    {
+                                        <span class="price-old">@($"{variant.PriceSnapshot:N0}") @variant.Currency?.Symbol</span>
+                                    }
+                                </div>
+                                <div class="product-rating">
+                                    @{
+                                        var averageRating = pr.Reviews?.Any() == true ? pr.Reviews.Average(r => r.Rate) : 0;
+                                        var fullStars = (int)averageRating;
+                                        var emptyStars = 5 - fullStars;
+                                    }
+                                    <div class="stars">
+                                        @for (int i = 1; i <= fullStars; i++)
+                                        {
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                        }
+                                        @for (int i = 1; i <= emptyStars; i++)
+                                        {
+                                            <i class="bi bi-star text-warning"></i>
+                                        }
+                                    </div>
+                                    <small class="text-muted">@(averageRating.ToString("0.0")) • @(pr.Reviews?.Count ?? 0) avis</small>
+                                </div>
+                                <div class="product-stock">
+                                    @if (variant.Quantity > 10)
+                                    {
+                                        <small class="text-success">
+                                            <i class="bi bi-check-circle-fill me-1"></i>En stock
+                                        </small>
+                                    }
+                                    else if (variant.Quantity > 0)
+                                    {
+                                        <small class="text-warning">
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Stock limité (@variant.Quantity restants)
+                                        </small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-danger">
+                                            <i class="bi bi-x-circle-fill me-1"></i>Rupture de stock
+                                        </small>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <button class="scroll-button scroll-left" aria-label="Précédent">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="scroll-button scroll-right" aria-label="Suivant">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+
+            <div class="text-center mt-5">
+                <a asp-page="/Shop/Index" class="btn btn-primary btn-lg px-5 py-3">
+                    <i class="bi bi-shop me-2"></i>Explorer tout le magasin
+                    <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="bi bi-credit-card me-1"></i>Paiements sécurisés
+                        <span class="mx-2">•</span>
+                        <i class="bi bi-arrow-clockwise me-1"></i>Retours gratuits
+                        <span class="mx-2">•</span>
+                        <i class="bi bi-headset me-1"></i>Support client
+                    </small>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <div class="empty-state">
+                    <i class="bi bi-basket3 text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="mt-3 text-muted">Boutique en préparation</h4>
+                    <p class="text-muted">Les produits de nos vendeurs arrivent très bientôt.</p>
+                    <a asp-page="/Shop/Index" class="btn btn-outline-primary">
+                        <i class="bi bi-bell me-2"></i>Me notifier
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</section>

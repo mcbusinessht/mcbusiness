@@ -1,0 +1,96 @@
+﻿@page
+@model MCBusiness.Pages.Users.Seller.DeliveryPersons.DeleteModel
+
+@{
+    ViewData["Title"] = "Supprimer le livreur";
+}
+
+<div class="container-fluid px-0">
+    <div class="row g-0">
+        <!-- Sidebar -->
+        <div class="col-lg-3 d-none d-lg-block border-end">
+            <partial name="_SideBarPartial"/>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-9 px-4 py-3">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="h4 fw-bold text-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>@ViewData["Title"]
+                </h2>
+                <a asp-page="Index" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Retour à la liste
+                </a>
+            </div>
+
+            <div class="card shadow-sm border-0 border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-trash me-2"></i>Confirmation de suppression
+                    </h5>
+                </div>
+                
+                <div class="card-body">
+                    <div class="alert alert-warning" role="alert">
+                        <i class="bi bi-exclamation-circle me-2"></i>
+                        <strong>Attention !</strong> Vous êtes sur le point de supprimer ce livreur. Cette action est irréversible.
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <!-- Nom -->
+                        <div class="col-md-6">
+                            <div class="bg-light p-3 rounded">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-person me-1"></i>Nom complet
+                                </label>
+                                <p class="mb-0">@Model.DeliveryPerson.Name</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Numéro de contact -->
+                        <div class="col-md-6">
+                            <div class="bg-light p-3 rounded">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-telephone me-1"></i>Numéro de contact
+                                </label>
+                                <p class="mb-0">@Model.DeliveryPerson.ContactNumber</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" class="mt-4">
+                        <input type="hidden" asp-for="DeliveryPerson.Id" />
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-page="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-x me-1"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-danger px-4">
+                                <i class="bi bi-trash me-1"></i>Supprimer définitivement
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bouton menu mobile -->
+<button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+        style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
+        data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas">
+    <i class="bi bi-list fs-4"></i>
+</button>
+
+<!-- Offcanvas Sidebar Mobile -->
+<div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">
+            <i class="bi bi-list me-2"></i>Menu
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <partial name="_SideBarPartial"/>
+    </div>
+</div>

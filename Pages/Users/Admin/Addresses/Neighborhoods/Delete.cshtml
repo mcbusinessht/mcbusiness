@@ -1,0 +1,49 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_Addresses_Neighborhoods.DeleteModel
+
+@{
+    ViewData["Title"] = "Suppression de Quartier";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-danger text-white py-3 d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="bi bi-trash-fill me-2"></i>Supprimer le Quartier</h4>
+                    <a asp-page="Index" class="btn btn-sm btn-light text-dark">
+                        <i class="bi bi-arrow-left me-1"></i> Retour
+                    </a>
+                </div>
+
+                <div class="card-body">
+                    <h5 class="text-danger mb-3">Êtes-vous sûr de vouloir supprimer ce quartier ?</h5>
+
+                    <dl class="row">
+                        <dt class="col-sm-3">Nom</dt>
+                        <dd class="col-sm-9">@Model.Neighborhood.Name</dd>
+
+                        <dt class="col-sm-3">Ville</dt>
+                        <dd class="col-sm-9">@Model.Neighborhood.City?.Name ?? "N/A"</dd>
+                    </dl>
+
+                    <form method="post" class="mt-4">
+                        <input type="hidden" asp-for="Neighborhood.Id" />
+
+                        <button type="submit" class="btn btn-danger me-2">
+                            <i class="bi bi-trash me-1"></i> Supprimer
+                        </button>
+
+                        <a asp-page="Index" class="btn btn-secondary">
+                            <i class="bi bi-x-circle me-1"></i> Annuler
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

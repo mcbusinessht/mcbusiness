@@ -1,0 +1,233 @@
+@* ═══════════════════════════════════════════════════════════════════════════════
+    EXEMPLE D'IMPLÉMENTATION - GESTION D'ACCÈS AMBASSADOR
+    Ce fichier montre comment utiliser les propriétés du PageModel pour 
+    afficher/masquer les sections en fonction de l'accès
+    ═══════════════════════════════════════════════════════════════════════════════ *@
+
+@* CAS 1: AFFICHAGE COMPLET AVEC SUBSCRIPTION ACTIVE *@
+@if (Model.CanViewWallet)
+{
+    <!-- WALLET SECTION - COMPLÈTE -->
+    <div class="card shadow-sm ambassador-feature">
+        <div class="card-header bg-success text-white">
+            <h6 class="mb-0">
+                <i class="bi bi-wallet2 me-2"></i>Solde du Portefeuille
+                <span class="badge bg-light text-dark ms-2">ACTIF</span>
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="text-muted">Solde total</p>
+                    <h4 class="text-success fw-bold">
+                        @(Model.CurrentWallet?.Balance.ToString("C") ?? "0 HTG")
+                    </h4>
+                </div>
+                <div class="col-md-6">
+                    <p class="text-muted">Devise</p>
+                    <h5>@(Model.CurrentWallet?.Currency?.CurrencyBase.ToString() ?? "HTG")</h5>
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-md-6">
+                    <small class="text-muted">Disponible</small>
+                    <h5 class="text-success">
+                        @(Model.DashboardData?.AvailableBalance.ToString("N2") ?? "0.00")
+                    </h5>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-muted">En attente</small>
+                    <h5 class="text-warning">
+                        @(Model.DashboardData?.PendingBalance.ToString("N2") ?? "0.00")
+                    </h5>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- WALLET SECTION - VERROUILLÉE -->
+    <div class="card locked-section">
+        <div class="card-body">
+            <div class="teaser-card">
+                <div class="lock-icon">
+                    <i class="bi bi-lock"></i>
+                </div>
+                <h5>💳 Solde du Portefeuille</h5>
+                <p class="teaser-description">
+                    Accédez à votre portefeuille et gérez vos fonds avec un plan ambassador actif.
+                </p>
+                <p class="text-muted small">
+                    @Model.AccessDenialReason
+                </p>
+                <a asp-page="/Plans/Index" class="btn btn-subscribe">
+                    <i class="bi bi-star me-1"></i>Souscrire un Plan
+                </a>
+            </div>
+        </div>
+    </div>
+}
+
+<hr class="my-4" />
+
+@* CAS 2: COMMISSIONS AVEC CONDITIONAL DISPLAY *@
+@if (Model.CanViewCommissions)
+{
+    <!-- COMMISSIONS - COMPLÈTES -->
+    <div class="card shadow-sm ambassador-feature">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <div>
+                <h6 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>Évolution de mes Commissions
+                </h6>
+            </div>
+            <span class="badge bg-light text-dark">
+                <i class="bi bi-check-circle me-1"></i>Déverrouillé
+            </span>
+        </div>
+        <div class="card-body">
+            <canvas id="commissionsChart" height="100"></canvas>
+            
+            <div class="mt-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="text-muted">Commissions ce mois</p>
+                        <h5 class="text-success fw-bold">
+                            @(Model.DashboardData?.CurrentSalesCommission.ToString("N2") ?? "0.00") HTG
+                        </h5>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted">Objectif</p>
+                        <h5 class="fw-bold">
+                            @(Model.DashboardData?.SalesTarget.ToString("N2") ?? "0.00") HTG
+                        </h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- COMMISSIONS - VERROUILLÉES -->
+    <div class="card locked-section">
+        <div class="card-body">
+            <div class="teaser-card">
+                <div class="lock-icon">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <h5>📈 Mes Commissions</h5>
+                <p class="teaser-description">
+                    Suivez vos commissions en temps réel et maximisez vos gains avec les outils avancés.
+                </p>
+                <p class="text-muted small">
+                    Disponible avec un abonnement ambassador actif
+                </p>
+                <a asp-page="/Plans/Index" class="btn btn-subscribe">
+                    <i class="bi bi-star me-1"></i>Activer mon Plan
+                </a>
+            </div>
+        </div>
+    </div>
+}
+
+<hr class="my-4" />
+
+@* CAS 3: SECTION AVANCÉE STATISTIQUES *@
+@if (Model.CanViewAdvancedStats)
+{
+    <!-- STATISTIQUES AVANCÉES - COMPLÈTES -->
+    <div class="card shadow-sm ambassador-feature">
+        <div class="card-header bg-info text-white">
+            <h6 class="mb-0">
+                <i class="bi bi-diagram-3 me-2"></i>Réseau de Parrainage Avancé
+                <span class="badge bg-light text-dark ms-2">PRO</span>
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 text-center">
+                    <h5>@(Model.DashboardData?.CurrentReferrals ?? 0)</h5>
+                    <p class="text-muted small">Parrainages</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <h5>@(Model.DashboardData?.NewReferralsThisMonth ?? 0)</h5>
+                    <p class="text-muted small">Ce mois</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <h5>@(Model.DashboardData?.TotalGains.ToString("N0") ?? "0")</h5>
+                    <p class="text-muted small">Gains totaux</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <h5>@((Model.DashboardData?.CurrentPlan?.AmbassadorCommissionPercentage * 100 ?? 0).ToString("N1"))%</h5>
+                    <p class="text-muted small">Commission</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- STATISTIQUES - TEASER -->
+    <div class="card locked-section">
+        <div class="card-body">
+            <div class="teaser-card">
+                <div class="lock-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+                <h5>👥 Réseau de Parrainage</h5>
+                <p class="teaser-description">
+                    Gérez votre réseau de parrainage et accédez à des statistiques détaillées.
+                </p>
+                <p class="text-muted small">
+                    Fonctionnalité réservée aux ambassadors avec plan actif
+                </p>
+                <a asp-page="/Plans/Index" class="btn btn-subscribe">
+                    <i class="bi bi-star me-1"></i>Débloquer l'Accès
+                </a>
+            </div>
+        </div>
+    </div>
+}
+
+<hr class="my-4" />
+
+@* CAS 4: RETRAITS CONDITIONNELS *@
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="bi bi-cash-coin me-2"></i>Actions Rapides
+        </h6>
+    </div>
+    <div class="card-body">
+        @if (Model.CanWithdraw)
+        {
+            <!-- RETRAIT ACTIF -->
+            <a asp-page="/Users/User/Withdrawals/WithdrawalMethods" 
+               class="btn btn-success w-100 mb-2">
+                <i class="bi bi-cash-coin me-1"></i>Demander un Retrait
+            </a>
+        }
+        else
+        {
+            <!-- RETRAIT DÉSACTIVÉ -->
+            <button class="btn btn-secondary w-100 mb-2" disabled>
+                <i class="bi bi-cash-coin me-1"></i>Retrait Indisponible
+            </button>
+            <small class="text-muted d-block mb-3">
+                Abonnez-vous pour accéder aux retraits
+            </small>
+        }
+
+        <!-- PARTAGE TOUJOURS ACTIF -->
+        <button class="btn btn-info w-100" onclick="shareReferralLink()">
+            <i class="bi bi-share me-1"></i>Partager mon Lien
+        </button>
+    </div>
+</div>
+
+@* STYLES REQUIS *@
+<link href="~/css/ambassador-access.css" rel="stylesheet" />
+

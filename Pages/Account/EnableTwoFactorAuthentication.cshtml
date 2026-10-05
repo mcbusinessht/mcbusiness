@@ -1,0 +1,25 @@
+﻿@page
+@model MCBusiness.Pages.Account.EnableTwoFactorAuthenticationModel
+@{
+    ViewData["Title"] = "Activer l'authentification à deux facteurs";
+}
+
+<h2>Authentification à deux facteurs</h2>
+
+@if (TempData["TwoFactorError"] is string errorMessage)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@if (Model.IsTwoFactorEnabled)
+{
+    <form method="post" asp-page-handler="Disable">
+        <button type="submit" class="btn btn-danger">Désactiver l'authentification à deux facteurs</button>
+    </form>
+}
+else
+{
+    <form method="post" asp-page-handler="Enable">
+        <button type="submit" class="btn btn-primary">Activer l'authentification à deux facteurs</button>
+    </form>
+}

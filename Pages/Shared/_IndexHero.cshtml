@@ -1,0 +1,70 @@
+@model IndexModel
+
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <h1 class="hero-title animate__animated animate__fadeInDown">
+                    Achetez en ligne en Haïti auprès de <span class="text-warning">vendeurs vérifiés</span>
+                </h1>
+                <p class="hero-subtitle animate__animated animate__fadeInLeft">
+                    Trouvez des produits fiables, découvrez des boutiques locales et gagnez des commissions avec notre programme d'affiliation.
+                </p>
+
+                <form method="get" action="/Search" class="hero-search animate__animated animate__fadeInUp">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="search" name="query" class="form-control" placeholder="Rechercher un produit, une boutique ou une catégorie">
+                        <button class="btn btn-warning" type="submit">Rechercher</button>
+                    </div>
+                </form>
+
+                <div class="hero-features animate__animated animate__fadeInUp">
+                    <div class="feature">
+                        <i class="bi bi-basket3 text-warning"></i>
+                        <span>Produits et offres locales</span>
+                    </div>
+                    <div class="feature">
+                        <i class="bi bi-shop-window text-warning"></i>
+                        <span>Marketplace multivendeur</span>
+                    </div>
+                    <div class="feature">
+                        <i class="bi bi-cash-coin text-warning"></i>
+                        <span>Affiliation et commissions</span>
+                    </div>
+                </div>
+
+                <div class="hero-buttons animate__animated animate__fadeInUp">
+                    <a asp-page="/Shop/Index" class="btn btn-primary btn-lg me-3">
+                        <i class="bi bi-shop me-2"></i>Explorer la boutique
+                    </a>
+                    <a href="/SellerApplication/Create" class="btn btn-light btn-lg me-3">
+                        <i class="bi bi-bag-plus me-2"></i>Devenir vendeur
+                    </a>
+                    <a asp-page="/Plans/Index" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-star me-2"></i>Gagner comme ambassadeur
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-image-container animate__animated animate__fadeInRight">
+                    <img src="~/image/sac_mc.png" class="hero-image img-fluid" alt="MCBusiness marketplace" loading="lazy">
+                    <div class="floating-cards">
+                        <div class="floating-card card-1">
+                            <i class="bi bi-shield-check text-success"></i>
+                            <span>Paiements sécurisés</span>
+                        </div>
+                        <div class="floating-card card-2">
+                            <i class="bi bi-truck text-primary"></i>
+                            <span>Livraison rapide</span>
+                        </div>
+                        <div class="floating-card card-3">
+                            <i class="bi bi-patch-check text-info"></i>
+                            <span>Vendeurs vérifiés</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

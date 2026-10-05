@@ -1,0 +1,446 @@
+@page
+@model MCBusiness.Pages.Users.AmbassadorSpace.DashboardModel
+@using MCBusiness.Models
+@using System.Globalization
+@{
+    ViewData["Title"] = "Tableau de bord ambassadeur";
+    var culture = CultureInfo.GetCultureInfo("fr-FR");
+    string Money(decimal amount) => $"{amount.ToString("N0", culture)} HTG";
+    string Rate(decimal rate) => rate.ToString("P2", culture);
+}
+
+<div class="container-fluid px-4 ambassador-dashboard">
+    <div class="row">
+        <div class="col-lg-3 d-none d-lg-block">
+            <div class="bg-white shadow-sm rounded-3 p-3 sticky-top d-none d-lg-block" style="top:1rem">
+                <partial name="_AmbassadorSidebarPartial" />
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="dashboard-head mb-4">
+                <div>
+                    <h1 class="h3 fw-bold mb-1">
+                        <i class="bi bi-award me-2 text-success"></i>Tableau de bord ambassadeur
+                    </h1>
+                    <p class="text-muted mb-0">Suivez vos commissions, vos liens et les ventes generees.</p>
+                </div>
+                <button class="btn btn-outline-primary" onclick="location.reload()">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Actualiser
+                </button>
+            </div>
+
+            <section class="panel mb-4">
+                <div class="panel-body subscription-strip">
+                    <div>
+                        <span class="metric-label">Plan actif</span>
+                        <strong>@Model.CurrentPlanName</strong>
+                    </div>
+                    <div>
+                        <span class="metric-label">Commission</span>
+                        <strong>@Rate(Model.CurrentCommissionRate)</strong>
+                    </div>
+                    <div>
+                        <span class="metric-label">Expiration</span>
+                        <strong>@(Model.ActiveSubscription == null ? "-" : LocalTime.Format(Model.ActiveSubscription.EndDate, "dd/MM/yyyy"))</strong>
+                    </div>
+                    <div>
+                        <span class="metric-label">Jours restants</span>
+                        <strong>@Model.DaysRemaining</strong>
+                    </div>
+                    <div class="code-block">
+                        <span class="metric-label">Code ambassadeur</span>
+                        <strong>@(string.IsNullOrWhiteSpace(Model.ReferralCode) ? "-" : Model.ReferralCode)</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel mb-4">
+                <div class="panel-header">
+                    <h2><i class="bi bi-cash-coin me-2"></i>Commissions</h2>
+                    <a asp-page="./AmbassadorCommissions" class="btn btn-sm btn-outline-primary">Voir l'historique</a>
+                </div>
+                <div class="panel-body">
+                    <div class="metric-grid">
+                        <article class="metric-card">
+                            <span class="metric-label">Ce mois</span>
+                            <strong>@Money(Model.MonthlyEarnings)</strong>
+                        </article>
+                        <article class="metric-card">
+                            <span class="metric-label">Total valide</span>
+                            <strong>@Money(Model.TotalCommissionsEarned)</strong>
+                        </article>
+                        <article class="metric-card">
+                            <span class="metric-label">A recevoir</span>
+                            <strong>@Money(Model.PendingCommissions + Model.ApprovedCommissions + Model.AvailableCommissionAmount)</strong>
+                        </article>
+                        <article class="metric-card">
+                            <span class="metric-label">Wallet disponible</span>
+                            <strong>@Money(Model.AvailableCommissions)</strong>
+                        </article>
+                    </div>
+                    <div class="sub-metrics">
+                        <span>Payees: <strong>@Money(Model.PaidCommissions)</strong></span>
+                        <span>En validation: <strong>@Money(Model.PendingCommissions)</strong></span>
+                        <span>Disponibles a payer: <strong>@Money(Model.ApprovedCommissions + Model.AvailableCommissionAmount)</strong></span>
+                        <span>Rejetees/annulees: <strong>@Money(Model.RejectedOrCancelledCommissions)</strong></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel mb-4">
+                <div class="panel-header">
+                    <h2><i class="bi bi-people me-2"></i>Reseau et ventes suivies</h2>
+                    <a asp-page="./AmbassadorNetwork" class="btn btn-sm btn-outline-primary">Voir le reseau</a>
+                </div>
+                <div class="panel-body">
+                    <div class="metric-grid">
+                        <article class="metric-card">
+                            <span class="metric-label">Contacts suivis</span>
+                            <strong>@Model.TotalReferrals</strong>
+                        </article>
+                        <article class="metric-card">
+                            <span class="metric-label">Clients actifs</span>
+                            <strong>@Model.ActiveReferrals</strong>
+                        </article>
+                        <article class="metric-card">
+                            <span class="metric-label">Nouveaux ce mois</span>
+                            <strong>@Model.MonthlyReferrals</strong>
+                        </article>
+                        <article class="metric-card">
+                            <span class="metric-label">Commandes livrees</span>
+                            <strong>@Model.DeliveredTrackedOrders</strong>
+                        </article>
+                    </div>
+                    <div class="sub-metrics">
+                        <span>Clients via lien: <strong>@Model.CookieTrackedCustomers</strong></span>
+                        <span>Relations parrainage: <strong>@Model.DirectReferralRelations</strong></span>
+                        <span>Commandes suivies: <strong>@Model.TotalTrackedOrders</strong></span>
+                        <span>Ventes generees: <strong>@Money(Model.TotalTrackedSales)</strong></span>
+                        <span>Ventes ce mois: <strong>@Money(Model.MonthlyTrackedSales)</strong></span>
+                    </div>
+                </div>
+            </section>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="action-card">
+                        <i class="bi bi-link-45deg"></i>
+                        <h3>Liens ambassadeur</h3>
+                        <p>Creer et partager vos liens de vente.</p>
+                        <a href="/Users/AmbassadorSpace/AmbassadorLinks" class="btn btn-primary w-100">Ouvrir</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="action-card">
+                        <i class="bi bi-list-check"></i>
+                        <h3>Commissions</h3>
+                        <p>Consulter les montants et les statuts.</p>
+                        <a href="/Users/AmbassadorSpace/AmbassadorCommissions" class="btn btn-primary w-100">Voir</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="action-card">
+                        <i class="bi bi-diagram-3"></i>
+                        <h3>Reseau</h3>
+                        <p>Voir les clients suivis et relations connues.</p>
+                        <a href="/Users/AmbassadorSpace/AmbassadorNetwork" class="btn btn-primary w-100">Explorer</a>
+                    </div>
+                </div>
+            </div>
+
+            <section class="panel mb-4">
+                <div class="panel-header">
+                    <h2><i class="bi bi-clock-history me-2"></i>Dernieres commissions</h2>
+                </div>
+                <div class="panel-body">
+                    @if (Model.RecentCommissions.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Commande</th>
+                                        <th>Entreprise</th>
+                                        <th>Montant</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var commission in Model.RecentCommissions)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <small>@LocalTime.Format(commission.CreatedAt, "dd/MM/yyyy")</small>
+                                                <br><small class="text-muted">@LocalTime.Format(commission.CreatedAt, "HH:mm")</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge text-bg-light">@CommissionTypeLabel(commission.Type)</span>
+                                            </td>
+                                            <td>
+                                                <strong>#@commission.OrderId</strong>
+                                                @if (commission.Order?.User != null)
+                                                {
+                                                    <br><small class="text-muted">@commission.Order.User.FullName</small>
+                                                }
+                                            </td>
+                                            <td>@(commission.Company?.Name ?? "-")</td>
+                                            <td>
+                                                <strong>@Money(commission.Amount)</strong>
+                                                <br><small class="text-muted">@Rate(commission.CommissionRate)</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge @CommissionStatusClass(commission.Status)">@CommissionStatusLabel(commission.Status)</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-currency-dollar"></i>
+                            <p>Aucune commission enregistree pour le moment.</p>
+                            <a asp-page="./AmbassadorLinks" class="btn btn-outline-primary">Partager un lien</a>
+                        </div>
+                    }
+                </div>
+            </section>
+
+            <section class="panel mb-4">
+                <div class="panel-header">
+                    <h2><i class="bi bi-person-lines-fill me-2"></i>Derniers clients suivis</h2>
+                </div>
+                <div class="panel-body">
+                    @if (Model.RecentReferrals.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Client</th>
+                                        <th>Source</th>
+                                        <th>Commandes</th>
+                                        <th>Total achats</th>
+                                        <th class="text-end">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var referral in Model.RecentReferrals)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@referral.DisplayName</strong>
+                                                <br><small class="text-muted">@referral.Email</small>
+                                            </td>
+                                            <td><span class="badge text-bg-success">@referral.Source</span></td>
+                                            <td>@referral.OrderCount</td>
+                                            <td>@Money(referral.TotalSpent)</td>
+                                            <td class="text-end"><small>@LocalTime.Format(referral.FirstSeenAt, "dd/MM/yyyy")</small></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-people"></i>
+                            <p>Aucun client suivi encore.</p>
+                            <a asp-page="./AmbassadorLinks" class="btn btn-outline-primary">Obtenir mes liens</a>
+                        </div>
+                    }
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string CommissionTypeLabel(AmbassadorCommissionType type) => type switch
+    {
+        AmbassadorCommissionType.DirectSale => "Vente directe",
+        AmbassadorCommissionType.ReferralBonus => "Bonus parrainage",
+        AmbassadorCommissionType.MonthlyBonus => "Bonus mensuel",
+        AmbassadorCommissionType.PerformanceBonus => "Bonus performance",
+        _ => "Autre"
+    };
+
+    string CommissionStatusLabel(AmbassadorCommissionStatus status) => status switch
+    {
+        AmbassadorCommissionStatus.Paid => "Payee",
+        AmbassadorCommissionStatus.Available => "Disponible",
+        AmbassadorCommissionStatus.Pending => "En attente",
+        AmbassadorCommissionStatus.Approved => "Disponible",
+        AmbassadorCommissionStatus.Rejected => "Rejetee",
+        AmbassadorCommissionStatus.Cancelled => "Annulee",
+        AmbassadorCommissionStatus.Refunded => "Remboursee",
+        _ => "Inconnue"
+    };
+
+    string CommissionStatusClass(AmbassadorCommissionStatus status) => status switch
+    {
+        AmbassadorCommissionStatus.Paid => "text-bg-success",
+        AmbassadorCommissionStatus.Available => "text-bg-info",
+        AmbassadorCommissionStatus.Pending => "text-bg-warning",
+        AmbassadorCommissionStatus.Approved => "text-bg-primary",
+        AmbassadorCommissionStatus.Rejected => "text-bg-danger",
+        AmbassadorCommissionStatus.Cancelled => "text-bg-secondary",
+        AmbassadorCommissionStatus.Refunded => "text-bg-dark",
+        _ => "text-bg-secondary"
+    };
+}
+
+<style>
+    .ambassador-dashboard {
+        color: #1f2933;
+    }
+
+    .dashboard-head,
+    .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .panel,
+    .action-card {
+        background: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: .5rem;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+    }
+
+    .panel-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .panel-header h2 {
+        font-size: 1.05rem;
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .panel-body {
+        padding: 1.25rem;
+    }
+
+    .subscription-strip {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    .metric-card {
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: .5rem;
+        padding: 1rem;
+        background: #fbfcfe;
+    }
+
+    .metric-label {
+        display: block;
+        color: #6c757d;
+        font-size: .83rem;
+        margin-bottom: .25rem;
+    }
+
+    .metric-card strong,
+    .subscription-strip strong {
+        display: block;
+        font-size: 1.25rem;
+        line-height: 1.25;
+        overflow-wrap: anywhere;
+    }
+
+    .sub-metrics {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .75rem 1.25rem;
+        margin-top: 1rem;
+        color: #6c757d;
+        font-size: .92rem;
+    }
+
+    .action-card {
+        height: 100%;
+        padding: 1.25rem;
+        text-align: center;
+    }
+
+    .action-card i {
+        color: #005fac;
+        font-size: 2rem;
+    }
+
+    .action-card h3 {
+        font-size: 1.05rem;
+        margin: .75rem 0 .25rem;
+        font-weight: 700;
+    }
+
+    .action-card p {
+        min-height: 44px;
+        color: #6c757d;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        font-size: 2.25rem;
+        color: #adb5bd;
+    }
+
+    @@media (max-width: 991.98px) {
+        .subscription-strip,
+        .metric-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 767.98px) {
+        .container-fluid.px-4 {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+
+        .dashboard-head,
+        .panel-header {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .dashboard-head .btn,
+        .panel-header .btn {
+            width: 100%;
+            min-height: 42px;
+        }
+
+        .subscription-strip,
+        .metric-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .panel-body {
+            padding: 1rem;
+        }
+    }
+</style>

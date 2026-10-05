@@ -1,0 +1,81 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_Addresses_States.CreateModel
+
+@{
+    ViewData["Title"] = "Ajouter plusieurs départements/états";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <partial name="_AdminSidebarPartial" />
+
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-plus-circle me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="CountryId" class="form-label fw-bold">
+                                <i class="bi bi-globe me-2"></i>Pays concerné
+                            </label>
+                            <select asp-for="CountryId" asp-items="Model.CountrySelectList" class="form-select" required>
+                                <option value="">-- Sélectionner un pays --</option>
+                            </select>
+                            <span asp-validation-for="CountryId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="CityInput" class="form-label fw-bold">
+                                <i class="bi bi-building me-2"></i>Départements/États
+                            </label>
+                            <textarea asp-for="CityInput" rows="6" class="form-control" placeholder="Ex : Ouest, Artibonite, Nord-Est"></textarea>
+                            <div class="form-text">
+                                Séparez les noms par des virgules, sauts de ligne ou points-virgules.
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-page="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-1"></i> Ajouter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        (() => {
+            'use strict';
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+    </script>
+}

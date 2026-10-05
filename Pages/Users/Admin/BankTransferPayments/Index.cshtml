@@ -1,0 +1,241 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.BankTransferPayments.IndexModel
+@using MCBusiness.Models;
+@{
+    ViewData["Title"] = "Gestion des Virements Bancaires";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial"/>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-bank2 me-2"></i>Gestion des Virements
+                        </h4>
+                        <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#filterModal">
+                            <i class="bi bi-funnel-fill"></i> Filtres Avancés
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Barre de recherche rapide -->
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <form method="post" class="input-group">
+                                <input type="text" class="form-control" placeholder="Rechercher..." asp-for="SearchValue">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="bi bi-search"></i> Rechercher
+                                </button>
+                            </form>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <span class="badge bg-secondary">
+                                @Model.BankTransferPayments.Count() virement(s) trouvé(s)
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Tableau des virements -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Utilisateur</th>
+                                    <th>Banque</th>
+                                    <th>Compte</th>
+                                    <th>Montant</th>
+                                    <th>Type</th>
+                                    <th>Statut</th>
+                                    <th>Date Soumission</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var payment in Model.BankTransferPayments)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                @if(payment.User.ProfilePictureUrl != null){
+                                                    <img src="@payment.User.ProfilePictureUrl" 
+                                                         class="rounded-circle me-2" width="40" height="40">
+                                                }
+                                                <div>
+                                                    <strong>@payment.User.FirstName @payment.User.LastName</strong>
+                                                    <div class="small text-muted">@payment.User.Email</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>@payment.BankName <br> <small>@payment.Direction</small></td>          
+                                        <td>
+                                            @payment.AccountName<br>
+                                            <small class="text-muted">@payment.AccountNumber</small>
+                                        </td>
+                                        <td class="fw-bold">@payment.Amount.ToString("C")</td>
+                                        <td>@payment.TransferMethod</td>
+                                        <td>
+                                            @switch(payment.Status)
+                                            {
+                                                case BankTransferStatus.Pending:
+                                                    <span class="badge bg-warning">En Attente</span>
+                                                    break;
+                                                case BankTransferStatus.Approved:
+                                                    <span class="badge bg-success">Approuvé</span>
+                                                    break;
+                                                case BankTransferStatus.Rejected: 
+                                                    <span class="badge bg-danger">Rejeté</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-secondary">@payment.Status</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>@payment.SubmittedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                                        type="button" data-bs-toggle="dropdown">
+                                                    Actions
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-page="./Details" asp-route-id="@payment.Id">
+                                                            <i class="bi bi-eye-fill me-2"></i>Détails
+                                                        </a>
+                                                    </li>
+                                                    
+                                                    @if (payment.Status == BankTransferStatus.Pending)            
+                                                    {
+                                                        <li>
+                                                            <a class="dropdown-item text-success" asp-page="./Approve" asp-route-id="@payment.Id">
+                                                                <i class="bi bi-check-circle-fill me-2"></i>Approuver
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item text-danger" asp-page="./Reject" asp-route-id="@payment.Id">
+                                                                <i class="bi bi-x-circle-fill me-2"></i>Rejeter
+                                                            </a>
+                                                        </li>
+                                                    }
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Précédent</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Suivant</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Filtres Avancés -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Filtres Avancés</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Statut</label>
+                            <select class="form-select" asp-for="StatusFilter">
+                                <option value="">Tous</option>
+                                <option value="Pending">En Attente</option>
+                                <option value="Approved">Approuvé</option>
+                                <option value="Rejected">Rejeté</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Type de virement</label>
+                            <select class="form-select" asp-for="TransferTypeFilter">
+                                <option value="">Tous</option>
+                                <option value="Deposit">Dépôt</option>
+                                <option value="Withdrawal">Retrait</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Date de soumission</label>
+                            <select class="form-select" asp-for="DateFilter">
+                                <option value="">Toutes</option>
+                                <option value="today">Aujourd'hui</option>
+                                <option value="week">Cette semaine</option>
+                                <option value="month">Ce mois</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Montant</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" asp-for="MinAmount" placeholder="Min">
+                                <input type="number" class="form-control" asp-for="MaxAmount" placeholder="Max">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Appliquer les filtres</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge {
+            font-size: 0.75em;
+            padding: 0.35em 0.65em;
+        }
+        
+        .dropdown-menu {
+            min-width: 200px;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialisation des tooltips
+            const tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltips.map(t => new bootstrap.Tooltip(t));
+        });
+    </script>
+}

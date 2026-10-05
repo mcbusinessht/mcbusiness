@@ -1,0 +1,575 @@
+@page
+@using System.Globalization
+@model MCBusiness.Pages.Payments.PaymentModel
+@{
+    ViewData["Title"] = "Paiement";
+    var isOrderPayment = Model.PaymentType == "order";
+    var baseAmount = Model.BaseAmount;
+    var discountBasis = Model.DiscountBasis;
+    var walletBalance = Model.Wallet?.Balance ?? 0;
+    var orderLines = Model.Order?.Products?.OrderBy(p => p.Id).ToList() ?? new List<MCBusiness.Models.OrderProduct>();
+}
+
+<div class="payment-page">
+    <div class="container py-4 py-lg-5">
+        <div class="payment-heading">
+            <div>
+                <span class="payment-kicker">MC Business Pay</span>
+                <h1>Finaliser votre paiement</h1>
+                <p>Vérifiez le montant, appliquez votre code promo si vous en avez un, puis confirmez le paiement avec votre portefeuille.</p>
+            </div>
+            <a asp-page="@(isOrderPayment ? "/Orders/MyOrders" : "/Plans/Index")" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Retour
+            </a>
+        </div>
+
+        @if (ModelState.ErrorCount > 0)
+        {
+            <div class="alert alert-danger payment-alert">
+                @foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <div><i class="bi bi-exclamation-triangle-fill me-2"></i>@error.ErrorMessage</div>
+                }
+            </div>
+        }
+
+        <div class="payment-layout">
+            <section class="payment-summary">
+                <div class="summary-header">
+                    <div>
+                        <span class="section-label">À payer</span>
+                        <h2 id="finalAmountHero">@Money(baseAmount)</h2>
+                    </div>
+                    <span class="badge @(Model.HasEnoughBalance ? "bg-success" : "bg-danger")">
+                        @(Model.HasEnoughBalance ? "Solde suffisant" : "Solde insuffisant")
+                    </span>
+                </div>
+
+                <dl class="amount-list">
+                    @if (isOrderPayment)
+                    {
+                        <div>
+                            <dt>Sous-total produits</dt>
+                            <dd>@Money(Model.Order?.TotalAmount ?? 0)</dd>
+                        </div>
+                        <div>
+                            <dt>Livraison</dt>
+                            <dd>@Money(Model.ShippingAmount)</dd>
+                        </div>
+                    }
+                    else
+                    {
+                        <div>
+                            <dt>Prix du plan</dt>
+                            <dd>@Money(baseAmount)</dd>
+                        </div>
+                    }
+                    <div>
+                        <dt>Réduction</dt>
+                        <dd class="text-success">-<span id="discountAmount">0</span> HTG</dd>
+                    </div>
+                    <div class="amount-total">
+                        <dt>Total débité</dt>
+                        <dd id="finalAmount">@Money(baseAmount)</dd>
+                    </div>
+                </dl>
+
+                @if (isOrderPayment && Model.ShippingAmount > 0)
+                {
+                    <div class="payment-note">
+                        <i class="bi bi-info-circle"></i>
+                        Les codes promo de commande réduisent les produits. Les frais de livraison restent séparés pour protéger le règlement des vendeurs et livreurs.
+                    </div>
+                }
+
+                <div class="wallet-panel">
+                    <div>
+                        <span class="section-label">Portefeuille</span>
+                        <strong>@Money(walletBalance)</strong>
+                    </div>
+                    <div>
+                        <span class="section-label">Après paiement</span>
+                        <strong id="walletAfter">@Money(walletBalance - baseAmount)</strong>
+                    </div>
+                </div>
+
+                <div class="insufficient-panel" id="insufficientMsg" style="display:@(Model.HasEnoughBalance ? "none" : "block")">
+                    <i class="bi bi-wallet2 me-1"></i>
+                    Solde insuffisant pour finaliser ce paiement.
+                    <a asp-page="./PaymentMethods">Recharger le portefeuille</a>
+                </div>
+            </section>
+
+            <section class="payment-action">
+                <form method="post" id="paymentForm" data-critical="true">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="PaymentType" />
+                    <input type="hidden" asp-for="PlanId" />
+                    <input type="hidden" asp-for="OrderId" />
+                    <input type="hidden" asp-for="WalletId" />
+
+                    <div class="method-box">
+                        <div class="method-icon"><i class="bi bi-wallet2"></i></div>
+                        <div>
+                            <strong>Paiement par portefeuille</strong>
+                            <span>Débit instantané de votre solde MC Business.</span>
+                        </div>
+                    </div>
+
+                    <label class="form-label mt-4" for="promoInput">Code promo</label>
+                    <div class="promo-row">
+                        <input class="form-control" asp-for="PromoCodeInput" id="promoInput" placeholder="Ex: MC10" autocomplete="off" />
+                        <span class="promo-state" id="promoState">Optionnel</span>
+                    </div>
+                    <div class="invalid-feedback d-block" id="promoError"></div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mt-4" id="payButton" @(Model.HasEnoughBalance ? "" : "disabled")>
+                        <span class="button-text"><i class="bi bi-lock-fill me-2"></i>Payer maintenant</span>
+                        <span class="spinner-border spinner-border-sm d-none ms-2" role="status" aria-hidden="true"></span>
+                    </button>
+
+                    <p class="secure-copy">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Le paiement est contrôlé côté serveur avant débit. Aucun montant affiché côté navigateur n'est utilisé seul pour valider la transaction.
+                    </p>
+                </form>
+            </section>
+        </div>
+
+        <section class="payment-details">
+            @if (isOrderPayment)
+            {
+                <div class="details-header">
+                    <div>
+                        <span class="section-label">Commande</span>
+                        <h2>Commande #@Model.Order?.Id</h2>
+                    </div>
+                    <span class="badge bg-secondary">@Model.Order?.Status</span>
+                </div>
+
+                @if (Model.Order?.Address != null)
+                {
+                    <div class="address-line">
+                        <i class="bi bi-geo-alt"></i>
+                        <span>@Model.Order.Address.Line1, @Model.Order.Address.City?.Name, @Model.Order.Address.State?.Name, @Model.Order.Address.Country?.Name</span>
+                    </div>
+                }
+
+                <div class="order-lines">
+                    @foreach (var line in orderLines)
+                    {
+                        <div class="order-line">
+                            <div>
+                                <strong>@(line.ProductVariant?.Product?.Name ?? "Produit")</strong>
+                                <span>Quantité @line.Quantity · @(line.Company?.Name ?? "Vendeur")</span>
+                            </div>
+                            <div class="text-end">
+                                <strong>@Money(line.PriceAtOrder * line.Quantity)</strong>
+                                @if (line.DeliveryFee > 0)
+                                {
+                                    <span>Livraison: @Money(line.DeliveryFee)</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="details-header">
+                    <div>
+                        <span class="section-label">Plan ambassadeur</span>
+                        <h2>@Model.Plan?.Name</h2>
+                    </div>
+                    <span class="badge bg-success">Actif après paiement</span>
+                </div>
+                <p class="text-muted mb-2">@Model.Plan?.Description</p>
+                <div class="plan-facts">
+                    <span><i class="bi bi-calendar-event me-1"></i>@Model.Plan?.DurationInDays jours</span>
+                    <span><i class="bi bi-percent me-1"></i>@((Model.Plan?.AmbassadorCommissionPercentage ?? 0).ToString("P0")) commission</span>
+                    <span><i class="bi bi-trophy me-1"></i>Plafond @Money(Model.Plan?.Ceiling ?? 0)</span>
+                </div>
+            }
+        </section>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .payment-page {
+            background: #f6f8fb;
+            min-height: calc(100vh - 120px);
+        }
+
+        .payment-heading {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .payment-heading h1 {
+            font-size: clamp(1.75rem, 3vw, 2.5rem);
+            font-weight: 800;
+            margin: 0.15rem 0 0.35rem;
+            letter-spacing: 0;
+        }
+
+        .payment-heading p {
+            color: #667085;
+            max-width: 720px;
+            margin: 0;
+        }
+
+        .payment-kicker,
+        .section-label {
+            color: #667085;
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0;
+            text-transform: uppercase;
+        }
+
+        .payment-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.7fr);
+            gap: 1rem;
+            align-items: start;
+        }
+
+        .payment-summary,
+        .payment-action,
+        .payment-details {
+            background: #fff;
+            border: 1px solid #d9e2ec;
+            border-radius: 8px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+        }
+
+        .payment-summary,
+        .payment-action {
+            padding: 1.25rem;
+        }
+
+        .summary-header,
+        .details-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .summary-header h2 {
+            color: #005fac;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 900;
+            margin: 0;
+        }
+
+        .amount-list {
+            margin: 0;
+        }
+
+        .amount-list div,
+        .wallet-panel,
+        .order-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            border-top: 1px solid #edf1f5;
+            padding: 0.85rem 0;
+        }
+
+        .amount-list dt {
+            color: #475467;
+            font-weight: 700;
+        }
+
+        .amount-list dd {
+            margin: 0;
+            font-weight: 800;
+        }
+
+        .amount-total {
+            font-size: 1.15rem;
+        }
+
+        .payment-note,
+        .insufficient-panel {
+            border-radius: 8px;
+            margin-top: 1rem;
+            padding: 0.85rem 1rem;
+        }
+
+        .payment-note {
+            background: #eef6fc;
+            color: #315d7c;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .wallet-panel {
+            background: #fbfdff;
+            border: 1px solid #e5edf3;
+            border-radius: 8px;
+            margin-top: 1rem;
+            padding: 1rem;
+        }
+
+        .wallet-panel strong {
+            display: block;
+            font-size: 1.1rem;
+        }
+
+        .insufficient-panel {
+            background: #fff4e5;
+            border: 1px solid #ffd9a8;
+            color: #7a4b00;
+        }
+
+        .method-box {
+            display: flex;
+            gap: 0.85rem;
+            align-items: center;
+            border: 1px solid #d9e2ec;
+            border-radius: 8px;
+            padding: 1rem;
+            background: #fbfdff;
+        }
+
+        .method-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background: #e8f2fa;
+            color: #005fac;
+            display: grid;
+            place-items: center;
+            font-size: 1.3rem;
+            flex: 0 0 auto;
+        }
+
+        .method-box span,
+        .secure-copy,
+        .order-line span {
+            color: #667085;
+            display: block;
+            font-size: 0.92rem;
+        }
+
+        .promo-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 0.5rem;
+        }
+
+        .promo-state {
+            align-items: center;
+            background: #f2f4f7;
+            border: 1px solid #d0d5dd;
+            border-radius: 6px;
+            color: #475467;
+            display: inline-flex;
+            font-weight: 700;
+            padding: 0 0.8rem;
+            white-space: nowrap;
+        }
+
+        .secure-copy {
+            margin: 1rem 0 0;
+            text-align: center;
+        }
+
+        .payment-details {
+            margin-top: 1rem;
+            padding: 1.25rem;
+        }
+
+        .details-header h2 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            margin: 0.15rem 0 0;
+        }
+
+        .address-line {
+            align-items: center;
+            background: #fbfdff;
+            border: 1px solid #e5edf3;
+            border-radius: 8px;
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0.85rem 1rem;
+        }
+
+        .order-lines {
+            display: grid;
+            gap: 0;
+        }
+
+        .order-line:first-child {
+            border-top: 0;
+        }
+
+        .plan-facts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+        }
+
+        .plan-facts span {
+            background: #f2f4f7;
+            border-radius: 999px;
+            color: #344054;
+            font-weight: 700;
+            padding: 0.45rem 0.7rem;
+        }
+
+        .payment-alert {
+            border-radius: 8px;
+        }
+
+        @@media (max-width: 991.98px) {
+            .payment-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @@media (max-width: 575.98px) {
+            .payment-heading,
+            .summary-header,
+            .details-header,
+            .amount-list div,
+            .wallet-panel,
+            .order-line {
+                flex-direction: column;
+            }
+
+            .promo-row {
+                grid-template-columns: 1fr;
+            }
+
+            .promo-state {
+                justify-content: center;
+                min-height: 42px;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="~/js/anti-double-submit.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const baseAmount = Number('@baseAmount.ToString(CultureInfo.InvariantCulture)');
+            const discountBasis = Number('@discountBasis.ToString(CultureInfo.InvariantCulture)');
+            const walletBalance = Number('@walletBalance.ToString(CultureInfo.InvariantCulture)');
+            let discountAmount = 0;
+
+            const promoInput = document.getElementById('promoInput');
+            const promoError = document.getElementById('promoError');
+            const promoState = document.getElementById('promoState');
+            const discountEl = document.getElementById('discountAmount');
+            const finalEl = document.getElementById('finalAmount');
+            const finalHeroEl = document.getElementById('finalAmountHero');
+            const walletAfterEl = document.getElementById('walletAfter');
+            const payButton = document.getElementById('payButton');
+            const insufficientMsg = document.getElementById('insufficientMsg');
+            const paymentForm = document.getElementById('paymentForm');
+
+            const money = value => `${Math.max(0, value).toLocaleString(undefined, { maximumFractionDigits: 0 })} HTG`;
+
+            function updateAmounts() {
+                const finalAmount = Math.max(0, baseAmount - discountAmount);
+                discountEl.textContent = Math.round(discountAmount).toLocaleString();
+                finalEl.textContent = money(finalAmount);
+                finalHeroEl.textContent = money(finalAmount);
+                walletAfterEl.textContent = money(walletBalance - finalAmount);
+
+                if (walletBalance < finalAmount) {
+                    payButton.disabled = true;
+                    insufficientMsg.style.display = 'block';
+                } else {
+                    payButton.disabled = false;
+                    insufficientMsg.style.display = 'none';
+                }
+            }
+
+            function resetPromo() {
+                discountAmount = 0;
+                promoInput.classList.remove('is-invalid', 'is-valid');
+                promoError.textContent = '';
+                promoState.textContent = 'Optionnel';
+                promoState.className = 'promo-state';
+                updateAmounts();
+            }
+
+            let promoTimer = null;
+            promoInput.addEventListener('input', function () {
+                clearTimeout(promoTimer);
+                const code = promoInput.value.trim();
+                if (!code) {
+                    resetPromo();
+                    return;
+                }
+
+                promoState.textContent = 'Vérification...';
+                promoTimer = setTimeout(async () => {
+                    try {
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('handler', 'ValidatePromo');
+                        url.searchParams.set('code', code);
+
+                        const response = await fetch(url.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                        const data = await response.json();
+
+                        if (data.valid) {
+                            discountAmount = Number(data.discountAmount || 0);
+                            promoInput.classList.remove('is-invalid');
+                            promoInput.classList.add('is-valid');
+                            promoError.textContent = '';
+                            promoState.textContent = 'Appliqué';
+                            promoState.className = 'promo-state text-success';
+                        } else {
+                            discountAmount = 0;
+                            promoInput.classList.remove('is-valid');
+                            promoInput.classList.add('is-invalid');
+                            promoError.textContent = data.message || 'Code invalide';
+                            promoState.textContent = 'Refusé';
+                            promoState.className = 'promo-state text-danger';
+                        }
+                    } catch {
+                        discountAmount = 0;
+                        promoInput.classList.remove('is-valid');
+                        promoInput.classList.add('is-invalid');
+                        promoError.textContent = 'Erreur de validation du code promo';
+                        promoState.textContent = 'Erreur';
+                        promoState.className = 'promo-state text-danger';
+                    }
+
+                    updateAmounts();
+                }, 350);
+            });
+
+            paymentForm.addEventListener('submit', function () {
+                const buttonText = payButton.querySelector('.button-text');
+                const spinner = payButton.querySelector('.spinner-border');
+                payButton.disabled = true;
+                if (buttonText) buttonText.textContent = 'Traitement du paiement...';
+                if (spinner) spinner.classList.remove('d-none');
+            });
+
+            updateAmounts();
+        });
+    </script>
+}
+
+@functions {
+    private string Money(decimal value)
+    {
+        return $"{value.ToString("N0")} HTG";
+    }
+}

@@ -1,0 +1,817 @@
+@* _Layout.cshtml *@
+@using MCBusiness.Services
+@using MCBusiness.Models
+@using Microsoft.AspNetCore.Identity
+@inject NoticeService NoticeService
+@inject SignInManager<ApplicationUser> signIn
+@inject UserManager<ApplicationUser> userManager
+
+@{
+    var annonce = await NoticeService.GetAnnonceAsync();
+    var cartItemsCount = 0;  
+    var messagesCount =0;
+    var notificationsCount =0;
+    DateTimeOffset? lastVisit = null;
+    
+    if (signIn.IsSignedIn(User))
+    {
+        var userId = userManager.GetUserId(User);
+        lastVisit = await NoticeService.GetLastVisitAsync(userId);
+        cartItemsCount = await NoticeService.GetCartCountAsync(userId);
+        messagesCount = await NoticeService.GetMessageCountAsync(userId);
+        notificationsCount = await NoticeService.GetNotificationCountAsync(userId);
+    }
+}
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="description" content="@ViewData["Description"]" />
+    <meta name="keywords" content="@ViewData["Keywords"]" />
+    
+    <!-- Balises Open Graph pour le partage sur les réseaux sociaux -->
+    <meta property="og:title" content="@ViewData["Title"]" />
+    <meta property="og:description" content="@ViewData["Description"]" />
+    <meta property="og:type" content="website" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MC Business</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dark-mode.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dark-mode-mcbusiness-premium.css" asp-append-version="true" />      
+    <link rel="stylesheet" href="~/MCBusiness_Beta1._0.styles.css" asp-append-version="true" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="icon" href="@Url.Content("~/favicon.png")"   sizes="32x32" style="width: 100%;">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        AOS.init();
+    </script>
+    <meta property="og:image" content="https://MCBusinessht.com/favicon.ico">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="google-site-verification" content="UL7E4hfVVIw5lY27JxiQ926CggGOZFi0_x_0gNybRr4" />
+    <!-- other head elements -->
+    @RenderSection("Styles", required: false)
+    @await RenderSectionAsync("Head", required: false)
+    <style>
+        *, body{
+        font-family: 'Roboto', cursive !important;
+        
+        }
+
+        .modern-header {                                   
+        border-bottom: 2px solid #5dab31;
+        }
+
+        .announcement-bar {
+        font-size: 0.9rem;
+        height: 25px; /* Réduction de la hauteur */
+        }
+
+        .scrolling-text {
+        animation: scrollText 15s linear infinite;
+        white-space: nowrap;
+        overflow: hidden;
+        }
+        .header-logo-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        #address {
+            font-size: 0.9rem;
+            padding: 0 10px;
+            text-align: right;
+        }
+
+        @@media (max-width: 991px) {
+            .header-logo-section {
+                flex-wrap: nowrap;
+            }
+            
+            #address {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+        .btn-outline-primary{
+        border: solid 1px #1861ac!important;
+        color: #1861ac;
+        }
+        .btn-outline-primary:hover{                      
+        background: #005fac!important;
+        }
+        
+        /* Footer styles */
+        .hover-opacity-100:hover {
+            opacity: 1 !important;
+            transition: opacity 0.3s ease;
+        }
+        
+        footer .input-group-sm .form-control {
+            border-color: #495057;
+        }
+        
+        footer .input-group-sm .form-control:focus {
+            border-color: var(--bs-primary);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+        
+        footer .badge {
+            font-size: 0.75rem;
+        }
+        
+        /* Animation pour les liens du footer */
+        footer a {
+            transition: all 0.3s ease;
+        }
+        
+        footer a:hover {
+            transform: translateX(3px);
+        }
+    </style>
+</head>
+<body class="wrapper m-0 p-0">
+
+
+<header class=" modern-header m-0 p-0">
+    <!-- Première ligne : Notifications -->
+    <div class="header-top-row bg-primary py-1">                                               
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            @if(annonce!=null){
+                <i class="bi bi-megaphone me-2 text-light"></i>
+                <marquee class="scrolling-text  text-light">
+                    @annonce
+                </marquee>
+            }     
+            <div class="d-flex justify-content-end align-self-end w-100 gap-3 align-items-center">
+                @if(lastVisit!=null){
+                    <div class="text-white">
+                        <i class="bi bi-clock-history me-1"></i>@LocalTime.Format(lastVisit)
+                    </div>
+                }
+                <!-- Bouton Mode Sombre (icône seule) -->
+                <button id="theme-toggle" class="btn btn-sm btn-link text-white p-1 border-0" 
+                        style="transition: all 0.3s ease; cursor: pointer;" 
+                        title="Basculer le mode sombre">
+                    <i class="bi bi-moon-stars-fill fs-5"></i>
+                </button>
+            </div>
+        </div>
+    </div>                            
+
+    <!-- Deuxième ligne : Logo, recherche et outils --> 
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-0 my-0 p-0 m-0">
+        <div class="container p-0">
+            <div class="d-flex flex-wrap w-100 align-items-center">
+                <!-- Logo et Adresse -->
+                <div class="header-logo-section m-0 p-0 ms-2">
+                    <a class="navbar-brand m-0 p-2" asp-page="/Index">
+                        <img src="@Url.Content("~/image/LogoMcbusiness2.png")" alt="MCBusiness Logo" width="75">
+                    </a>
+                    <div class="d-md-none" id="address">
+                        <i class="bi bi-geo-alt"></i>
+                        <span class="address-text-2">Chargement de la localisation...</span>
+                    </div>
+
+                    <div class="ms-auto  d-md-block d-none"> 
+                        <div class="ms-auto d-flex flex-row align-items-end gap-3">
+                            @if (Context.Request.Path.StartsWithSegments("/Shop") || Context.Request.Path.StartsWithSegments("/Shop/Categories/") || Context.Request.Path.StartsWithSegments("/Shop/Categories/Products") )
+                            {
+                            <form method="get" action="/Search" class="d-none d-lg-block me-3 mx-auto col" style="min-width: 400px;  max-width: 60%;">
+                                <div class="input-group position-relative">
+                                    <input type="search" 
+                                        name="query" 
+                                        class="form-control" 
+                                        placeholder="Rechercher des produits..."
+                                        required
+                                        autocomplete="off"
+                                        id="mainSearchInput">
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                    <div id="mainSearchSuggestions" class="search-suggestions d-none"></div>
+                                </div>
+                            </form>
+                            }
+                        <div class="" id="address">
+                            <i class="bi bi-geo-alt "></i>
+                            <span class="address-text">Chargement de la localisation...</span>
+                        </div>
+                        @if(signIn.IsSignedIn(User)){
+
+                        <a asp-page="/Users/User/Conversations/Chat" class="position-relative text-dark">   
+                            <i class="bi bi-chat-dots fs-5"></i> 
+                            @if(messagesCount >0){
+                                <span class="position-absolute  top-2 start-100 translate-middle badge rounded-pill bg-danger">
+                                    @messagesCount  
+                                </span>
+                            }        
+                            
+                        </a>
+                        <a asp-page="/Users/User/Notifications" class="position-relative text-dark">  
+                            <i class="bi bi-bell fs-5"></i>         
+                            @if(notificationsCount >0){
+                                <span class="position-absolute top-2 start-100 translate-middle badge rounded-pill bg-danger">
+                                    @notificationsCount  
+                                </span>
+                            }   
+                        </a>
+                        }
+                        <div class="dropdown">
+                            <button class="btn btn-link text-dark p-0 m-0 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-globe fs-5"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#">Français</a></li>
+                                <li><a class="dropdown-item" href="#">Créole</a></li>
+                                <li><a class="dropdown-item" href="#">Anglais</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Panier -->
+                        <a asp-page="/MyCart" class="position-relative text-dark">
+                            <i class="bi bi-cart3 fs-5"></i>
+                            @if(cartItemsCount >0){
+                                <span class="position-absolute top-2 start-100 translate-middle badge rounded-pill bg-danger">
+                                    @cartItemsCount  
+                                </span>
+                            }  
+                        </a>
+                        
+                        <!-- Compte -->
+                        <div class="dropdown">
+                            <partial name="_LoginPartial" />
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- Barre de recherche conditionnelle -->
+                @if (Context.Request.Path.StartsWithSegments("/Shop") || Context.Request.Path.StartsWithSegments("/Shop/Categories/")|| Context.Request.Path.StartsWithSegments("/Shop/Categories/Products") )
+                {
+                    <form method="get" action="/Search" 
+                        class="d-lg-none flex-grow-1 my-2 my-lg-0 mx-auto col m-0" 
+                        style="min-width: 400px; max-width: 60%!important;">
+                        <div class="input-group position-relative">
+                            <input type="search" 
+                                        name="query" 
+                                        class="form-control" 
+                                        placeholder="Rechercher des produits..."
+                                        required
+                                        autocomplete="off"
+                                        id="mainSearchInput">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-search"></i>
+                            </button>
+                            <div id="mainSearchSuggestions" class="search-suggestions d-none"></div>
+                        </div>
+                    </form>
+                }
+                <!-- Outils droite -->
+                
+                <div class="me-auto d-flex align-items-center justify-content-between gap-3 w-100"> 
+                    <!-- Barre de recherche desktop -->
+                    
+                    
+                    <div class="ms-auto d-flex align-items-end gap-3 d-md-none"> 
+                        @if(signIn.IsSignedIn(User)){
+                        <a href="/Users/User/Conversations/Chat" class="position-relative text-dark">   
+                            <i class="bi bi-chat-dots fs-5"></i>         
+                            @if(messagesCount >0){
+                                <span class="position-absolute top-2 start-100 translate-middle badge rounded-pill bg-danger">
+                                    @messagesCount   
+                                </span>
+                            }   
+                        </a>
+                        <a href="/Users/User/Notifications" class="position-relative text-dark">  
+                            <i class="bi bi-bell fs-5"></i>         
+                            @if(notificationsCount >0){
+                                <span class="position-absolute top-2 start-100 translate-middle badge rounded-pill bg-danger">
+                                    @notificationsCount  
+                                </span>
+                            }   
+                        </a>
+                        }
+                    <!-- Langues -->
+                        <div class="dropdown">
+                            <button class="btn btn-link text-dark p-0 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-globe fs-5"></i>
+                            </button>                                                                                                 
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#">Français</a></li>
+                                <li><a class="dropdown-item" href="#">Créole</a></li>
+                                <li><a class="dropdown-item" href="#">Anglais</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Panier -->
+                        <a asp-page="/MyCart" class="position-relative text-dark">
+                            <i class="bi bi-cart3 fs-5"></i>
+                                @if(cartItemsCount >0){
+                                <span class="position-absolute top-2 start-100 translate-middle badge rounded-pill bg-danger">
+                                    @cartItemsCount  
+                                </span>
+                            }  
+                        </a>
+
+                        <!-- Compte -->
+                        <div class="dropdown">
+                            <partial name="_LoginPartial" />   
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Troisième ligne : Navigation principale -->
+    <nav class="navbar navbar-expand-md navbar-light nav-main-links p-0 ">
+        <div class="container-fluid">
+            <button class="navbar-toggler ms-2 d-md-none text-primary" type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#mainNav"
+                aria-controls="mainNav"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+                <i class="bi bi-list text-primary"></i> 
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-page="/Shop/Index">
+                            <i class="bi bi-grid me-1 text-primary"></i>Magasin
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-page="/Plans/Index"><i class="bi bi-card-checklist"></i> Plans</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-page="/About"><i class="bi bi-file-earmark-person"></i> À propos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/HelpUs" class="nav-link"><i class="bi bi-info-circle"></i> Aidez-nous</a>
+                    </li>
+                    <li class="nav-item"></li>
+                        <a href="/Companies/Index" class="nav-link"><i class="bi bi-info-circle"></i> Nos Vendeurs</a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex align-items-center ms-auto">    
+                    <span class="badge bg-warning me-3">Promotions du jour</span>  
+                    <a asp-page="/SellerApplication/Create" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-shop me-1"></i>Vendre sur MCBusiness
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+    @Html.AntiForgeryToken() <!-- Doit être présent -->
+    <div class="container-fluid px-0 content ">
+        <div class="m-0 mb-3  p-0">
+            <partial name="_Breadcrumbs" class=""/>
+        </div>
+        @RenderBody()
+        
+    </div>
+    @* <div class="d-md-none">
+        <partial name="_BottomBarPartial"/>
+    </div> *@
+    
+
+    <!-- Footer moderne -->
+    <footer class="bg-primary text-light ">
+        <div class="container py-5">                 
+            <div class="row g-4">
+                <!-- Logo et description -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="mb-4">
+                        <h5 class="text-primary fw-bold mb-3">
+                            <i class="bi bi-shop me-2"></i>MC Business
+                        </h5>
+                        <p class="text-light opacity-75 mb-4">
+                            Votre marketplace de confiance en Haïti. Achetez, vendez et développez votre business en toute sérénité.
+                        </p>
+                        <div class="d-flex gap-3">
+                            <a href="https://www.facebook.com/share/18VC2DsxN2/?mibextid=wwXIfr" 
+                               class="text-light opacity-75 hover-opacity-100" title="Facebook">
+                                <i class="bi bi-facebook fs-5"></i>
+                            </a>
+                            <a href="https://www.instagram.com/MCBusinessht?igsh=MWRwMjE3YWhjczR1bA%3D%3D&utm_source=qr" 
+                               class="text-light opacity-75 hover-opacity-100" title="Instagram">
+                                <i class="bi bi-instagram fs-5"></i>
+                            </a>
+                            <a href="#" class="text-light opacity-75 hover-opacity-100" title="Twitter">
+                                <i class="bi bi-twitter-x fs-5"></i>
+                            </a>
+                            <a href="mailto:support@MCBusiness.ht" class="text-light opacity-75 hover-opacity-100" title="Email">
+                                <i class="bi bi-envelope fs-5"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Marketplace -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="text-primary fw-semibold mb-3">Marketplace</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a href="#" class="text-light opacity-75 text-decoration-none hover-opacity-100">
+                                <i class="bi bi-chevron-right me-1"></i>Tous les produits
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-light opacity-75 text-decoration-none hover-opacity-100">
+                                <i class="bi bi-chevron-right me-1"></i>Catégories
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-light opacity-75 text-decoration-none hover-opacity-100">
+                                <i class="bi bi-chevron-right me-1"></i>Promotions
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-light opacity-75 text-decoration-none hover-opacity-100">
+                                <i class="bi bi-chevron-right me-1"></i>Nouveautés
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-light opacity-75 text-decoration-none hover-opacity-100">
+                                <i class="bi bi-chevron-right me-1"></i>Top ventes
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Services -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="text-primary fw-semibold mb-3">Services</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a href="#" class="text-light opacity-75 text-decoration-none hover-opacity-100">
+                                <i class="bi bi-chevron-right me-1"></i>Devenir vendeur
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-light opacity-75 text-decoration-none hover-opacity-100">
+                                <i class="bi bi-chevron-right me-1"></i>Programme affilié
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-light opacity-75 text-decoration-none hover-opacity-100">
+                                <i class="bi bi-chevron-right me-1"></i>Solutions business
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-light opacity-75 text-decoration-none hover-opacity-100">
+                                <i class="bi bi-chevron-right me-1"></i>Support technique
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Support -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="text-primary fw-semibold mb-3">Support</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a href="/HelpUs" class="text-light opacity-75 text-decoration-none hover-opacity-100">
+                                <i class="bi bi-chevron-right me-1"></i>Centre d'aide
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-light opacity-75 text-decoration-none hover-opacity-100">
+                                <i class="bi bi-chevron-right me-1"></i>FAQ
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="/Contact" class="text-light opacity-75 text-decoration-none hover-opacity-100">
+                                <i class="bi bi-chevron-right me-1"></i>Nous contacter
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-light opacity-75 text-decoration-none hover-opacity-100">
+                                <i class="bi bi-chevron-right me-1"></i>Signaler un problème
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Contact -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="text-primary fw-semibold mb-3">Contact</h6>
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-geo-alt text-primary me-2"></i>
+                            <small class="text-light opacity-75">Port-au-Prince, Haïti</small>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-telephone text-primary me-2"></i>
+                            <small class="text-light opacity-75">+509 34 73 4465</small>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-envelope text-primary me-2"></i>
+                            <small class="text-light opacity-75">support@mcbusinessht.com</small>
+                        </div>
+                    </div>
+                    
+                    <h6 class="text-light fw-semibold mb-2">Newsletter</h6>
+                    <div class="input-group input-group-sm">
+                        <input type="email" class="form-control bg-dark border-secondary text-light" 
+                               placeholder="Votre email" aria-label="Email">
+                        <button class="btn btn-primary btn-sm" type="button">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-top border-secondary">
+            <div class="container py-4">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <p class="mb-0 text-light opacity-75">
+                                &copy; @LocalTime.ToLocal(DateTimeOffset.UtcNow).Year MC Business. Tous droits réservés.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex justify-content-md-end gap-4">
+                            <a asp-page="/Privacy" class="text-light opacity-75 text-decoration-none hover-opacity-100">
+                                Politique de confidentialité
+                            </a>
+                            <a href="#" class="text-light opacity-75 text-decoration-none hover-opacity-100">
+                                Conditions d'utilisation
+                            </a>
+                            <a href="#" class="text-light opacity-75 text-decoration-none hover-opacity-100">
+                                Cookies
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3 pt-3 border-top border-secondary">
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-center gap-3">
+                            <small class="text-light opacity-50">Sécurisé par:</small>
+                            <div class="d-flex gap-2">
+                                <span class="badge bg-success bg-opacity-20 text-success">
+                                    <i class="bi bi-shield-check me-1"></i>SSL
+                                </span>
+                                <span class="badge bg-primary bg-opacity-20 text-primary">
+                                    <i class="bi bi-credit-card me-1"></i>Paiements sécurisés
+                                </span>
+                                <span class="badge bg-info bg-opacity-20 text-info">
+                                    <i class="bi bi-check-circle me-1"></i>Vérifié
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <small class="text-light opacity-50">
+                            Version 1.5.0 - Développé avec ❤️ par <strong>MC Business</strong>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>  
+    <script type="text/javascript" src="https://cdn.ywxi.net/js/1.js" async></script>
+    <!-- Inclure Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/dark-mode.js" asp-append-version="true"></script>
+    <script src="~/js/cookie-helpers.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        (function () {
+            try {
+                const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                if (!timeZone) return;
+
+                const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+                document.cookie = `MCBusiness.TimeZone=${encodeURIComponent(timeZone)}; path=/; max-age=31536000; SameSite=Lax${secure}`;
+            } catch (error) {
+                console.warn('Fuseau horaire local indisponible.', error);
+            }
+        })();
+    </script>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <script>
+            (function () {
+                const activityKey = 'mcbusiness:lastUserActivity';
+                const keepAliveKey = 'mcbusiness:lastKeepAlive';
+                const activityFreshMs = 10 * 60 * 1000;
+                const keepAliveIntervalMs = 5 * 60 * 1000;
+
+                function now() {
+                    return Date.now();
+                }
+
+                function readTime(key) {
+                    const value = Number(localStorage.getItem(key));
+                    return Number.isFinite(value) ? value : 0;
+                }
+
+                function recordActivity() {
+                    localStorage.setItem(activityKey, String(now()));
+                }
+
+                async function keepSessionAlive() {
+                    const current = now();
+                    const lastActivity = readTime(activityKey);
+                    const lastKeepAlive = readTime(keepAliveKey);
+
+                    if (current - lastActivity > activityFreshMs) return;
+                    if (current - lastKeepAlive < keepAliveIntervalMs) return;
+
+                    localStorage.setItem(keepAliveKey, String(current));
+
+                    try {
+                        const response = await fetch('/api/session/keepalive', {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        if (response.status === 401 || response.status === 403) {
+                            localStorage.removeItem(keepAliveKey);
+                        }
+                    } catch {
+                        localStorage.removeItem(keepAliveKey);
+                    }
+                }
+
+                ['click', 'keydown', 'mousemove', 'scroll', 'touchstart'].forEach(eventName => {
+                    document.addEventListener(eventName, recordActivity, { passive: true });
+                });
+
+                recordActivity();
+                setInterval(keepSessionAlive, 60 * 1000);
+                document.addEventListener('visibilitychange', function () {
+                    if (!document.hidden) {
+                        recordActivity();
+                        keepSessionAlive();
+                    }
+                });
+            })();
+        </script>
+    }
+
+    @await RenderSectionAsync("Scripts", required: false)
+    <!-- Bannière de consentement aux cookies -->
+    @* @await Html.PartialAsync("_CookieConsent") *@
+
+</body>                                          
+</html>
+<script>
+    
+    //Pour le formulaire de recherche
+    document.getElementById('searchInput').addEventListener('input', async function(e) {
+        const query = e.target.value;
+        if(query.length < 2) return;
+        
+        const response = await fetch(`/api/search/suggestions?query=${encodeURIComponent(query)}`);
+        const suggestions = await response.json();
+        
+        const container = document.getElementById('searchSuggestions');
+        container.innerHTML = suggestions.map(s => `
+            <a href="/Search?query=${encodeURIComponent(s)}" 
+            class="d-block p-2 text-decoration-none text-dark">
+                ${s}
+            </a>
+        `).join('');
+        
+        container.classList.toggle('d-none', suggestions.length === 0);
+    });
+
+        // Géolocalisation améliorée                           
+    
+</script>
+<script>  
+    
+    // Géolocalisation améliorée
+function updateAddress(position) {
+    const addressElement = document.querySelector('.address-text');
+    const addressElement2 = document.querySelector('.address-text-2');
+    
+    if (!position) { 
+        addressElement.textContent = 'Haïti';
+        addressElement2.textContent = 'Haïti';
+        return;
+    }
+
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`, {
+        headers: {
+            'User-Agent': 'MCBusiness/1.0 (contact@MCBusinessht.com)' // Nécessaire pour l'API Nominatim
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Erreur réseau');
+        return response.json();
+    })
+    .then(data => {
+        const address = data.address || {};
+        const ville = address.city || address.town || address.village || address.county;
+        const pays = address.country || 'Haïti';
+        
+        const texteAdresse = ville ? `${ville}, ${pays}` : pays;
+        
+        addressElement.textContent = texteAdresse;
+        addressElement2.textContent = texteAdresse;
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        addressElement.textContent = 'Haïti';
+        addressElement2.textContent = 'Haïti';
+    });
+}
+
+function handleLocationError(error) {
+    console.error('Erreur de géolocalisation:', error);
+    const message = error.code === error.PERMISSION_DENIED 
+        ? 'Géolocalisation désactivée' 
+        : 'Haiti';
+    
+    document.querySelectorAll('.address-text, .address-text-2').forEach(el => {
+        el.textContent = message;
+    });
+}
+
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+        position => updateAddress(position),
+        handleLocationError,
+        { 
+            timeout: 10000, // Augmentation du timeout
+            maximumAge: 600000, // 10 minutes
+            enableHighAccuracy: true
+        }
+    );
+} else {
+    handleLocationError(new Error('Géolocalisation non supportée'));
+}                                                                                          
+    // Gestion de la recherche
+    document.querySelectorAll('form[action="/Search"]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const query = this.querySelector('input').value.trim();
+            if (!query) e.preventDefault();                           
+        });
+    });
+
+    // Dans _Layout.cshtml
+    //alert(getLocation());
+    // Marquer l'onglet actif selon la page actuelle
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentPage = window.location.pathname.split('/').pop();
+        const links = document.querySelectorAll('.nav-link');
+        links.forEach(link => {
+            if (link.getAttribute('href') === currentPage) {
+                link.classList.add('active');
+            }
+        });
+    });
+
+    @* document.addEventListener("DOMContentLoaded", function () {
+        // Vérifie si l'utilisateur a déjà donné son consentement
+        const cookieConsent = document.cookie.split('; ').find(row => row.startsWith('cookieConsent='));
+        
+        if (!cookieConsent) {
+            // Affiche la bannière si aucun consentement n'a été donné
+            document.getElementById('cookieConsent').style.display = 'block';
+        }
+
+        // Gestion du bouton "Accepter"
+        document.getElementById('acceptCookies').addEventListener('click', function () {
+            document.cookie = "cookieConsent=accepted; path=/; max-age=31536000"; // 1 an
+            document.getElementById('cookieConsent').style.display = 'none';
+        });
+
+        // Gestion du bouton "Refuser"
+        document.getElementById('declineCookies').addEventListener('click', function () {
+            document.cookie = "cookieConsent=declined; path=/; max-age=31536000"; // 1 an
+            document.getElementById('cookieConsent').style.display = 'none';
+        });
+    }); *@
+</script>

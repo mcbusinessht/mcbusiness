@@ -1,0 +1,597 @@
+@page
+@model MCBusiness.Pages.Users.EmployeeSpace.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard Employé";
+}
+
+@if (!Model.CurrentUser.EmailConfirmed && Model.CurrentUser.Email != null)
+{
+    Layout = "~/Pages/Shared/_MinimalLayout.cshtml";
+
+    <div class="row position-absolute top-50 start-50 translate-middle w-100">
+        <div class="col-md-6 col-sm-8 col-xs-10 mx-auto my-auto p-4 mt-4 profile-section">
+            <h2 class="text-center mb-4">Votre adresse mail n'est pas vérifiée</h2>
+            <p class="text-center mb-4">Pour accéder à cette page, vous devez d'abord vérifier votre adresse email.</p>
+            
+            <div class="text-center"> 
+                <a asp-page="/Account/VerifyEmail" class="btn btn-primary px-4 py-2">
+                    Accéder à la page de vérification <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+}
+else if (Model.EmployeeInfo == null)
+{
+    <partial name="NoEmployee" />
+}
+else
+{
+    <!-- Bouton menu mobile -->
+    <button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+            style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+            data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+        <i class="bi bi-list fs-4"></i>
+    </button>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar version desktop -->
+            <div class="col-lg-3 col-xl-3 d-none d-lg-block bg-white border-end vh-100 sticky-top">
+                <partial name="_EmployeeSidebarPartial"/>
+            </div>
+
+            <!-- Main Content -->
+            <main class="col-lg-9 col-xl-9 p-4 bg-light">
+                <!-- En-tête du Dashboard -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h3 mb-1 text-primary fw-bold">
+                            <i class="bi bi-person-badge me-2"></i>Bonjour @Model.CurrentUser.UserName !
+                        </h1>
+                        <p class="text-muted mb-0">
+                            Employé - 
+                            Poste: <span class="badge bg-info">@(Model.EmployeeInfo?.Post?.Name ?? "Employé")</span>
+                        </p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary" type="button" disabled>
+                            <i class="bi bi-clock me-1"></i>Pointage non configuré
+                        </button>
+                        @if (Model.IsActiveEmployee)
+                        {
+                            <span class="badge bg-success fs-6 px-3 py-2">
+                                <i class="bi bi-check-circle me-1"></i>Actif
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning fs-6 px-3 py-2">
+                                <i class="bi bi-pause-circle me-1"></i>Inactif
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- KPI Employé (EMPLOYEE SEULEMENT) -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm h-100 bg-gradient-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-light mb-1 opacity-75">💼 Tâches Assignées</h6>
+                                        <h2 class="text-white mb-1" id="assignedTasks">
+                                            @(Model.CompletedTasks + Model.PendingTasks)
+                                        </h2>
+                                        <small class="text-light opacity-75">
+                                            Terminées: @Model.CompletedTasks | En cours: @Model.PendingTasks
+                                        </small>
+                                    </div>
+                                    <div class="text-white opacity-50">
+                                        <i class="bi bi-list-task display-4"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm h-100 bg-gradient-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-light mb-1 opacity-75">⏰ Heures ce Mois</h6>
+                                        <h2 class="text-white mb-1" id="monthlyHours">
+                                            @Model.MonthlyHours.ToString("F0")h
+                                        </h2>
+                                        <small class="text-light opacity-75">
+                                            Objectif: @Model.HoursTarget.ToString("F0")h | Restant: @((Model.HoursTarget - Model.MonthlyHours).ToString("F0"))h
+                                        </small>
+                                    </div>
+                                    <div class="text-white opacity-50">
+                                        <i class="bi bi-clock-history display-4"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm h-100 bg-gradient-warning text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-light mb-1 opacity-75">💰 Salaire Estimé</h6>
+                                        <h2 class="text-white mb-1" id="estimatedSalary">
+                                            @Model.EstimatedSalary.ToString("N2") HTG
+                                        </h2>
+                                        <small class="text-light opacity-75">
+                                            Base: @Model.BaseSalary.ToString("N2") + Bonus: @Model.BonusAmount.ToString("N2") HTG
+                                        </small>
+                                    </div>
+                                    <div class="text-white opacity-50">
+                                        <i class="bi bi-cash-coin display-4"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm h-100 bg-gradient-info text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-light mb-1 opacity-75">⭐ Performance</h6>
+                                        <h2 class="text-white mb-1" id="performanceScore">
+                                            @Model.PerformanceScore.ToString("F1")%
+                                        </h2>
+                                        <small class="text-light opacity-75">
+                                            @{
+                                                var score = Model.PerformanceScore;
+                                                var rating = score >= 90 ? "Excellent" : score >= 75 ? "Très bien" : score >= 60 ? "Bien" : "À améliorer";
+                                            }
+                                            Évaluation: @rating
+                                        </small>
+                                    </div>
+                                    <div class="text-white opacity-50">
+                                        <i class="bi bi-graph-up display-4"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pointage et Planning -->
+                <div class="row mb-4">
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-clock me-2"></i>Pointage du Jour
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <div class="p-3 border rounded">
+                                            <h5 class="text-success mb-1">@(ViewData["ClockInTime"]?.ToString() ?? "--:--")</h5>
+                                            <small class="text-muted">Arrivée</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-3 border rounded">
+                                            <h5 class="text-danger mb-1">@(ViewData["ClockOutTime"]?.ToString() ?? "--:--")</h5>
+                                            <small class="text-muted">Départ</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="text-center">
+                                    <p class="mb-2">
+                                        <strong>Temps de travail aujourd'hui:</strong> 
+                                        <span class="badge bg-primary fs-6">@(ViewData["TodayHours"]?.ToString() ?? "0")h</span>
+                                    </p>
+                                    @{
+                                        var isClockedIn = (bool)(ViewData["IsClockedIn"] ?? false);
+                                    }
+                                    @if (isClockedIn)
+                                    {
+                                        <button class="btn btn-danger" onclick="clockInOut()">
+                                            <i class="bi bi-stop-circle me-1"></i>Pointer la sortie
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-success" onclick="clockInOut()">
+                                            <i class="bi bi-play-circle me-1"></i>Pointer l'entrée
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-calendar-week me-2"></i>Planning de la Semaine
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row small">
+                                    @{
+                                        var days = new[] { "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim" };
+                                        var localNow = LocalTime.ToLocal(DateTimeOffset.UtcNow);
+                                        var startOfWeek = localNow.Date.AddDays(-(int)localNow.DayOfWeek + 1);
+                                    }
+                                    @for (int i = 0; i < days.Length; i++)
+                                    {
+                                        var currentDay = startOfWeek.AddDays(i);
+                                        var isToday = currentDay.Date == localNow.Date;
+                                        var plannedHours = "--";
+                                        
+                                        <div class="col">
+                                            <div class="text-center p-2 @(isToday ? "bg-primary text-white" : "bg-light") rounded">
+                                                <div class="fw-bold">@days[i]</div>
+                                                <div class="small">@plannedHours</div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between">
+                                    <span class="small text-muted">Total semaine:</span>
+                                    <span class="badge bg-info">@Model.WeeklyHours.ToString("F0")h / 40h</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tâches et Performance -->
+                <div class="row mb-4">
+                    <div class="col-lg-8">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white d-flex justify-content-between">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-list-check me-2"></i>Mes Tâches en Cours
+                                </h6>
+                                <span class="badge bg-warning">@(ViewData["PendingTasksCount"] ?? 0) en attente</span>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-sm mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Tâche</th>
+                                                <th>Priorité</th>
+                                                <th>Échéance</th>
+                                                <th>Progression</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model.RecentTasks?.Any() == true)
+                                            {
+                                                @foreach (var task in Model.RecentTasks)
+                                                {
+                                                    <tr>
+                                                        <td>
+                                                            <strong>@task.Title</strong><br>
+                                                            <small class="text-muted">@task.Description</small>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge @(task.Priority == Models.TaskPriority.High ? "bg-danger" : task.Priority == Models.TaskPriority.Medium ? "bg-warning" : "bg-info")">
+                                                                @(task.Priority == Models.TaskPriority.High ? "Urgent" : task.Priority == Models.TaskPriority.Medium ? "Normal" : "Faible")
+                                                            </span>
+                                                        </td>
+                                                        <td>@(task.DueDate.ToString("dd/MM"))</td>
+                                                        <td>
+                                                            <div class="progress" style="height: 6px;">
+                                                                <div class="progress-bar bg-info" style="width: 50%"></div>
+                                                            </div>
+                                                            <small>En cours</small>
+                                                        </td>
+                                                        <td>
+                                                            @if (task.Status == Models.TaskStatus.Pending)
+                                                            {
+                                                                <button class="btn btn-sm btn-outline-success">Démarrer</button>
+                                                            }
+                                                            else
+                                                            {
+                                                                <button class="btn btn-sm btn-outline-primary">Continuer</button>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td colspan="5" class="text-center text-muted py-4">
+                                                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                                        Aucune tâche en cours
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-warning text-dark">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-bell me-2"></i>Notifications
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                @if (Model.RecentNotifications?.Any() == true)
+                                {
+                                    @foreach (var notification in Model.RecentNotifications)
+                                    {
+                                        <div class="alert alert-info mb-2" role="alert">
+                                            <i class="bi bi-bell me-1"></i>
+                                            <small><strong>@notification.Title</strong> @LocalTime.Format(notification.CreatedAt, "dd/MM à HH:mm")</small>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="text-center text-muted py-3">
+                                        <i class="bi bi-bell-slash fs-1 d-block mb-2"></i>
+                                        <small>Aucune notification récente</small>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions Rapides et Statistiques -->
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-lightning-charge me-2"></i>Actions Rapides
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6 mb-2">
+                                        <button class="btn btn-outline-primary w-100 btn-sm" type="button" disabled>
+                                            <i class="bi bi-file-text me-1"></i>Rapport d'activité
+                                        </button>
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <button class="btn btn-outline-success w-100 btn-sm" type="button" disabled>
+                                            <i class="bi bi-calendar-x me-1"></i>Demande congé
+                                        </button>
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <button class="btn btn-outline-info w-100 btn-sm" type="button" disabled>
+                                            <i class="bi bi-calendar-week me-1"></i>Mon planning
+                                        </button>
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <button class="btn btn-outline-warning w-100 btn-sm" type="button" disabled>
+                                            <i class="bi bi-person-lines-fill me-1"></i>Contacter RH
+                                        </button>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="d-grid">
+                                    <button class="btn btn-primary" type="button" disabled>
+                                        <i class="bi bi-receipt me-1"></i>Voir ma fiche de paie
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-secondary text-white">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-graph-up me-2"></i>Mes Statistiques
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-6 mb-3">
+                                        <div class="border rounded p-2">
+                                            <i class="bi bi-check-circle text-success fs-3"></i>
+                                            <h6 class="mt-2 mb-1">@(ViewData["CompletedTasksCount"] ?? 0)</h6>
+                                            <small class="text-muted">Tâches terminées</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <div class="border rounded p-2">
+                                            <i class="bi bi-clock text-primary fs-3"></i>
+                                            <h6 class="mt-2 mb-1">@Model.MonthlyHours.ToString("F0")</h6>
+                                            <small class="text-muted">Heures ce mois</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border rounded p-2">
+                                            <i class="bi bi-calendar-check text-success fs-3"></i>
+                                            <h6 class="mt-2 mb-1">@Model.AttendanceRate</h6>
+                                            <small class="text-muted">Assiduité</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border rounded p-2">
+                                            <i class="bi bi-trophy text-warning fs-3"></i>
+                                            <h6 class="mt-2 mb-1">@(ViewData["AchievementsCount"] ?? 0)</h6>
+                                            <small class="text-muted">Objectifs atteints</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Offcanvas Sidebar Mobile -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title">Menu Employé</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <partial name="_EmployeeSidebarPartial"/>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Animation d'entrée
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .bg-gradient-primary {
+            background: #fff !important;
+            color: #212529 !important;
+        }
+        
+        .bg-gradient-success {
+            background: #fff !important;
+            color: #212529 !important;
+        }
+        
+        .bg-gradient-warning {
+            background: #fff !important;
+            color: #212529 !important;
+        }
+        
+        .bg-gradient-info {
+            background: #fff !important;
+            color: #212529 !important;
+        }
+
+        .bg-gradient-primary .text-white,
+        .bg-gradient-success .text-white,
+        .bg-gradient-warning .text-white,
+        .bg-gradient-info .text-white,
+        .bg-gradient-primary .text-light,
+        .bg-gradient-success .text-light,
+        .bg-gradient-warning .text-light,
+        .bg-gradient-info .text-light {
+            color: #212529 !important;
+        }
+        
+        .card {
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+        }
+        
+        .card:hover {
+            border-color: rgba(13, 110, 253, 0.2);
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.1);
+        }
+        
+        .table-sm td {
+            padding: 0.5rem;
+            font-size: 0.875rem;
+            vertical-align: middle;
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+        }
+        
+        .btn {
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .display-4 {
+            font-size: 2rem;
+        }
+        
+        .progress {
+            border-radius: 10px;
+        }
+        
+        .progress-bar {
+            border-radius: 10px;
+        }
+        
+        .border.rounded:hover {
+            background-color: #f8f9fa;
+            transition: all 0.2s ease;
+        }
+        
+        .alert {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+        }
+
+        @@media (max-width: 767.98px) {
+            main.p-4 {
+                padding: 1rem !important;
+            }
+
+            main > .d-flex.justify-content-between {
+                align-items: flex-start !important;
+                flex-direction: column;
+                gap: .75rem;
+            }
+
+            main > .d-flex.justify-content-between > .d-flex {
+                flex-wrap: wrap;
+                width: 100%;
+            }
+
+            main > .d-flex.justify-content-between .btn,
+            main > .d-flex.justify-content-between .badge {
+                min-height: 42px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .card-header {
+                align-items: flex-start !important;
+                flex-direction: column;
+                gap: .6rem;
+            }
+
+            .table-responsive {
+                border-radius: .5rem;
+            }
+        }
+    </style>
+}
+

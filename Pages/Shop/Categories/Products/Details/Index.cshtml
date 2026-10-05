@@ -1,0 +1,1602 @@
+﻿@page "{id:int?}"
+@model MCBusiness.Pages.Shop.Categories.Products.Details.IndexModel
+@{
+    ViewData["Title"] = $"Détails de {@Model.Product.Name}";
+}
+
+<div class="product-page">
+    <section class="product-top container">
+        <nav class="shop-breadcrumb" aria-label="breadcrumb">
+            <a asp-page="/Shop/Index">Boutique</a>
+            <span>/</span>
+            <a asp-page="/Shop/Categories/Products/Index" asp-route-id="@Model.Product.CategoryId">Produits</a>
+            <span>/</span>
+            <span>@Model.Product.Name</span>
+        </nav>
+
+        <div class="product-layout">
+            <div class="product-gallery">
+                <div class="main-image product-zoom" id="productZoom" role="button" tabindex="0" aria-label="Agrandir l'image du produit">
+                    <img id="mainImage"
+                         src="@(Model.AllImages.FirstOrDefault()?.Url ?? "/image/NoProduct.jpg")"
+                         alt="@Model.Product.Name">
+                    <span class="zoom-badge">
+                        <i class="bi bi-zoom-in"></i>
+                        Zoom
+                    </span>
+                </div>
+                @if (Model.AllImages.Any())
+                {
+                    <div class="thumbnail-container">
+                        @foreach (var img in Model.AllImages.Take(6))
+                        {
+                            <button type="button" class="thumbnail-item" onclick="changeMainImage('@img.Url')" aria-label="Afficher cette image">
+                                <img src="@img.Url" class="thumbnail-img" alt="@Model.Product.Name">
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+
+            <aside class="product-details">
+                <div class="seller-line">
+                    <span>Vendeur</span>
+                    <a asp-page="/Companies/Details" asp-route-id="@Model.Product.Company.Id">@Model.Product.Company.Name</a>
+                </div>
+
+                <h1 class="product-title">@Model.Product.Name</h1>
+
+                <div class="product-meta">
+                    <span><i class="bi bi-upc-scan me-1"></i>SKU: <strong id="variantSku">--</strong></span>
+                    <span class="availability text-muted" id="variantAvailability">Sélectionnez les options</span>
+                </div>
+
+                <div class="price-box">
+                    <span class="current-price" id="variantPrice">--</span>
+                </div>
+
+                <div class="price-breaks-container" id="priceBreaksContainer" style="display: none;">
+                    <div class="price-breaks-title">
+                        <i class="bi bi-calculator text-primary"></i>
+                        <strong>Prix par quantité</strong>
+                    </div>
+                    <div class="table-responsive price-breaks-table">
+                        <table class="table table-sm mb-0" id="priceBreaksTable">
+                            <thead>
+                                <tr>
+                                    <th>Quantité</th>
+                                    <th>Prix unitaire</th>
+                                    <th class="text-end">Économie</th>
+                                </tr>
+                            </thead>
+                            <tbody id="priceBreaksBody"></tbody>
+                        </table>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Les paliers sont recalculés automatiquement selon la quantité.
+                    </small>
+                </div>
+
+                <div class="variant-details-panel" id="variantDetailsPanel" style="display: none;">
+                    <div class="variant-details-title">
+                        <i class="bi bi-info-circle text-primary"></i>
+                        <strong>Détails de la variante sélectionnée</strong>
+                    </div>
+                    <dl class="variant-detail-list" id="variantDetailList"></dl>
+                    <div class="variant-characteristics-list" id="variantCharacteristicsList"></div>
+                </div>
+
+                <div class="product-options">
+                    @foreach (var characteristic in Model.Characteristics)
+                    {
+                        <div class="option-group">
+                            <label class="option-title">@characteristic.Key</label>
+                            <div class="option-values">
+                                @foreach (var value in characteristic.Value)
+                                {
+                                    <button type="button"
+                                            class="btn btn-outline-secondary option-value-btn"
+                                            data-characteristic="@characteristic.Key"
+                                            data-value="@value">
+                                        @value
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="add-to-cart-box">
+                    @Html.AntiForgeryToken()
+
+                    <div class="quantity-box">
+                        <label>Quantité</label>
+                        <div class="input-group quantity-control">
+                            <button class="btn btn-outline-secondary" type="button" id="decrementQty" disabled><i class="bi bi-dash"></i></button>
+                            <input type="number" class="form-control text-center" id="quantityInput" value="1" min="1" disabled>
+                            <button class="btn btn-outline-secondary" type="button" id="incrementQty" disabled><i class="bi bi-plus"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="action-stack">
+                        @if (Model.CurrentUser != null)
+                        {
+                            <button type="button" class="btn btn-primary btn-lg" id="addToCartBtn" disabled>
+                                <i class="bi bi-cart-plus me-2"></i>Ajouter au panier
+                            </button>
+                        }
+                        else
+                        {
+                            <a asp-page="/Account/Login" class="btn btn-primary btn-lg">
+                                <i class="bi bi-person-plus me-2"></i>Se connecter pour acheter
+                            </a>
+                        }
+
+                        @if (Model.Product.Company.Seller != null)
+                        {
+                            <a asp-page="/Users/User/Conversations/Chat" asp-route-code="@Model.Product.Company.Seller.ReferralCode" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-chat me-2"></i>Contacter le vendeur
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-page="/Account/Login" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-chat me-2"></i>Contacter le vendeur
+                            </a>
+                        }
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <section class="container product-description">
+        <h2>Description</h2>
+        <div id="variantDescription" class="text-muted">
+            @if (string.IsNullOrWhiteSpace(Model.Product.Description))
+            {
+                <span>Aucune description disponible.</span>
+            }
+            else
+            {
+                @Model.Product.Description
+            }
+        </div>
+    </section>
+
+    <div class="container">
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h4 class="mb-0">
+                        <i class="bi bi-star-fill text-warning"></i> 
+                        Notes et avis
+                        @if(Model.AverageRating > 0){
+                            <span class="badge bg-warning text-dark ms-2">@Model.AverageRating.ToString("0.0")/5</span>
+                        }
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Formulaire d'avis -->
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <form method="post" asp-page-handler="AddReview">
+                            <input type="hidden" asp-for="NewReview.ProductId" value="@Model.Product.Id" />
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Votre note</label>
+                                <div class="rating-group">
+                                    @for (int i = 5; i >= 1; i--)
+                                    {
+                                        <input type="radio" 
+                                            class="btn-check" 
+                                            asp-for="NewReview.Rate" 
+                                            id="rate @i" 
+                                            value="@i" 
+                                            autocomplete="off">
+                                        <label class="btn btn-outline-warning" for="rate @i">
+                                            <i class="bi bi-star-fill"></i> @i
+                                        </label>
+                                    }
+                                </div>
+                                <span asp-validation-for="NewReview.Rate" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="NewReview.Comment" class="form-label"></label>
+                                <textarea asp-for="NewReview.Comment" 
+                                        class="form-control" 
+                                        rows="3"
+                                        placeholder="Décrivez votre expérience avec ce produit..."></textarea>
+                                <span asp-validation-for="NewReview.Comment" class="text-danger"></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send me-2"></i>Publier mon avis
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <a asp-page="/Account/Login" class="alert-link">Connectez-vous</a> pour laisser un avis
+                        </div>
+                    }
+
+                    <!-- Liste des avis -->
+                    <div class="mt-4">
+                        @if(Model.Reviews.Any())
+                        {
+                            foreach (var review in Model.Reviews)
+                            {
+                                <div class="review-item mb-4 border-bottom pb-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="avatar me-3">
+                                            <img src="@review.User.ProfilePictureUrl" 
+                                                class="rounded-circle" 
+                                                width="40" 
+                                                alt="@review.User.UserName">
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">@review.User.UserName</h6>
+                                            <div class="text-muted small">
+                                                @review.DateReview.ToString("dd MMM yyyy")
+                                            </div>
+                                        </div>
+                                        <div class="ms-auto">
+                                            <div class="rating">
+                                                @for (int i = 0; i < review.Rate; i++)
+                                                {
+                                                    <i class="bi bi-star-fill text-warning"></i>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="mb-0">@review.Comment</p>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="alert alert-secondary mb-0">
+                                Aucun avis pour ce produit
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Modal pour ajout au panier -->
+<div class="modal fade" id="addToCartModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Produit ajouté au panier</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <img id="modalProductImage" src="" class="img-thumbnail" width="80">
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 id="modalProductName">@Model.Product.Name</h6>
+                        <p id="modalProductOptions"></p>
+                        <p id="modalProductPrice"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continuer mes achats</button>
+                <a asp-page="/MyCart" class="btn btn-primary">Voir mon panier</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal zoom produit -->
+<div class="modal fade product-zoom-modal" id="productZoomModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Model.Product.Name</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <button type="button" class="zoom-modal-nav zoom-modal-prev" id="zoomPrevImage" aria-label="Image précédente">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <div class="zoom-modal-stage" id="zoomModalStage">
+                    <img id="zoomModalImage" src="@(Model.AllImages.FirstOrDefault()?.Url ?? "/image/NoProduct.jpg")" alt="@Model.Product.Name">
+                </div>
+                <button type="button" class="zoom-modal-nav zoom-modal-next" id="zoomNextImage" aria-label="Image suivante">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .product-page {
+        background: #fff;
+        padding-bottom: 3rem;
+    }
+
+    .product-top {
+        padding-top: 1.25rem;
+    }
+
+    .shop-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+        font-size: .95rem;
+    }
+
+    .shop-breadcrumb a {
+        color: #005fac;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    .product-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(340px, .95fr);
+        gap: 2rem;
+        align-items: start;
+    }
+
+    .product-gallery {
+        position: sticky;
+        top: 1rem;
+    }
+
+    .main-image {
+        min-height: 460px;
+        aspect-ratio: 1 / .86;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        overflow: hidden;
+        padding: 1rem;
+        position: relative;
+        cursor: zoom-in;
+    }
+
+    .main-image img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition: transform .18s ease;
+        transform-origin: center center;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .main-image.is-zooming img {
+        transform: scale(2.35);
+    }
+
+    .zoom-badge {
+        position: absolute;
+        right: .85rem;
+        bottom: .85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        border-radius: 999px;
+        padding: .45rem .7rem;
+        background: rgba(255, 255, 255, .92);
+        color: #212529;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, .12);
+        font-weight: 800;
+        font-size: .85rem;
+    }
+
+    .product-zoom-modal .modal-content {
+        background: #111827;
+        color: #fff;
+    }
+
+    .product-zoom-modal .modal-header {
+        border-color: rgba(255, 255, 255, .12);
+    }
+
+    .product-zoom-modal .btn-close {
+        background-color: #fff;
+        border-radius: 50%;
+        opacity: 1;
+        filter: none;
+    }
+
+    .product-zoom-modal .modal-body {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem 4.5rem;
+        min-height: calc(100vh - 72px);
+    }
+
+    .zoom-modal-stage {
+        width: 100%;
+        height: calc(100vh - 128px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        cursor: zoom-in;
+    }
+
+    .zoom-modal-stage img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition: transform .18s ease;
+        transform-origin: center center;
+        user-select: none;
+    }
+
+    .zoom-modal-stage.is-zooming {
+        cursor: zoom-out;
+    }
+
+    .zoom-modal-stage.is-zooming img {
+        transform: scale(2.4);
+    }
+
+    .zoom-modal-nav {
+        position: absolute;
+        top: 50%;
+        z-index: 2;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, .2);
+        background: rgba(255, 255, 255, .12);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transform: translateY(-50%);
+    }
+
+    .zoom-modal-nav:hover {
+        background: rgba(255, 255, 255, .22);
+    }
+
+    .zoom-modal-prev {
+        left: 1.25rem;
+    }
+
+    .zoom-modal-next {
+        right: 1.25rem;
+    }
+
+    .thumbnail-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .65rem;
+        margin-top: .75rem;
+    }
+
+    .thumbnail-item {
+        border: 1px solid #e9ecef;
+        background: #fff;
+        border-radius: 8px;
+        padding: .25rem;
+        width: 78px;
+        height: 78px;
+        cursor: pointer;
+        transition: border-color .18s ease, transform .18s ease;
+    }
+
+    .thumbnail-item:hover {
+        border-color: #005fac;
+        transform: translateY(-2px);
+    }
+
+    .thumbnail-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+
+    .product-details {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1.25rem;
+        background: #fff;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, .06);
+    }
+
+    .seller-line {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        margin-bottom: .8rem;
+        color: #6c757d;
+        font-size: .95rem;
+    }
+
+    .seller-line a {
+        color: #005fac;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .product-title {
+        font-size: clamp(1.65rem, 3vw, 2.4rem);
+        font-weight: 800;
+        margin-bottom: 1rem;
+        letter-spacing: 0;
+    }
+
+    .product-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .65rem;
+        margin-bottom: 1rem;
+    }
+
+    .product-meta span {
+        display: inline-flex;
+        align-items: center;
+        background: #f8f9fa;
+        border: 1px solid #edf0f2;
+        border-radius: 999px;
+        padding: .4rem .7rem;
+        font-size: .9rem;
+    }
+
+    .price-box {
+        padding: 1rem 0;
+        border-top: 1px solid #eef0f2;
+        border-bottom: 1px solid #eef0f2;
+        margin-bottom: 1rem;
+    }
+
+    .current-price {
+        color: #005fac;
+        font-weight: 800;
+        font-size: 1.75rem;
+        line-height: 1.2;
+    }
+
+    .price-breaks-container {
+        border: 1px solid #c8ddeb;
+        background: #f6fbff;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .price-breaks-title {
+        display: flex;
+        gap: .5rem;
+        align-items: center;
+        margin-bottom: .75rem;
+    }
+
+    .price-breaks-table {
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+    }
+
+    .price-breaks-table thead {
+        background: #e8f2fa;
+    }
+
+    .variant-details-panel {
+        border: 1px solid #d9e6ef;
+        background: #fbfdff;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .variant-details-title {
+        display: flex;
+        gap: .5rem;
+        align-items: center;
+        margin-bottom: .75rem;
+    }
+
+    .variant-detail-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .65rem .9rem;
+        margin: 0 0 .85rem;
+    }
+
+    .variant-detail-list div {
+        border: 1px solid #e5edf3;
+        border-radius: 8px;
+        padding: .65rem .75rem;
+        background: #fff;
+    }
+
+    .variant-detail-list dt {
+        color: #667085;
+        font-size: .78rem;
+        font-weight: 700;
+        margin-bottom: .2rem;
+        text-transform: uppercase;
+    }
+
+    .variant-detail-list dd {
+        margin: 0;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .variant-characteristics-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+    }
+
+    .variant-characteristics-list .variant-chip {
+        border: 1px solid #d9e6ef;
+        border-radius: 999px;
+        padding: .35rem .65rem;
+        background: #fff;
+        font-size: .88rem;
+    }
+
+    .product-options {
+        display: grid;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .option-title {
+        display: block;
+        font-weight: 800;
+        margin-bottom: .5rem;
+    }
+
+    .option-values {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+    }
+
+    .option-value-btn {
+        transition: all 0.18s ease;
+        min-width: 72px;
+        border-radius: 999px;
+        font-weight: 700;
+    }
+
+    .option-value-btn.active {
+        background-color: #005fac;
+        color: white !important;
+        border-color: #005fac;
+    }
+
+    .add-to-cart-box {
+        margin-top: 1.25rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid #eef0f2;
+    }
+
+    .quantity-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .quantity-box label {
+        font-weight: 800;
+    }
+
+    .quantity-control {
+        width: 160px;
+    }
+
+    .action-stack {
+        display: grid;
+        gap: .65rem;
+    }
+
+    .product-description {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .product-description h2 {
+        font-size: 1.35rem;
+        font-weight: 800;
+        margin-bottom: .75rem;
+    }
+
+    .price-breakdown {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .price-breakdown .unit-price {
+        font-size: 1rem;
+        color: #6c757d;
+    }
+
+    .price-breakdown .total-price {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #005fac;
+    }
+
+    .price-breakdown .savings {
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+
+    .rating-group {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .rating-group .btn-check:checked + .btn {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #000 !important;
+    }
+    
+    .review-item {
+        transition: background-color 0.2s;
+        padding: 1rem;
+        border-radius: 8px;
+    }
+    
+    .review-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .rating i {
+        font-size: 1.2rem;
+    }
+
+    .availability.text-muted {
+        color: #6c757d !important;
+    }
+    
+    .availability.text-warning {
+        color: #fd7e14 !important;
+    }
+    
+    @@media (max-width: 991.98px) {
+        .product-top {
+            padding-top: .75rem;
+        }
+
+        .product-layout {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .product-gallery {
+            position: static;
+        }
+
+        .main-image {
+            min-height: 320px;
+        }
+
+        .product-zoom-modal .modal-body {
+            padding: 1rem 3.25rem;
+        }
+
+        .thumbnail-container {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding-bottom: .35rem;
+        }
+    }
+
+    @@media (max-width: 575.98px) {
+        .shop-breadcrumb {
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: .25rem;
+        }
+
+        .main-image {
+            min-height: 240px;
+            aspect-ratio: 1 / .78;
+            padding: .65rem;
+        }
+
+        .thumbnail-item {
+            width: 64px;
+            height: 64px;
+            flex: 0 0 auto;
+        }
+
+        .product-details {
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: none;
+        }
+
+        .product-title {
+            font-size: 1.45rem;
+            line-height: 1.18;
+        }
+
+        .product-meta {
+            gap: .45rem;
+        }
+
+        .product-meta span {
+            width: 100%;
+            border-radius: 8px;
+            justify-content: space-between;
+        }
+
+        .current-price {
+            font-size: 1.45rem;
+        }
+
+        .variant-detail-list {
+            grid-template-columns: 1fr;
+        }
+
+        .option-values {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .option-value-btn {
+            min-height: 44px;
+            min-width: 0;
+            border-radius: 8px;
+        }
+
+        .quantity-box {
+            align-items: start;
+            flex-direction: column;
+        }
+
+        .quantity-control {
+            width: 100%;
+        }
+
+        .action-stack .btn {
+            width: 100%;
+            min-height: 48px;
+        }
+
+        .product-description {
+            margin-top: 1.25rem;
+            padding-top: 1rem;
+        }
+
+        .rating-group {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: .35rem;
+        }
+
+        .rating-group .btn {
+            padding-left: .25rem;
+            padding-right: .25rem;
+        }
+
+        .review-item .d-flex {
+            align-items: flex-start !important;
+            gap: .5rem;
+        }
+
+        .review-item .ms-auto {
+            margin-left: 0 !important;
+        }
+
+        #addToCartModal .modal-footer {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        #addToCartModal .modal-footer .btn {
+            width: 100%;
+        }
+
+        .zoom-badge {
+            font-size: .78rem;
+            padding: .35rem .55rem;
+        }
+
+        .product-zoom-modal .modal-body {
+            padding: .75rem 2.75rem;
+        }
+
+        .zoom-modal-nav {
+            width: 38px;
+            height: 38px;
+        }
+
+        .zoom-modal-prev {
+            left: .65rem;
+        }
+
+        .zoom-modal-next {
+            right: .65rem;
+        }
+    }
+
+    @@media (max-width: 380px) {
+        .option-values,
+        .rating-group {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Variables globales
+        const variants = @Html.Raw(Model.VariantsJson);
+        let selectedVariant = null;
+        const productName = "@Model.Product.Name";
+        const defaultImage = "@(Model.AllImages.FirstOrDefault()?.Url ?? "/image/NoProduct.jpg")";
+        const productImages = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+            Model.AllImages.Any()
+                ? Model.AllImages.Select(img => img.Url).Distinct().ToList()
+                : new List<string> { "/image/NoProduct.jpg" }
+        ));
+        let currentZoomImageIndex = 0;
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            initOptionButtons();
+            initQuantityControls();
+            initAddToCartButton();
+            initProductZoom();
+            
+            // Si un seul variant, le sélectionner automatiquement
+            if (variants.length === 1) {
+                selectVariant(variants[0]);
+            }
+        });
+
+        function initOptionButtons() {
+            document.querySelectorAll('.option-value-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const characteristic = this.dataset.characteristic;
+                    const value = this.dataset.value;
+                    
+                    // Toggle la sélection
+                    if (this.classList.contains('active')) {
+                        this.classList.remove('active');
+                    } else {
+                        // Désélectionner les autres boutons du même groupe
+                        document.querySelectorAll(`.option-value-btn[data-characteristic="${characteristic}"]`).forEach(b => {
+                            b.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                    }
+                    
+                    findMatchingVariant();
+                });
+            });
+        }
+
+        function findMatchingVariant() {
+            const selectedOptions = getSelectedOptions();
+            console.log("Options sélectionnées:", selectedOptions);
+
+            // Réinitialiser si aucune option n'est sélectionnée
+            if (Object.keys(selectedOptions).length === 0) {
+                resetVariantDisplay();
+                return;
+            }
+
+            // Trouver toutes les variantes correspondant aux sélections actuelles
+            const matchingVariants = variants.filter(variant => {
+                const variantOptions = variant.Characteristics;
+                return Object.keys(selectedOptions).every(key => 
+                    variantOptions[key] === selectedOptions[key]
+                );
+            });
+
+            // Trouver la variante exacte (si toutes les caractéristiques sont sélectionnées)
+            selectedVariant = variants.find(variant => {
+                const variantOptions = variant.Characteristics;
+                const selectedKeys = Object.keys(selectedOptions);
+                const variantKeys = Object.keys(variantOptions);
+                
+                return selectedKeys.every(key => 
+                    variantOptions[key] === selectedOptions[key]
+                ) && selectedKeys.length === variantKeys.length;
+            });
+
+            updateVariantDisplay(matchingVariants);
+        }
+
+        function getSelectedOptions() {
+            const options = {};
+            
+            document.querySelectorAll('.option-value-btn.active').forEach(btn => {
+                options[btn.dataset.characteristic] = btn.dataset.value;
+            });
+            
+            return options;
+        }
+
+        function resetVariantDisplay() {
+            document.getElementById('variantPrice').textContent = '--';
+            document.getElementById('variantSku').textContent = '--';
+            document.getElementById('variantAvailability').textContent = 'Sélectionnez les options';
+            document.getElementById('variantAvailability').className = 'availability text-muted';
+            const addToCartBtn = document.getElementById('addToCartBtn');
+            if (addToCartBtn) {
+                addToCartBtn.disabled = true;
+            }
+            document.getElementById('quantityInput').disabled = true;
+            document.getElementById('incrementQty').disabled = true;
+            document.getElementById('decrementQty').disabled = true;    
+            
+            // Réinitialiser l'image principale
+            if (defaultImage) {
+                changeMainImage(defaultImage);
+            }
+            
+            // Cacher les paliers de prix
+            hidePriceBreaks();
+            hideVariantDetails();
+        }
+
+        function updateVariantDisplay(matchingVariants = []) {
+            const priceElement = document.getElementById('variantPrice');
+            const skuElement = document.getElementById('variantSku');
+            const availabilityElement = document.getElementById('variantAvailability');
+            const quantityInput = document.getElementById('quantityInput');
+            const addToCartBtn = document.getElementById('addToCartBtn');
+            const incrementBtn = document.getElementById('incrementQty');
+            const decrementBtn = document.getElementById('decrementQty');
+
+            if (selectedVariant) {
+                // Variante exacte trouvée
+                priceElement.textContent = `${selectedVariant.Price} ${selectedVariant.CurrencySymbol}`;
+                skuElement.textContent = selectedVariant.Sku || '--';
+                
+                if (selectedVariant.IsAvailable && selectedVariant.Quantity > 0) {
+                    availabilityElement.textContent = `En stock (${selectedVariant.Quantity} disponible(s))`;
+                    availabilityElement.className = 'availability text-success';
+                    if (addToCartBtn) {
+                        addToCartBtn.disabled = false;
+                    }
+                    quantityInput.disabled = false;
+                    incrementBtn.disabled = false;
+                    decrementBtn.disabled = false;
+                    
+                    quantityInput.max = selectedVariant.Quantity;
+                    if (parseInt(quantityInput.value) > selectedVariant.Quantity) {
+                        quantityInput.value = selectedVariant.Quantity;
+                    }
+                } else {
+                    availabilityElement.textContent = 'Rupture de stock';
+                    availabilityElement.className = 'availability text-danger';
+                    if (addToCartBtn) {
+                        addToCartBtn.disabled = true;
+                    }
+                    quantityInput.disabled = true;
+                    incrementBtn.disabled = true;
+                    decrementBtn.disabled = true;
+                }
+                
+                if (selectedVariant.Images?.length > 0) {
+                    changeMainImage(selectedVariant.Images[0].Url);
+                }
+                
+                // Afficher les paliers de prix si disponibles
+                updatePriceBreaksDisplay(selectedVariant.PriceBreaks);
+                updateVariantDetails(selectedVariant);
+            } else if (matchingVariants.length > 0) {
+                // Variantes partielles trouvées
+                const uniquePrices = [...new Set(matchingVariants.map(v => v.Price))];
+                
+                if (uniquePrices.length === 1) {
+                    priceElement.textContent = `${uniquePrices[0]} ${matchingVariants[0].CurrencySymbol}`;
+                } else {
+                    priceElement.textContent = '--';
+                }
+                
+                skuElement.textContent = '--';
+                availabilityElement.textContent = 'Sélectionnez toutes les options';
+                availabilityElement.className = 'availability text-warning';
+                if (addToCartBtn) {
+                    addToCartBtn.disabled = true;
+                }
+                quantityInput.disabled = true;
+                incrementBtn.disabled = true;
+                decrementBtn.disabled = true;
+                hideVariantDetails();
+            } else {
+                // Aucune variante correspondante
+                resetVariantDisplay();
+            }
+        }
+
+        function initQuantityControls() {
+            document.getElementById('incrementQty').addEventListener('click', () => adjustQuantity(1));
+            document.getElementById('decrementQty').addEventListener('click', () => adjustQuantity(-1));
+            document.getElementById('quantityInput').addEventListener('change', validateQuantity);
+        }
+
+        function adjustQuantity(change) {
+            const input = document.getElementById('quantityInput');
+            let value = parseInt(input.value) || 1;
+            const max = selectedVariant?.Quantity || 1;
+            
+            value += change;
+            if (value < 1) value = 1;
+            if (value > max) value = max;
+            
+            input.value = value;
+            
+            // Mettre à jour le prix affiché en fonction de la nouvelle quantité
+            updatePriceForQuantity(value);
+        }
+
+        function validateQuantity() {
+            const input = document.getElementById('quantityInput');
+            let value = parseInt(input.value) || 1;
+            const max = selectedVariant?.Quantity || 1;
+            
+            if (isNaN(value) || value < 1) value = 1;
+            if (value > max) value = max;
+            
+            input.value = value;
+            
+            // Mettre à jour le prix affiché en fonction de la quantité
+            updatePriceForQuantity(value);
+        }
+
+        function updatePriceForQuantity(quantity) {
+            if (!selectedVariant || !selectedVariant.PriceBreaks || selectedVariant.PriceBreaks.length === 0) {
+                return; // Pas de paliers de prix, garder le prix de base
+            }
+
+            // Trouver le bon palier de prix
+            const applicableBreak = findApplicablePriceBreak(quantity);
+            const priceElement = document.getElementById('variantPrice');
+            
+            if (applicableBreak) {
+                const unitPrice = applicableBreak.UnitPrice;
+                const totalPrice = unitPrice * quantity;
+                const savings = (selectedVariant.Price - unitPrice) * quantity;
+                
+                priceElement.innerHTML = `
+                    <span class="price-breakdown">
+                        <span class="unit-price">${unitPrice.toFixed(2)} ${selectedVariant.CurrencySymbol} /unité</span>
+                        <span class="total-price">Total: ${totalPrice.toFixed(2)} ${selectedVariant.CurrencySymbol}</span>
+                        ${savings > 0 ? `<span class="savings text-success"><i class="bi bi-arrow-down"></i> Économie: ${savings.toFixed(2)} ${selectedVariant.CurrencySymbol}</span>` : ''}
+                    </span>
+                `;
+            } else {
+                // Prix de base
+                const totalPrice = selectedVariant.Price * quantity;
+                priceElement.innerHTML = `
+                    <span class="price-breakdown">
+                        <span class="unit-price">${selectedVariant.Price.toFixed(2)} ${selectedVariant.CurrencySymbol} /unité</span>
+                        <span class="total-price">Total: ${totalPrice.toFixed(2)} ${selectedVariant.CurrencySymbol}</span>
+                    </span>
+                `;
+            }
+        }
+
+        function findApplicablePriceBreak(quantity) {
+            if (!selectedVariant || !selectedVariant.PriceBreaks) return null;
+            
+            // Trier par quantité minimum et trouver le bon palier
+            const sortedBreaks = selectedVariant.PriceBreaks
+                .filter(pb => pb.IsActive)
+                .sort((a, b) => a.MinQuantity - b.MinQuantity);
+            
+            for (let i = sortedBreaks.length - 1; i >= 0; i--) {
+                const priceBreak = sortedBreaks[i];
+                if (quantity >= priceBreak.MinQuantity) {
+                    if (!priceBreak.MaxQuantity || quantity <= priceBreak.MaxQuantity) {
+                        return priceBreak;
+                    }
+                }
+            }
+            
+            return null; // Aucun palier applicable, utiliser le prix de base
+        }
+
+        function initAddToCartButton() {
+            const addToCartBtn = document.getElementById('addToCartBtn');
+            if (!addToCartBtn) {
+                return;
+            }
+
+            addToCartBtn.addEventListener('click', async function() {
+                if (!selectedVariant) {
+                    showAlert('Veuillez sélectionner une variante valide', 'danger');
+                    return;
+                }
+                
+                const quantity = parseInt(document.getElementById('quantityInput').value) || 1;
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+                if (!token) {
+                    showAlert('Erreur de sécurité, veuillez recharger la page', 'danger');
+                    return;
+                }
+
+                try {
+                    this.disabled = true;
+                    this.innerHTML = '<i class="bi bi-hourglass-split"></i> Ajout en cours...';
+
+                    const formData = new FormData();
+                    formData.append('variantId', selectedVariant.Id);
+                    formData.append('quantity', quantity);
+                    formData.append('__RequestVerificationToken', token);
+
+                    const response = await fetch('?handler=AddToCart', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        try {
+                            const result = await response.json();
+                            
+                            if (result.success) {
+                                // Succès
+                                showAlert(result.message, 'success');
+                                updateModalContent();
+                                new bootstrap.Modal(document.getElementById('addToCartModal')).show();
+                                updateCartCounter();
+                            } else {
+                                // Erreur retournée par le serveur
+                                showAlert(result.message || 'Erreur lors de l\'ajout au panier', 'danger');
+                                
+                                // Redirection si nécessaire
+                                if (result.redirect) {
+                                    setTimeout(() => {
+                                        window.location.href = result.redirect;
+                                    }, 2000);
+                                }
+                            }
+                        } catch (jsonError) {
+                            // Si ce n'est pas du JSON, c'est probablement une redirection HTML
+                            console.log('Réponse non-JSON, probablement succès avec redirection');
+                            showAlert('Produit ajouté au panier avec succès!', 'success');
+                            updateModalContent();
+                            new bootstrap.Modal(document.getElementById('addToCartModal')).show();
+                            updateCartCounter();
+                        }
+                    } else {
+                        try {
+                            const errorResult = await response.json();
+                            showAlert(errorResult.message || 'Erreur lors de l\'ajout au panier', 'danger');
+                        } catch (jsonError) {
+                            const error = await response.text();
+                            console.error('Erreur serveur:', response.status, error);
+                            showAlert('Erreur lors de l\'ajout au panier. Veuillez réessayer.', 'danger');
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error('Erreur réseau:', error);
+                    showAlert('Une erreur de connexion est survenue. Veuillez réessayer.', 'danger');
+                } finally {
+                    // Restaurer le bouton
+                    this.disabled = false;
+                    this.innerHTML = '<i class="bi bi-cart-plus"></i> Ajouter au panier';
+                }
+            });
+        }
+
+        function updateModalContent() {
+            document.getElementById('modalProductImage').src = 
+                selectedVariant.Images?.[0]?.Url || defaultImage;
+            document.getElementById('modalProductName').textContent = productName;
+            
+            const optionsText = selectedVariant.Characteristics ?
+                Object.entries(selectedVariant.Characteristics)
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join(', ') : '';
+            
+            document.getElementById('modalProductOptions').textContent = optionsText;
+            document.getElementById('modalProductPrice').textContent = 
+                `${document.getElementById('quantityInput').value} x ${selectedVariant.Price} ${selectedVariant.CurrencySymbol}`;
+        }
+
+        function changeMainImage(url) {
+            const mainImage = document.getElementById('mainImage');
+            const zoomModalImage = document.getElementById('zoomModalImage');
+            const nextIndex = productImages.indexOf(url);
+
+            mainImage.src = url;
+            if (zoomModalImage) {
+                zoomModalImage.src = url;
+            }
+            if (nextIndex >= 0) {
+                currentZoomImageIndex = nextIndex;
+            }
+        }
+
+        function initProductZoom() {
+            const zoomBox = document.getElementById('productZoom');
+            const mainImage = document.getElementById('mainImage');
+            const zoomModal = document.getElementById('productZoomModal');
+            const zoomStage = document.getElementById('zoomModalStage');
+            const zoomModalImage = document.getElementById('zoomModalImage');
+            const prevBtn = document.getElementById('zoomPrevImage');
+            const nextBtn = document.getElementById('zoomNextImage');
+
+            if (!zoomBox || !mainImage || !zoomModal || !zoomStage || !zoomModalImage) {
+                return;
+            }
+
+            const moveZoomOrigin = (event, container, image) => {
+                const rect = container.getBoundingClientRect();
+                const x = ((event.clientX - rect.left) / rect.width) * 100;
+                const y = ((event.clientY - rect.top) / rect.height) * 100;
+                image.style.transformOrigin = `${Math.max(0, Math.min(100, x))}% ${Math.max(0, Math.min(100, y))}%`;
+            };
+
+            zoomBox.addEventListener('mousemove', event => {
+                zoomBox.classList.add('is-zooming');
+                moveZoomOrigin(event, zoomBox, mainImage);
+            });
+
+            zoomBox.addEventListener('mouseleave', () => {
+                zoomBox.classList.remove('is-zooming');
+                mainImage.style.transformOrigin = 'center center';
+            });
+
+            const openZoomModal = () => {
+                zoomModalImage.src = mainImage.src;
+                const activeIndex = productImages.indexOf(mainImage.getAttribute('src'));
+                if (activeIndex >= 0) {
+                    currentZoomImageIndex = activeIndex;
+                }
+                bootstrap.Modal.getOrCreateInstance(zoomModal).show();
+            };
+
+            zoomBox.addEventListener('click', openZoomModal);
+            zoomBox.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openZoomModal();
+                }
+            });
+
+            zoomStage.addEventListener('click', () => {
+                zoomStage.classList.toggle('is-zooming');
+            });
+
+            zoomStage.addEventListener('mousemove', event => {
+                if (zoomStage.classList.contains('is-zooming')) {
+                    moveZoomOrigin(event, zoomStage, zoomModalImage);
+                }
+            });
+
+            zoomModal.addEventListener('hidden.bs.modal', () => {
+                zoomStage.classList.remove('is-zooming');
+                zoomModalImage.style.transformOrigin = 'center center';
+            });
+
+            const showZoomImage = direction => {
+                if (!productImages.length) {
+                    return;
+                }
+                currentZoomImageIndex = (currentZoomImageIndex + direction + productImages.length) % productImages.length;
+                changeMainImage(productImages[currentZoomImageIndex]);
+            };
+
+            prevBtn?.addEventListener('click', event => {
+                event.stopPropagation();
+                showZoomImage(-1);
+            });
+
+            nextBtn?.addEventListener('click', event => {
+                event.stopPropagation();
+                showZoomImage(1);
+            });
+        }
+
+        function showAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+            alert.style.zIndex = '1100';
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        function updateCartCounter() {
+            // Implémentez cette fonction si vous avez un compteur de panier
+            // Exemple: document.getElementById('cartCount').textContent = newCount;
+        }
+
+        function updateVariantDetails(variant) {
+            const panel = document.getElementById('variantDetailsPanel');
+            const detailList = document.getElementById('variantDetailList');
+            const characteristicsList = document.getElementById('variantCharacteristicsList');
+
+            if (!variant || !panel || !detailList || !characteristicsList) {
+                return;
+            }
+
+            const stockValue = variant.StockQuantity ?? variant.Quantity;
+            const weightText = variant.WeightKg !== null && variant.WeightKg !== undefined
+                ? `${Number(variant.WeightKg).toFixed(2)} kg`
+                : 'Non renseigné';
+            const currencyText = [variant.CurrencyCode, variant.CurrencySymbol]
+                .filter(value => value && value.toString().trim() !== '')
+                .join(' / ') || 'Non renseignée';
+
+            const details = [
+                ['SKU', variant.Sku || 'Non renseigné'],
+                ['Prix unitaire', `${Number(variant.Price).toFixed(2)} ${variant.CurrencySymbol}`],
+                ['Devise', currencyText],
+                ['Stock disponible', `${stockValue ?? 0} unité(s)`],
+                ['Type de colis', variant.ShippingPackageType || 'Non renseigné'],
+                ['Poids', weightText],
+                ['Manutention spéciale', variant.RequiresSpecialHandling ? 'Oui' : 'Non'],
+                ['Devis livraison requis', variant.ShippingQuoteRequired ? 'Oui' : 'Non']
+            ];
+
+            detailList.innerHTML = details
+                .map(([label, value]) => `
+                    <div>
+                        <dt>${escapeHtml(label)}</dt>
+                        <dd>${escapeHtml(value)}</dd>
+                    </div>
+                `)
+                .join('');
+
+            const characteristics = variant.Characteristics || {};
+            const characteristicEntries = Object.entries(characteristics);
+            characteristicsList.innerHTML = characteristicEntries.length
+                ? characteristicEntries
+                    .map(([name, value]) => `<span class="variant-chip"><strong>${escapeHtml(name)}:</strong> ${escapeHtml(value)}</span>`)
+                    .join('')
+                : '<span class="text-muted">Aucune caractéristique spécifique enregistrée.</span>';
+
+            panel.style.display = 'block';
+        }
+
+        function hideVariantDetails() {
+            const panel = document.getElementById('variantDetailsPanel');
+            const detailList = document.getElementById('variantDetailList');
+            const characteristicsList = document.getElementById('variantCharacteristicsList');
+
+            if (panel) {
+                panel.style.display = 'none';
+            }
+
+            if (detailList) {
+                detailList.innerHTML = '';
+            }
+
+            if (characteristicsList) {
+                characteristicsList.innerHTML = '';
+            }
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function updatePriceBreaksDisplay(priceBreaks) {
+            const container = document.getElementById('priceBreaksContainer');
+            const tableBody = document.getElementById('priceBreaksBody');
+            
+            if (!priceBreaks || priceBreaks.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            // Trier les paliers par quantité minimum
+            const sortedBreaks = priceBreaks
+                .filter(pb => pb.IsActive)
+                .sort((a, b) => a.MinQuantity - b.MinQuantity);
+
+            if (sortedBreaks.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            // Vider le tableau
+            tableBody.innerHTML = '';
+            
+            // Prix de base (premier palier ou prix standard)
+            const basePrice = sortedBreaks[0].UnitPrice;
+            
+            // Ajouter chaque palier
+            sortedBreaks.forEach((priceBreak, index) => {
+                const row = document.createElement('tr');
+                
+                // Calculer l'économie
+                const savings = basePrice - priceBreak.UnitPrice;
+                const savingsPercent = basePrice > 0 ? ((savings / basePrice) * 100).toFixed(1) : 0;
+                
+                // Format de quantité
+                let quantityText = '';
+                if (priceBreak.MaxQuantity) {
+                    quantityText = `${priceBreak.MinQuantity} - ${priceBreak.MaxQuantity} pièces`;
+                } else {
+                    quantityText = `${priceBreak.MinQuantity}+ pièces`;
+                }
+                
+                // Label personnalisé si disponible
+                if (priceBreak.DisplayLabel) {
+                    quantityText += ` (${priceBreak.DisplayLabel})`;
+                }
+                
+                // Classe pour mettre en évidence le meilleur prix
+                const isLowestPrice = index === sortedBreaks.length - 1;
+                const rowClass = isLowestPrice ? 'table-success' : '';
+                
+                row.className = rowClass;
+                row.innerHTML = `
+                    <td>
+                        <strong>${quantityText}</strong>
+                        ${isLowestPrice ? '<span class="badge bg-success ms-2">Meilleur prix</span>' : ''}
+                    </td>
+                    <td>
+                        <strong class="text-primary">${priceBreak.UnitPrice.toFixed(2)} ${selectedVariant.CurrencySymbol}</strong>
+                    </td>
+                    <td class="text-end">
+                        ${savings > 0 ? 
+                            `<span class="text-success">
+                                <i class="bi bi-arrow-down"></i> 
+                                -${savings.toFixed(2)} ${selectedVariant.CurrencySymbol} 
+                                <small>(${savingsPercent}%)</small>
+                            </span>` : 
+                            '<span class="text-muted">Prix de base</span>'
+                        }
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+
+            container.style.display = 'block';
+        }
+
+        function hidePriceBreaks() {
+            document.getElementById('priceBreaksContainer').style.display = 'none';
+        }
+    </script>
+}

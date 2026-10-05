@@ -1,0 +1,205 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_Notifications.DetailsModel
+
+@{
+    ViewData["Title"] = "Détails de la Notification";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-bell me-2"></i>Détails de la Notification
+                        </h4>
+                        <a asp-page="./Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    @if (!Model.Notification.IsRead)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            Cette notification n’a pas encore été lue par l’utilisateur.
+                        </div>
+                    }
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <!-- Carte Informations -->
+                            <div class="card mb-4 border-primary">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-info-circle me-2"></i>Informations
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="bi bi-person-circle me-2 text-muted"></i>
+                                                <span class="text-muted fw-semibold">Destinataire</span>
+                                            </div>
+                                            <div class="ps-4">
+                                                <span class="badge bg-info">
+                                                    @Model.Notification.User.UserName
+                                                </span>
+                                                <small class="text-muted d-block mt-1">
+                                                    <i class="bi bi-id-card me-1"></i>
+                                                    @Model.Notification.User.Id
+                                                </small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="bi bi-calendar-event me-2 text-muted"></i>
+                                                <span class="text-muted fw-semibold">Date d'envoi</span>
+                                            </div>
+                                            <div class="ps-4">
+                                                @LocalTime.Format(Model.Notification.CreatedAt, "dd/MM/yyyy HH:mm")
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="bi bi-eye me-2 text-muted"></i>
+                                                <span class="text-muted fw-semibold">Statut</span>
+                                            </div>
+                                            <div class="ps-4">
+                                                @if (Model.Notification.IsRead)
+                                                {
+                                                    <span class="badge bg-success" title="Notification lue">
+                                                        <i class="bi bi-check-circle me-1"></i> Lu
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning text-dark" title="Notification non lue">
+                                                        <i class="bi bi-exclamation-circle me-1"></i> Non lu
+                                                    </span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Carte Message -->
+                            <div class="card border-primary">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-chat-square-text me-2"></i>Message</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="p-3 bg-light rounded">
+                                        @if (!string.IsNullOrEmpty(Model.Notification.Title))
+                                        {
+                                            <div class="d-flex align-items-center mb-3">
+                                                <i class="bi bi-tag me-2 text-primary"></i>
+                                                <h5 class="text-primary mb-0">@Model.Notification.Title</h5>
+                                            </div>
+                                            <hr />
+                                        }
+                                        <div class="d-flex">
+                                            <i class="bi bi-chat-left-quote me-2 text-muted"></i>
+                                            <p class="mb-0">@Model.Notification.Message</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Colonne Actions -->
+                        <div class="col-md-4">
+                            <div class="card border-primary sticky-top" style="top: 20px;">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-lightning-charge me-2"></i>Actions
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <a asp-page="./Edit" asp-route-id="@Model.Notification.Id" class="btn btn-primary">
+                                            <i class="bi bi-pencil-square me-1"></i> Modifier
+                                        </a>
+                                        <a asp-page="./Index" class="btn btn-outline-secondary">
+                                            <i class="bi bi-list-ul me-1"></i> Retour à la liste
+                                        </a>
+                                    </div>
+
+                                    <!-- Statistiques -->
+                                    <div class="mt-4 pt-3 border-top">
+                                        <h6 class="d-flex align-items-center mb-3">
+                                            <i class="bi bi-graph-up me-2"></i>Statistiques
+                                        </h6>
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Date de création
+                                                <span class="badge bg-primary rounded-pill">
+                                                    @LocalTime.Format(Model.Notification.CreatedAt, "dd/MM/yyyy")
+                                                </span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Statut
+                                                <span class="badge @(Model.Notification.IsRead ? "bg-success" : "bg-warning text-dark") rounded-pill">
+                                                    @(Model.Notification.IsRead ? "Lu" : "Non lu")
+                                                </span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .card-header {
+            padding: 0.75rem 1.25rem;
+            background-color: #f8f9fa;
+        }
+
+        .badge {
+            font-size: 0.85em;
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+        }
+
+        .btn {
+            transition: all 0.2s ease;
+            border-radius: 0.375rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+        }
+
+        .list-group-item {
+            padding: 0.75rem 1rem;
+        }
+
+        .bg-light {
+            background-color: #f8f9fa !important;
+        }
+    </style>
+}

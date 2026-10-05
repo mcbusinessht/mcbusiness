@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//FR" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Language" content="fr" />
+        <title>Confirmez votre adresse email - MC Business</title>
+        <style type="text/css">
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                color: #333333;
+                background-color: #f5f5f5;
+            }
+            .container {
+                max-width: 600px;
+                margin: 20px auto;
+                background-color: #ffffff;
+                padding: 20px;
+                border: 1px solid #e0e0e0;
+                border-radius: 5px;
+            }
+            .header {
+                text-align: center;
+                padding-bottom: 15px;
+                border-bottom: 1px solid #dddddd;
+            }
+            .header img {
+                width: 150px;
+                height: auto;
+            }
+            .content {
+                padding: 20px 0;
+                font-size: 16px;
+            }
+            .cta-button {
+                display: inline-block;
+                padding: 12px 25px;
+                background-color: #005fac;
+                color: #ffffff !important;
+                text-decoration: none;
+                border-radius: 5px;
+                margin: 15px 0;
+                font-weight: bold;
+            }
+            .footer {
+                font-size: 12px;
+                text-align: center;
+                color: #777777;
+                padding-top: 20px;
+                border-top: 1px solid #dddddd;
+                line-height: 1.4;
+            }
+            .footer a {
+                color: #005fac;
+                text-decoration: none;
+            }
+            .text-muted {
+                color: #777777;
+            }
+            .code-box {
+                background: #f8f9fa;
+                border: 1px dashed #005fac;
+                padding: 15px;
+                margin: 20px 0;
+                text-align: center;
+                font-size: 24px;
+                font-weight: bold;
+                color: #005fac;
+                text-decoration: none;
+            }
+            .small-text {
+                font-size: 14px;
+                color: #777777;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <!-- <div class="header">
+                <img src="https://MCBusinessht.com/image/Logo_MCBusiness.png" alt="MC Business" />
+            </div> -->
+            
+            <div class="content">
+                <h2 style="color: #005fac;">Confirmez votre adresse email</h2>
+                
+                <p>Bonjour <strong>{{FullName}}</strong>,</p>
+                
+                <p>Merci de vous être inscrit sur MC Business. Pour finaliser votre inscription et accéder à toutes les fonctionnalités de notre plateforme, veuillez confirmer votre adresse email.</p>
+                
+                <p style="text-align: center;">
+                    <a href="{{ConfirmationLink}}" class="cta-button text-light">Confirmer mon email</a>
+                </p>
+                
+                <!-- <p class="small-text">Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur :</p>
+                <p class="small-text" style="word-break: break-all;">{{ConfirmationLink}}</p>
+                 -->
+                
+                
+                <p>Cordialement,<br />
+                <strong>L'équipe MC Business</strong></p>
+            </div>
+            
+            <div class="footer">
+                <p class="text-muted">© 2025 MC Business. Tous droits réservés.</p>
+                <p class="text-muted">
+                    Contact : <a href="mailto:support@mcbusinessht.com">support@mcbusinessht.com</a> | 
+                    Tél. : +509 34 73 4465
+                </p>
+                <p class="text-muted">
+                    <a href="https://www.facebook.com/share/18VC2DsxN2/?mibextid=wwXIfr">Facebook</a> | 
+                    <a href="https://www.instagram.com/MCBusinessht?igsh=MWRwMjE3YWhjczR1bA%3D%3D&utm_source=qr">Instagram</a>
+                </p>
+                <p class="text-muted" style="font-size: 11px;">
+                    Vous recevez cet email car vous vous êtes inscrit sur notre plateforme. 
+                    <a href="{{UnsubscribeLink}}" style="color: #777777;">Se désabonner</a>
+                </p>
+            </div>
+        </div>
+    </body>
+</html>

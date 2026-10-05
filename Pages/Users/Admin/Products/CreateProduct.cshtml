@@ -1,0 +1,38 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Products.CreateProductModel
+@{
+    ViewData["Title"] = "Create Product";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label for="ProductName">Product Name</label>
+        <input type="text" class="form-control" id="ProductName" name="ProductName" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Color">Color</label>
+        <input type="text" class="form-control" id="Color" name="Color" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Storage">Storage</label>
+        <input type="text" class="form-control" id="Storage" name="Storage" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Variant1Sku">Variant 1 SKU</label>
+        <input type="text" class="form-control" id="Variant1Sku" name="Variant1Sku" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Variant2Sku">Variant 2 SKU</label>
+        <input type="text" class="form-control" id="Variant2Sku" name="Variant2Sku" required />
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Create Product</button>
+    </div>
+</form>

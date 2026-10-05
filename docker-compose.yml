@@ -1,0 +1,62 @@
+version: "3.9"
+
+networks:
+  mcbusiness-network:
+    driver: bridge
+
+services:
+  mcbusiness:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcbusiness
+    ports:
+      - "3000:3000"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+
+      # 🔐 DATABASE (Postgres local serveur)
+      ConnectionStrings__DefaultConnection: ${CONNECTION_STRING_DEFAULT}
+
+      # 🔐 PAIEMENTS
+      MonCash__Enabled: ${MONCASH_ENABLED:-false}
+      MonCash__ClientId: ${MONCASH_CLIENT_ID}
+      MonCash__ClientSecret: ${MONCASH_CLIENT_SECRET}
+      MonCash__Environment: ${MONCASH_ENVIRONMENT:-Sandbox}
+      MonCash__ReturnUrl: ${MONCASH_RETURN_URL}
+      MonCash__CallbackUrl: ${MONCASH_CALLBACK_URL}
+      MonCash__AllowProduction: ${MONCASH_ALLOW_PRODUCTION:-false}
+      MonCash__EnablePayouts: ${MONCASH_ENABLE_PAYOUTS:-false}
+
+      Stripe__SecretKey: ${STRIPE_SECRET_KEY}
+      Stripe__PublishableKey: ${STRIPE_PUBLISHABLE_KEY}
+
+      # 🔐 EMAIL
+      EmailSettings__SmtpServer: ${SMTP_SERVER}
+      EmailSettings__SmtpPort: ${SMTP_PORT}
+      EmailSettings__SmtpUsername: ${SMTP_USERNAME}
+      EmailSettings__SmtpPassword: ${SMTP_PASSWORD}
+      EmailSettings__FromEmail: ${EMAIL_FROM}
+      EmailSettings__FromName: ${EMAIL_FROM_NAME}
+      EmailSettings__UseSSL: "true"
+
+      # 🔐 SÉCURITÉ
+      ReCaptcha__SiteKey: ${RECAPTCHA_SITE_KEY}
+      ReCaptcha__SecretKey: ${RECAPTCHA_SECRET_KEY}
+      ReCaptcha__MinScore: ${RECAPTCHA_MIN_SCORE}
+      ReCaptcha__IsEnabled: ${RECAPTCHA_ENABLED}
+
+      Twilio__AccountSid: ${TWILIO_ACCOUNT_SID}
+      Twilio__AuthToken: ${TWILIO_AUTH_TOKEN}
+      Twilio__VerifyServiceSid: ${TWILIO_VERIFY_SERVICE_SID}
+
+    volumes:
+      - ./wwwroot/uploads:/app/wwwroot/uploads
+      - ./wwwroot/image:/app/wwwroot/image
+
+    networks:
+      - mcbusiness-network
+
+    restart: unless-stopped
+
+

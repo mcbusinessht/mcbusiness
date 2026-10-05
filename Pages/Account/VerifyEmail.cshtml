@@ -1,0 +1,24 @@
+﻿@page
+@model MCBusiness.Pages.Account.VerifyEmailModel
+@{
+    ViewData["Title"] = "Vérification d'email";
+    Layout = "~/Pages/Shared/_MinimalLayout.cshtml";
+}
+<div class="row position-absolute top-50 start-50 translate-middle w-100 ">
+    <div class="col-md-6 col-sm-8 col-xs-10 mx-auto my-auto p-4 mt-4" id=boxSignUp>
+        <h2>Vérification de votre addresse email</h2>
+        <p>
+            Un email de vérification a été envoyé à votre adresse email. Veuillez cliquer sur le lien contenu dans cet email pour confirmer votre adresse.
+        </p>
+        <p>
+            Si vous n'avez pas reçu l'email, cliquez ci-dessous pour le renvoyer.
+        </p>
+
+        <form method="post">
+            <div class=" text-center">
+                <button type="submit" class="btn btn-primary">Renvoyer l'email de vérification <i class="bi bi-arrow-right"></i></button>
+            </div>
+        </form>
+    </div>
+</div>
+

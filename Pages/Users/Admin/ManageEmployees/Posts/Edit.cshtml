@@ -1,0 +1,134 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_ManageEmployees_Posts.EditModel
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+@{
+    ViewData["Title"] = "Modifier le poste";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-pencil-square me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour à la liste
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        <input type="hidden" asp-for="Post.Id" />
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Post.Name" class="form-control" placeholder=" " required />
+                                    <label asp-for="Post.Name" class="form-label">
+                                        <i class="bi bi-briefcase me-1"></i> Nom du poste <span class="text-danger">*</span>
+                                    </label>
+                                    <span asp-validation-for="Post.Name" class="text-danger small"></span>
+                                    <div class="invalid-feedback">
+                                        Veuillez saisir un nom de poste valide.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <a asp-page="Details" asp-route-id="@Model.Post.Id" class="btn btn-outline-secondary me-2">
+                                    <i class="bi bi-x-circle me-1"></i> Annuler
+                                </a>
+                                <a asp-page="Delete" asp-route-id="@Model.Post.Id" class="btn btn-outline-danger">
+                                    <i class="bi bi-trash me-1"></i> Supprimer
+                                </a>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i> Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer bg-light">
+                    <div class="small text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        ID du poste: @Model.Post.Id | 
+                        Dernière modification: @LocalTime.Format(DateTimeOffset.UtcNow, "dd/MM/yyyy HH:mm")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Activation de la validation Bootstrap
+        (function () {
+            'use strict'
+            
+            var forms = document.querySelectorAll('.needs-validation')
+            
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+}
+
+@section Styles {
+    <style>
+        .form-floating label {
+            padding-left: 2.5rem;
+        }
+        
+        .form-floating i.bi {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 5;
+            color: #6c757d;
+        }
+        
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-control:not(:placeholder-shown) ~ label {
+            transform: scale(.85) translateY(-0.5rem) translateX(0.15rem);
+            padding-left: 2.5rem;
+        }
+        
+        .card {
+            border-radius: 0.5rem;
+        }
+        
+        .btn {
+            border-radius: 0.25rem;
+        }
+        
+        .card-footer {
+            font-size: 0.85rem;
+        }
+    </style>
+}

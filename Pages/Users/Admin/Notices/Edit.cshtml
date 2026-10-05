@@ -1,0 +1,134 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.Notices.EditModel
+
+@{
+    ViewData["Title"] = "Modifier l'annonce";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-megaphone me-2"></i>Modifier l'annonce
+                        </h4>
+                        <a asp-page="Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour à la liste
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        <input type="hidden" asp-for="Notice.Id" />
+
+                        <div class="row g-3">
+                            <!-- Nom de l'annonce -->
+                            <div class="col-md-6">
+                                <label asp-for="Notice.Name" class="form-label">
+                                    <i class="bi bi-card-heading me-1"></i>Titre de l'annonce
+                                </label>
+                                <input asp-for="Notice.Name" class="form-control" placeholder="Entrez le titre de l'annonce" required />
+                                <span asp-validation-for="Notice.Name" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Type d'annonce -->
+                            <div class="col-md-6">
+                                <label asp-for="Notice.Type" class="form-label">
+                                    <i class="bi bi-tag me-1"></i>Type d'annonce
+                                </label>
+                                <select asp-for="Notice.Type" class="form-select" required>
+                                    <option value="" selected disabled>-- Sélectionnez un type --</option>
+                                    <option value="TopBar">TopBar</option>
+                                    <option value="Announcement">Annonce</option>
+                                    <option value="Modal">Fenêtre modale</option>
+                                    <option value="Publicity">Publicité</option>
+                                </select>
+                                <span asp-validation-for="Notice.Type" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Contenu -->
+                            <div class="col-12">
+                                <label asp-for="Notice.Content" class="form-label">
+                                    <i class="bi bi-card-text me-1"></i>Contenu
+                                </label>
+                                <textarea asp-for="Notice.Content" class="form-control" rows="4" 
+                                          placeholder="Contenu détaillé de l'annonce" required></textarea>
+                                <span asp-validation-for="Notice.Content" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Dates -->
+                            <div class="col-md-6">
+                                <label asp-for="Notice.StartDate" class="form-label">
+                                    <i class="bi bi-calendar-plus me-1"></i>Date de début
+                                </label>
+                                <input asp-for="Notice.StartDate" type="DateTimeOffset-local" class="form-control" required />
+                                <span asp-validation-for="Notice.StartDate" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Notice.EndDate" class="form-label">
+                                    <i class="bi bi-calendar-x me-1"></i>Date de fin
+                                </label>
+                                <input asp-for="Notice.EndDate" type="DateTimeOffset-local" class="form-control" required />
+                                <span asp-validation-for="Notice.EndDate" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Boutons d'action -->
+                            <div class="col-12 mt-4">
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="bi bi-save me-1"></i> Enregistrer
+                                    </button>
+                                    <a asp-page="Index" class="btn btn-outline-secondary">
+                                        <i class="bi bi-x-circle me-1"></i> Annuler
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Validation côté client améliorée
+        (function () {
+            'use strict'
+
+            var forms = document.querySelectorAll('.needs-validation')
+
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+        
+        // Pré-remplir le select avec la valeur actuelle
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentType = '@Model.Notice.Type';
+            if (currentType) {
+                document.querySelector('select[name="Notice.Type"]').value = currentType;
+            }
+        });
+    </script>
+}

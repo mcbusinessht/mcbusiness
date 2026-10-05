@@ -1,0 +1,80 @@
+﻿@page
+@model             MCBusiness.Pages.Users.Admin.Products.ProductVariants.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>ProductVariant</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ProductVariant.Id" />
+            <div class="form-group">
+                <label asp-for="ProductVariant.ProductId" class="control-label"></label>
+                <select asp-for="ProductVariant.ProductId" class="form-control" asp-items="ViewBag.ProductId"></select>
+                <span asp-validation-for="ProductVariant.ProductId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <span class="text-danger">*</span>
+                <label asp-for="ProductVariant.Sku" class="control-label"></label>
+                <input asp-for="ProductVariant.Sku" class="form-control" />
+                <span asp-validation-for="ProductVariant.Sku" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <span class="text-danger">*</span>
+                <label asp-for="ProductVariant.Price" class="control-label"></label>
+                <input asp-for="ProductVariant.Price" class="form-control" />
+                <span asp-validation-for="ProductVariant.Price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <span class="text-danger">*</span>
+                <label asp-for="ProductVariant.Quantity" class="control-label"></label>
+                <input asp-for="ProductVariant.Quantity" class="form-control" />
+                <span asp-validation-for="ProductVariant.Quantity" class="text-danger"></span>
+            </div>
+            <div class="border rounded p-3 my-3">
+                <h5>Livraison</h5>
+                <div class="form-group">
+                    <label asp-for="ProductVariant.ShippingPackageType" class="control-label">Type de colis</label>
+                    <select asp-for="ProductVariant.ShippingPackageType" class="form-control" asp-items="Html.GetEnumSelectList<MCBusiness.Models.ShippingPackageType>()"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ProductVariant.WeightKg" class="control-label">Poids optionnel (kg)</label>
+                    <input asp-for="ProductVariant.WeightKg" type="number" step="0.01" min="0" class="form-control" />
+                    <span asp-validation-for="ProductVariant.WeightKg" class="text-danger"></span>
+                </div>
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="ProductVariant.RequiresSpecialHandling" /> Fragile ou manutention spéciale
+                    </label>
+                </div>
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="ProductVariant.ShippingQuoteRequired" /> Livraison sur devis
+                    </label>
+                </div>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="ProductVariant.IsAvailable" /> @Html.DisplayNameFor(model => model.ProductVariant.IsAvailable)
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

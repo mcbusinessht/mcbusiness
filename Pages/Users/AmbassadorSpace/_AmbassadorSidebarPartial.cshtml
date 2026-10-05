@@ -1,0 +1,66 @@
+@* Sidebar Ambassadeur - simple, cohérente, responsive *@
+@{
+    var current = Context.Request.Path.Value?.ToLower() ?? "";
+    Func<string, string> active = href => current.Contains(href.ToLower()) ? "active" : "";
+}
+<div class="list-group list-group-flush">
+    <a class="list-group-item list-group-item-action @active("/users/ambassadorspace/dashboard")" href="/Users/AmbassadorSpace/Dashboard">
+        <i class="bi bi-speedometer2 me-2"></i>Dashboard
+    </a>
+    <a class="list-group-item list-group-item-action @active("/users/ambassadorspace/ambassadorlinks")" href="/Users/AmbassadorSpace/AmbassadorLinks">
+        <i class="bi bi-link-45deg me-2"></i>Générer des liens
+    </a>
+    <a class="list-group-item list-group-item-action @active("/users/ambassadorspace/ambassadorcommissions")" href="/Users/AmbassadorSpace/AmbassadorCommissions">
+        <i class="bi bi-cash-coin me-2"></i>Mes commissions
+        <span class="badge bg-warning-subtle text-warning border ms-2 amb-pending-badge d-none"></span>
+    </a>
+    <a class="list-group-item list-group-item-action @active("/users/ambassadorspace/ambassadornetwork")" href="/Users/AmbassadorSpace/AmbassadorNetwork">
+        <i class="bi bi-people me-2"></i>Mon réseau
+    </a>
+    <a class="list-group-item list-group-item-action" href="/Users/AmbassadorSpace/Withdrawals/WithdrawalMethods">
+        <i class="bi bi-wallet2 me-2"></i>Retrait
+    </a>
+</div>
+
+@* Offcanvas pour mobile *@
+<button class="btn btn-success rounded-circle position-fixed d-lg-none" style="right: 1rem; bottom: 1rem; z-index: 1040;" data-bs-toggle="offcanvas" data-bs-target="#ambSidebarCanvas" aria-controls="ambSidebarCanvas">
+    <i class="bi bi-list"></i>
+</button>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="ambSidebarCanvas" aria-labelledby="ambSidebarCanvasLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="ambSidebarCanvasLabel">Espace Ambassadeur</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action @active("/users/ambassadorspace/dashboard")" href="/Users/AmbassadorSpace/Dashboard">
+            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+        </a>
+        <a class="list-group-item list-group-item-action @active("/users/ambassadorspace/ambassadorlinks")" href="/Users/AmbassadorSpace/AmbassadorLinks">
+            <i class="bi bi-link-45deg me-2"></i>Générer des liens
+        </a>
+        <a class="list-group-item list-group-item-action @active("/users/ambassadorspace/ambassadorcommissions")" href="/Users/AmbassadorSpace/AmbassadorCommissions">
+            <i class="bi bi-cash-coin me-2"></i>Mes commissions
+            <span class="badge bg-warning-subtle text-warning border ms-2 amb-pending-badge d-none"></span>
+        </a>
+        <a class="list-group-item list-group-item-action @active("/users/ambassadorspace/ambassadornetwork")" href="/Users/AmbassadorSpace/AmbassadorNetwork">
+            <i class="bi bi-people me-2"></i>Mon réseau
+        </a>
+        <a class="list-group-item list-group-item-action" href="/Users/User/Withdrawals">
+            <i class="bi bi-wallet2 me-2"></i>Retrait
+        </a>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  if(window._ambSidebarInit) return; window._ambSidebarInit = true;
+  fetch('/api/ambassador/stats').then(r=> r.ok ? r.json() : null).then(d=>{
+    if(!d) return; const v = d.pendingCommissions || 0;
+    document.querySelectorAll('.amb-pending-badge').forEach(el=>{
+      if(v > 0){ el.textContent = v.toLocaleString() + ' HTG'; el.classList.remove('d-none'); }
+      else { el.classList.add('d-none'); }
+    });
+  }).catch(()=>{});
+})();
+</script>

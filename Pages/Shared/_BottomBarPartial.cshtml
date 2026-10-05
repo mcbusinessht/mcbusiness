@@ -1,0 +1,68 @@
+@using MCBusiness.Models;
+@using Microsoft.AspNetCore.Identity;
+@inject SignInManager<ApplicationUser> signIn;
+@inject UserManager<ApplicationUser> user;
+    
+
+
+<div class="bottom-bar d-md-none " style="z-index: 1050px !important">
+        <ul>
+            <a asp-page="/Shop/Index"> 
+                <li>
+                    <i class="bi bi-shop"></i> <br> Magasin 
+                </li>
+            </a>
+            
+            <a asp-page="/Services/Index">
+                <li> 
+                    <i class="bi bi-headset"></i> <br> Services 
+                </li>       
+            </li>
+            </a>
+            <a asp-page="/Plans/Index">
+                <li>
+                    <i class="bi bi-card-checklist"></i><br> Plans  
+                </li>
+            </a>
+            </li>
+            
+                @if (signIn.IsSignedIn(User)){
+                    if(User.IsInRole("Admin") || User.IsInRole("SecondAdmin")){
+                            <a asp-page="/Users/Admin/Dashboard">
+                                <li>
+                                    <i class="bi bi-speedometer2"></i> <br> Dashboard  
+                                </li>
+                            </a>
+                        }
+                        else if(User.IsInRole("Seller")){
+                            <a asp-page="/Users/Seller/Dashboard">
+                                <li>
+                                    <i class="bi bi-speedometer2"></i> <br> Dashboard  
+                                </li>
+                            </a>
+                        }
+                        else if(User.IsInRole("Employee")){
+                            <a asp-page="/Users/EmployeeSpace/Dashboard">
+                                <li>
+                                    <i class="bi bi-speedometer2"></i> <br> Dashboard  
+                                </li>
+                            </a>
+                        }
+                        else if(User.IsInRole("User")){
+                            <a asp-page="/Users/User/Dashboard">
+                                <li>
+                                    <i class="bi bi-speedometer2"></i> <br> Dashboard  
+                                </li>
+                            </a>
+                        }
+                        
+                }
+
+            <a asp-page="/Users/User/Profil">
+                <li>
+                    <i class="bi bi-person"></i> <br> Compte  
+                </li>
+            </a>
+                
+        </ul>
+    </div>

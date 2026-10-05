@@ -1,0 +1,313 @@
+﻿@page
+@model MCBusiness.Pages_Users_Seller_Shipments_ShippingFees.EditModel
+@{
+    ViewData["Title"] = "Modifier le Tarif de Livraison";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-3 d-none d-lg-block border-end">
+            <partial name="_SideBarPartial"/>
+        </div>
+        
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="display-6 fw-bold text-primary">
+                        <i class="bi bi-pencil-square me-2"></i>@ViewData["Title"]
+                    </h1>
+                    <p class="text-muted mb-0">Modifiez les détails du tarif de livraison</p>
+                </div>
+                <a asp-page="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Retour à la liste
+                </a>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        <div asp-validation-summary="All" class="alert alert-danger"></div>
+                        <input type="hidden" asp-for="ShippingFee.Id" />
+
+                        <div class="row g-3">
+                            <!-- Compagnie -->
+                            <div class="col-md-6">
+                                <label asp-for="ShippingFee.CompanyId" class="form-label">
+                                    <i class="bi bi-building me-1"></i>Compagnie de livraison
+                                </label>
+                                <select asp-for="ShippingFee.CompanyId" class="form-select" required>
+                                    <option value="0">Sélectionnez une compagnie</option>
+                                    @foreach (var item in (SelectList)ViewBag.CompanyId)
+                                    {
+                                        <option value="@item.Value" selected="@(item.Value == Model.ShippingFee.CompanyId.ToString())">@item.Text</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="ShippingFee.CompanyId" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Devise -->
+                            <div class="col-md-6">
+                                <label asp-for="ShippingFee.CurrencyBase" class="form-label">
+                                    <i class="bi bi-currency-exchange me-1"></i>Devise
+                                </label>
+                                <select asp-for="ShippingFee.CurrencyBase" class="form-select" required>
+                                    <option value="0">Sélectionnez une devise</option>
+                                    @foreach (var item in (SelectList)ViewBag.CurrencyBase)
+                                    {
+                                        <option value="@item.Value" selected="@(item.Value == Model.ShippingFee.CurrencyBase.ToString())">@item.Text</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="ShippingFee.CurrencyBase" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Localisation -->
+                            <div class="col-md-6">
+                                <label asp-for="ShippingFee.CountryId" class="form-label">
+                                    <i class="bi bi-globe me-1"></i>Pays
+                                </label>
+                                <select asp-for="ShippingFee.CountryId" class="form-select" id="countrySelect" required>
+                                    <option value="0">Sélectionnez un pays</option>
+                                    @foreach (var item in (SelectList)ViewBag.CountryId)
+                                    {
+                                        <option value="@item.Value" selected="@(item.Value == Model.ShippingFee.CountryId.ToString())">@item.Text</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="ShippingFee.CountryId" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ShippingFee.StateId" class="form-label">
+                                    <i class="bi bi-map me-1"></i>Région/État
+                                </label>
+                                <select asp-for="ShippingFee.StateId" class="form-select" id="stateSelect" required>
+                                    <option value="0">Chargement...</option>
+                                </select>
+                                <span asp-validation-for="ShippingFee.StateId" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ShippingFee.CityId" class="form-label">
+                                    <i class="bi bi-building me-1"></i>Ville
+                                </label>
+                                <select asp-for="ShippingFee.CityId" class="form-select" id="citySelect" required>
+                                    <option value="0">Chargement...</option>
+                                </select>
+                                <span asp-validation-for="ShippingFee.CityId" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ShippingFee.NeighborhoodId" class="form-label">
+                                    <i class="bi bi-house-door me-1"></i>Quartier
+                                </label>
+                                <select asp-for="ShippingFee.NeighborhoodId" class="form-select" id="neighborhoodSelect">
+                                    <option value="">Chargement...</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ShippingFee.PackageType" class="form-label">
+                                    <i class="bi bi-box-seam me-1"></i>Type de colis
+                                </label>
+                                <select asp-for="ShippingFee.PackageType" class="form-select" asp-items="Html.GetEnumSelectList<MCBusiness.Models.ShippingPackageType>()"></select>
+                                <small class="text-muted">"Any" sert de tarif de secours si aucun profil exact n'existe.</small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ShippingFee.BasePrice" class="form-label">
+                                    <i class="bi bi-tag me-1"></i>Prix de base
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">HTG</span>
+                                    <input asp-for="ShippingFee.BasePrice" type="number" step="0.01" min="0" class="form-control" placeholder="0.00" required />
+                                </div>
+                                <span asp-validation-for="ShippingFee.BasePrice" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ShippingFee.AdditionalItemPrice" class="form-label">
+                                    <i class="bi bi-plus-circle me-1"></i>Supplément par autre article
+                                </label>
+                                <input asp-for="ShippingFee.AdditionalItemPrice" type="number" step="0.01" min="0" class="form-control" />
+                                <small class="text-muted">Ajouté aux produits non principaux du même vendeur.</small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ShippingFee.AdditionalUnitPrice" class="form-label">
+                                    <i class="bi bi-layers me-1"></i>Supplément par unité additionnelle
+                                </label>
+                                <input asp-for="ShippingFee.AdditionalUnitPrice" type="number" step="0.01" min="0" class="form-control" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label asp-for="ShippingFee.PricePerKg" class="form-label">Prix par kg optionnel</label>
+                                <input asp-for="ShippingFee.PricePerKg" type="number" step="0.01" min="0" class="form-control" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label asp-for="ShippingFee.MinPrice" class="form-label">Minimum optionnel</label>
+                                <input asp-for="ShippingFee.MinPrice" type="number" step="0.01" min="0" class="form-control" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label asp-for="ShippingFee.MaxPrice" class="form-label">Maximum optionnel</label>
+                                <input asp-for="ShippingFee.MaxPrice" type="number" step="0.01" min="0" class="form-control" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" asp-for="ShippingFee.QuoteRequired" />
+                                    <label class="form-check-label" asp-for="ShippingFee.QuoteRequired">Demander un devis avant paiement</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" asp-for="ShippingFee.IsActive" />
+                                    <label class="form-check-label" asp-for="ShippingFee.IsActive">Tarif actif</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-check-circle me-2"></i>Enregistrer les modifications
+                            </button>
+                            <a asp-page="Index" class="btn btn-outline-secondary ms-2">
+                                <i class="bi bi-x-circle me-2"></i>Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Menu mobile -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <partial name="_SideBarPartial"/>
+    </div>
+</div>
+
+<button type="button" class="btn btn-primary rounded-circle position-fixed d-lg-none" 
+        style="bottom: 2rem; right: 2rem; width: 56px; height: 56px; z-index: 1030;"
+        data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+    <i class="bi bi-list fs-4"></i>
+</button>
+
+@section Styles {
+    <style>
+        .form-label {
+            font-weight: 500;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.05);
+        }
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            border-color: #86b7fe;
+        }
+    </style>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            // Initialiser les valeurs sélectionnées
+            const countryId = '@Model.ShippingFee.CountryId';
+            const stateId = '@Model.ShippingFee.StateId';
+            const cityId = '@Model.ShippingFee.CityId';
+            const neighborhoodId = '@Model.ShippingFee.NeighborhoodId';
+
+            // Gestion des listes dépendantes
+            function initSelect(parentSelector, childSelector, endpoint, selectedId) {
+                const parentSelect = document.querySelector(parentSelector);
+                const childSelect = document.querySelector(childSelector);
+
+                parentSelect.addEventListener('change', async function() {
+                    const parentId = this.value;
+                    childSelect.innerHTML = '<option value="">Chargement...</option>';
+                    
+                    if (parentId) {
+                        const response = await fetch(`?handler=${endpoint}&id=${parentId}`);
+                        const data = await response.json();
+                        
+                        childSelect.innerHTML = data.length > 0 
+                            ? '<option value="0">Sélectionnez...</option>' 
+                            : '<option value="0">Aucun résultat</option>';
+                            
+                        data.forEach(item => {
+                            const selected = item.id == selectedId ? 'selected' : '';
+                            childSelect.innerHTML += `<option value="${item.id}" ${selected}>${item.name}</option>`;
+                        });
+                    } else {
+                        childSelect.innerHTML = '<option value="0">Sélectionnez d\'abord le parent</option>';
+                    }
+                });
+
+                // Déclencher le changement si une valeur est déjà sélectionnée
+                if (parentSelect.value) {
+                    parentSelect.dispatchEvent(new Event('change'));
+                }
+            }
+
+            // Initialiser les sélecteurs
+            initSelect('#countrySelect', '#stateSelect', 'States', stateId);
+            initSelect('#stateSelect', '#citySelect', 'Cities', cityId);
+            initSelect('#citySelect', '#neighborhoodSelect', 'Neighborhoods', neighborhoodId);
+
+            // Charger les états si le pays est déjà sélectionné
+            if (countryId) {
+                setTimeout(() => {
+                    $('#stateSelect').html('<option value="0">Chargement...</option>');
+                    $.get(`?handler=States&id=${countryId}`, function(data) {
+                        let options = '<option value="0">Sélectionnez une région</option>';
+                        $.each(data, function(index, item) {
+                            const selected = item.id == stateId ? 'selected' : '';
+                            options += `<option value="${item.id}" ${selected}>${item.name}</option>`;
+                        });
+                        $('#stateSelect').html(options);
+                        
+                        // Charger les villes si l'état est déjà sélectionné
+                        if (stateId) {
+                            setTimeout(() => {
+                                $('#citySelect').html('<option value="0">Chargement...</option>');
+                                $.get(`?handler=Cities&id=${stateId}`, function(data) {
+                                    let options = '<option value="0">Sélectionnez une ville</option>';
+                                    $.each(data, function(index, item) {
+                                        const selected = item.id == cityId ? 'selected' : '';
+                                        options += `<option value="${item.id}" ${selected}>${item.name}</option>`;
+                                    });
+                                    $('#citySelect').html(options);
+                                    
+                                    // Charger les quartiers si la ville est déjà sélectionnée
+                                    if (cityId) {
+                                        setTimeout(() => {
+                                            $('#neighborhoodSelect').html('<option value="">Chargement...</option>');
+                                            $.get(`?handler=Neighborhoods&id=${cityId}`, function(data) {
+                                                let options = '<option value="">Optionnel - sélectionnez un quartier</option>';
+                                                $.each(data, function(index, item) {
+                                                    const selected = item.id == neighborhoodId ? 'selected' : '';
+                                                    options += `<option value="${item.id}" ${selected}>${item.name}</option>`;
+                                                });
+                                                $('#neighborhoodSelect').html(options);
+                                            });
+                                        }, 100);
+                                    }
+                                });
+                            }, 100);
+                        }
+                    });
+                }, 100);
+            }
+        });
+    </script>
+}

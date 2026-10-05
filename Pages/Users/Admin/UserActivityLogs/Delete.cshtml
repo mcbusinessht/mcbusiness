@@ -1,0 +1,321 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.UserActivityLogs.DeleteModel
+
+@{
+    ViewData["Title"] = "Gestion des Suppressions de Logs";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-danger text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-trash me-2"></i>Gestion des Suppressions
+                        </h4>
+                        <a asp-page="./Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <!-- Options de suppression avancées -->
+                    <div class="card mb-4 border-danger">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="bi bi-sliders me-2"></i>Options de Suppression</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" asp-page-handler="BulkDelete">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Supprimer par :</label>
+                                        <select class="form-select" id="deleteOption" name="deleteOption">
+                                            <option value="single">Cette entrée uniquement</option>
+                                            <option value="all">Tous les logs</option>
+                                            <option value="date">Par date</option>
+                                            <option value="month">Par mois</option>
+                                            <option value="user">Par utilisateur</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Options conditionnelles -->
+                                    <div class="col-md-4" id="dateSection" style="display: none;">
+                                        <label class="form-label fw-bold">Date spécifique</label>
+                                        <input type="date" class="form-control" name="specificDate">
+                                    </div>
+                                    
+                                    <div class="col-md-4" id="monthSection" style="display: none;">
+                                        <label class="form-label fw-bold">Mois et année</label>
+                                        <input type="month" class="form-control" name="monthYear">
+                                    </div>
+                                    
+                                    <div class="col-md-4" id="userSection" style="display: none;">
+                                        <label class="form-label fw-bold">Nom d'utilisateur</label>
+                                        <input type="text" class="form-control" name="userName" placeholder="Nom d'utilisateur">
+                                    </div>
+                                    
+                                    <div class="col-12 mt-3">
+                                        <button type="submit" class="btn btn-danger me-2">
+                                            <i class="bi bi-trash-fill me-1"></i> Confirmer la suppression
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" id="previewBtn">
+                                            <i class="bi bi-eye me-1"></i> Prévisualiser
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Détails de l'entrée actuelle -->
+                    <div class="card border-danger">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Détails du Log</h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-3 text-muted">Utilisateur</dt>
+                                <dd class="col-sm-9">@Model.UserActivityLog.UserName</dd>
+                                
+                                <dt class="col-sm-3 text-muted">URL</dt>
+                                <dd class="col-sm-9">
+                                    <span class="d-inline-block text-truncate" style="max-width: 300px;">
+                                        @Model.UserActivityLog.Path
+                                    </span>
+                                </dd>
+                                
+                                <dt class="col-sm-3 text-muted">Méthode</dt>
+                                <dd class="col-sm-9">
+                                    <span class="badge @GetMethodBadgeClass(Model.UserActivityLog.Method)">
+                                        @Model.UserActivityLog.Method
+                                    </span>
+                                </dd>
+                                
+                                <dt class="col-sm-3 text-muted">Adresse IP</dt>
+                                <dd class="col-sm-9">@Model.UserActivityLog.IpAddress</dd>
+                                
+                                <dt class="col-sm-3 text-muted">ID Produit</dt>
+                                <dd class="col-sm-9">@(Model.UserActivityLog.ProductId?.ToString() ?? "N/A")</dd>
+                                
+                                <dt class="col-sm-3 text-muted">Type d'action</dt>
+                                <dd class="col-sm-9">
+                                    <span class="badge @GetActionBadgeClass(Model.UserActivityLog.ActionType)">
+                                        @Model.UserActivityLog.ActionType
+                                    </span>
+                                </dd>
+                                
+                                <dt class="col-sm-3 text-muted">Date/Heure</dt>
+                                <dd class="col-sm-9">@LocalTime.Format(Model.UserActivityLog.Timestamp, "g")</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de prévisualisation -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Prévisualisation des Suppressions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="previewContent">
+                <p>Chargement des données...</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="bi bi-trash-fill me-1"></i> Confirmer la suppression
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 0.75rem 1.25rem;
+        }
+        
+        .badge {
+            font-size: 0.85em;
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+        }
+        
+        .badge-get { background-color: #28a745; }
+        .badge-post { background-color: #007bff; }
+        .badge-put { background-color: #fd7e14; }
+        .badge-delete { background-color: #dc3545; }
+        
+        .badge-click { background-color: #17a2b8; }
+        .badge-login { background-color: #20c997; }
+        .badge-logout { background-color: #6c757d; }
+        
+        .text-truncate {
+            max-width: 0;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // Gestion des options de suppression
+        document.getElementById('deleteOption').addEventListener('change', function() {
+            document.getElementById('dateSection').style.display = 'none';
+            document.getElementById('monthSection').style.display = 'none';
+            document.getElementById('userSection').style.display = 'none';
+            
+            switch(this.value) {
+                case 'date':
+                    document.getElementById('dateSection').style.display = 'block';
+                    break;
+                case 'month':
+                    document.getElementById('monthSection').style.display = 'block';
+                    break;
+                case 'user':
+                    document.getElementById('userSection').style.display = 'block';
+                    break;
+            }
+        });
+        
+        // Prévisualisation des suppressions
+        document.getElementById('previewBtn').addEventListener('click', function() {
+            const deleteOption = document.getElementById('deleteOption').value;
+            let query = '';
+            
+            switch(deleteOption) {
+                case 'all':
+                    query = 'option=all';
+                    break;
+                case 'date':
+                    const date = document.querySelector('input[name="specificDate"]').value;
+                    if (!date) {
+                        alert('Veuillez sélectionner une date');
+                        return;
+                    }
+                    query = `option=date&value=${date}`;
+                    break;
+                case 'month':
+                    const month = document.querySelector('input[name="monthYear"]').value;
+                    if (!month) {
+                        alert('Veuillez sélectionner un mois');
+                        return;
+                    }
+                    query = `option=month&value=${month}`;
+                    break;
+                case 'user':
+                    const user = document.querySelector('input[name="userName"]').value;
+                    if (!user) {
+                        alert('Veuillez entrer un nom d\'utilisateur');
+                        return;
+                    }
+                    query = `option=user&value=${user}`;
+                    break;
+                default:
+                    // Pour une seule entrée, on utilise le formulaire normal
+                    document.querySelector('form[method="post"]').submit();
+                    return;
+            }
+            
+            // Afficher le modal de chargement
+            const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+            modal.show();
+            
+            // Charger la prévisualisation
+            fetch(`?handler=PreviewDelete&${query}`)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('previewContent').innerHTML = html;
+                })
+                .catch(error => {
+                    document.getElementById('previewContent').innerHTML = 
+                        `<div class="alert alert-danger">Erreur lors du chargement: ${error.message}</div>`;
+                });
+        });
+        
+        // Confirmation de suppression depuis le modal
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            const deleteOption = document.getElementById('deleteOption').value;
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.action = '?handler=BulkDelete';
+            
+            const optionInput = document.createElement('input');
+            optionInput.type = 'hidden';
+            optionInput.name = 'deleteOption';
+            optionInput.value = deleteOption;
+            form.appendChild(optionInput);
+            
+            switch(deleteOption) {
+                case 'date':
+                    const dateInput = document.createElement('input');
+                    dateInput.type = 'hidden';
+                    dateInput.name = 'specificDate';
+                    dateInput.value = document.querySelector('input[name="specificDate"]').value;
+                    form.appendChild(dateInput);
+                    break;
+                case 'month':
+                    const monthInput = document.createElement('input');
+                    monthInput.type = 'hidden';
+                    monthInput.name = 'monthYear';
+                    monthInput.value = document.querySelector('input[name="monthYear"]').value;
+                    form.appendChild(monthInput);
+                    break;
+                case 'user':
+                    const userInput = document.createElement('input');
+                    userInput.type = 'hidden';
+                    userInput.name = 'userName';
+                    userInput.value = document.querySelector('input[name="userName"]').value;
+                    form.appendChild(userInput);
+                    break;
+            }
+            
+            document.body.appendChild(form);
+            form.submit();
+        });
+    </script>
+}
+
+@functions {
+    // Fonction helper pour les badges de méthode
+    public string GetMethodBadgeClass(string method)
+    {
+        return method.ToLower() switch
+        {
+            "get" => "badge-get",
+            "post" => "badge-post",
+            "put" => "badge-put",
+            "delete" => "badge-delete",
+            _ => "badge-secondary"
+        };
+    }
+    
+    // Fonction helper pour les badges d'action
+    public string GetActionBadgeClass(string actionType)
+    {
+        return actionType.ToLower() switch
+        {
+            "click" => "badge-click",
+            "login" => "badge-login",
+            "logout" => "badge-logout",
+            _ => "badge-secondary"
+        };
+    }
+}

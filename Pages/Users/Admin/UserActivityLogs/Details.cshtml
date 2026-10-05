@@ -1,0 +1,683 @@
+﻿@page
+@model MCBusiness.Pages.Users.Admin.UserActivityLogs.DetailsModel
+
+@{
+    ViewData["Title"] = "Analyse d'Activité Utilisateur";
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-shield-lock me-2"></i>Analyse Forensique
+                        </h4>
+                        <div>
+                            <button class="btn btn-sm btn-warning me-2" id="threatAnalysisBtn">
+                                <i class="bi bi-shield-exclamation me-1"></i> Analyse de Menace
+                            </button>
+                            <a asp-page="./Index" class="btn btn-sm btn-light">
+                                <i class="bi bi-arrow-left me-1"></i> Retour
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <!-- Section Analyse de Sécurité -->
+                    <div class="card mb-4 border-danger" id="threatAnalysisSection" style="display: none;">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0"><i class="bi bi-shield-slash me-2"></i>Analyse de Sécurité</h5>
+                        </div>
+                        <div class="card-body" id="threatAnalysisResults">
+                            <div class="spinner-border text-danger" role="status">
+                                <span class="visually-hidden">Chargement...</span>
+                            </div>
+                            Analyse en cours...
+                        </div>
+                    </div>
+
+                    <!-- Carte Principale d'Information -->
+                    <div class="card mb-4 border-primary">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="bi bi-activity me-2"></i>Détails de l'Activité</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-4 text-muted">
+                                            <i class="bi bi-person me-1"></i>Utilisateur
+                                        </dt>
+                                        <dd class="col-sm-8">
+                                            <span class="badge bg-info">
+                                                @Model.UserActivityLog.UserName
+                                            </span>
+                                            <button class="btn btn-sm btn-outline-secondary ms-2" 
+                                                    onclick="lookupUser('@Model.UserActivityLog.UserName')">
+                                                <i class="bi bi-search"></i> Profil
+                                            </button>
+                                        </dd>
+
+                                        <dt class="col-sm-4 text-muted">
+                                            <i class="bi bi-link me-1"></i>URL
+                                        </dt>
+                                        <dd class="col-sm-8">
+                                            <span class="d-inline-block text-truncate" style="max-width: 250px;" 
+                                                  title="@Model.UserActivityLog.Path">
+                                                @Model.UserActivityLog.Path
+                                            </span>
+                                            <button class="btn btn-sm btn-outline-secondary ms-2" 
+                                                    onclick="analyzeUrl('@Model.UserActivityLog.Path')">
+                                                <i class="bi bi-shield-check"></i> Analyser
+                                            </button>
+                                        </dd>
+
+                                        <dt class="col-sm-4 text-muted">
+                                            <i class="bi bi-gear me-1"></i>Méthode
+                                        </dt>
+                                        <dd class="col-sm-8">
+                                            <span class="badge @GetMethodBadgeClass(Model.UserActivityLog.Method)">
+                                                @Model.UserActivityLog.Method
+                                            </span>
+                                            @if (Model.UserActivityLog.Method == "POST" || Model.UserActivityLog.Method == "PUT")
+                                            {
+                                                <span class="badge bg-warning text-dark ms-2">
+                                                    <i class="bi bi-exclamation-triangle"></i> Modification
+                                                </span>
+                                            }
+                                        </dd>
+
+                                        <dt class="col-sm-4 text-muted">
+                                            <i class="bi bi-pc me-1"></i>Adresse IP
+                                        </dt>
+                                        <dd class="col-sm-8">
+                                            <span id="ipAddress">@Model.UserActivityLog.IpAddress</span>
+                                            <button class="btn btn-sm btn-outline-secondary ms-2" 
+                                                    onclick="lookupIP('@Model.UserActivityLog.IpAddress')">
+                                                <i class="bi bi-geo-alt"></i> Localiser
+                                            </button>
+                                            @if (IsSuspiciousIP(Model.UserActivityLog.IpAddress))
+                                            {
+                                                <span class="badge bg-danger ms-2">
+                                                    <i class="bi bi-exclamation-octagon"></i> Suspecte
+                                                </span>
+                                            }
+                                        </dd>
+                                    </dl>
+                                </div>
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-4 text-muted">
+                                            <i class="bi bi-box me-1"></i>Produit
+                                        </dt>
+                                        <dd class="col-sm-8">
+                                            @(Model.UserActivityLog.ProductId?.ToString() ?? "N/A")
+                                            @if (Model.UserActivityLog.ProductId.HasValue)
+                                            {
+                                                <a href="/Products/Details/@Model.UserActivityLog.ProductId" 
+                                                   class="btn btn-sm btn-outline-primary ms-2">
+                                                    <i class="bi bi-box-arrow-up-right"></i> Voir
+                                                </a>
+                                            }
+                                        </dd>
+
+                                        <dt class="col-sm-4 text-muted">
+                                            <i class="bi bi-activity me-1"></i>Action
+                                        </dt>
+                                        <dd class="col-sm-8">
+                                            <span class="badge @GetActionBadgeClass(Model.UserActivityLog.ActionType)">
+                                                @Model.UserActivityLog.ActionType
+                                            </span>
+                                            @if (Model.UserActivityLog.ActionType == "LoginFailed")
+                                            {
+                                                <span class="badge bg-danger ms-2">
+                                                    <i class="bi bi-exclamation-octagon"></i> Échec
+                                                </span>
+                                            }
+                                        </dd>
+
+                                        <dt class="col-sm-4 text-muted">
+                                            <i class="bi bi-clock me-1"></i>Date/Heure
+                                        </dt>
+                                        <dd class="col-sm-8">
+                                            @LocalTime.Format(Model.UserActivityLog.Timestamp, "g")
+                                            <small class="text-muted ms-2">
+                                                (@GetTimeAgo(Model.UserActivityLog.Timestamp))
+                                            </small>
+                                        </dd>
+
+                                        <dt class="col-sm-4 text-muted">
+                                            <i class="bi bi-globe me-1"></i>User Agent
+                                        </dt>
+                                        <dd class="col-sm-8">
+                                            <span class="d-inline-block text-truncate" style="max-width: 200px;">
+                                                @(Model.UserActivityLog.UserAgent ?? "Non disponible")
+                                            </span>
+                                            <button class="btn btn-sm btn-outline-secondary ms-2" 
+                                                    onclick="analyzeUserAgent('@Model.UserActivityLog.UserAgent')">
+                                                <i class="bi bi-search"></i> Détails
+                                            </button>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section Contexte -->
+                    <div class="card mb-4 border-primary">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>Contexte de l'Activité</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><i class="bi bi-arrow-left-circle me-2"></i>Activités Précédentes</h6>
+                                    <div id="previousActivities">
+                                        <div class="spinner-border spinner-border-sm" role="status">
+                                            <span class="visually-hidden">Chargement...</span>
+                                        </div>
+                                        Chargement des activités précédentes...
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><i class="bi bi-arrow-right-circle me-2"></i>Activités Suivantes</h6>
+                                    <div id="nextActivities">
+                                        <div class="spinner-border spinner-border-sm" role="status">
+                                            <span class="visually-hidden">Chargement...</span>
+                                        </div>
+                                        Chargement des activités suivantes...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section Actions -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                        <div>
+                            <a asp-page="./Edit" asp-route-id="@Model.UserActivityLog.Id" class="btn btn-primary me-2">
+                                <i class="bi bi-pencil-square me-1"></i> Modifier
+                            </a>
+                            <button class="btn btn-outline-warning me-2" onclick="flagActivity(@Model.UserActivityLog.Id)">
+                                <i class="bi bi-flag me-1"></i> Signaler
+                            </button>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-danger me-2" onclick="blockIP('@Model.UserActivityLog.IpAddress')">
+                                <i class="bi bi-shield-lock me-1"></i> Bloquer IP
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="exportActivity(@Model.UserActivityLog.Id)">
+                                <i class="bi bi-download me-1"></i> Exporter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour les analyses -->
+<div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="analysisModalTitle">Analyse</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="analysisModalContent">
+                Chargement...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 0.75rem 1.25rem;
+        }
+        
+        .badge {
+            font-size: 0.85em;
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+        }
+        
+        .badge-get { background-color: #28a745; }
+        .badge-post { background-color: #007bff; }
+        .badge-put { background-color: #fd7e14; }
+        .badge-delete { background-color: #dc3545; }
+        .badge-patch { background-color: #6f42c1; }
+        
+        .badge-login { background-color: #20c997; }
+        .badge-logout { background-color: #6c757d; }
+        .badge-loginfailed { background-color: #dc3545; }
+        .badge-addtocart { background-color: #6610f2; }
+        
+        .text-truncate {
+            max-width: 0;
+        }
+        
+        .activity-timeline {
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        
+        .activity-timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #dee2e6;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 0.25rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #0d6efd;
+            border: 2px solid white;
+        }
+        
+        .timeline-item.suspicious::before {
+            background-color: #dc3545;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // Fonctions d'analyse
+        function lookupIP(ip) {
+            const modal = new bootstrap.Modal(document.getElementById('analysisModal'));
+            document.getElementById('analysisModalTitle').textContent = `Localisation IP: ${ip}`;
+            document.getElementById('analysisModalContent').innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                    <p>Recherche des informations de localisation...</p>
+                </div>`;
+            
+            modal.show();
+            
+            // Simuler une requête API (dans un cas réel, utiliser une vraie API)
+            setTimeout(() => {
+                document.getElementById('analysisModalContent').innerHTML = `
+                    <div>
+                        <h6>Résultats pour ${ip}</h6>
+                        <ul class="list-group">
+                            <li class="list-group-item"><strong>Pays:</strong> France</li>
+                            <li class="list-group-item"><strong>Ville:</strong> Paris</li>
+                            <li class="list-group-item"><strong>Fournisseur:</strong> Orange S.A.</li>
+                            <li class="list-group-item"><strong>Proxy/VPN:</strong> Non détecté</li>
+                        </ul>
+                        <div class="alert alert-info mt-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Ces informations sont approximatives et peuvent ne pas être exactes.
+                        </div>
+                    </div>`;
+            }, 1500);
+        }
+        
+        function analyzeUrl(url) {
+            const modal = new bootstrap.Modal(document.getElementById('analysisModal'));
+            document.getElementById('analysisModalTitle').textContent = `Analyse URL: ${url}`;
+            document.getElementById('analysisModalContent').innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                    <p>Analyse de sécurité en cours...</p>
+                </div>`;
+            
+            modal.show();
+            
+            // Simuler une analyse de sécurité
+            setTimeout(() => {
+                const isSafe = !url.toLowerCase().includes('admin');
+                document.getElementById('analysisModalContent').innerHTML = `
+                    <div>
+                        <h6>Résultats d'analyse pour ${url}</h6>
+                        <div class="alert ${isSafe ? 'alert-success' : 'alert-danger'}">
+                            <i class="bi ${isSafe ? 'bi-shield-check' : 'bi-shield-exclamation'} me-2"></i>
+                            ${isSafe ? 'URL semble sécurisée' : 'Attention: Accès à une zone admin détecté'}
+                        </div>
+                        <ul class="list-group">
+                            <li class="list-group-item"><strong>Paramètres:</strong> ${url.includes('?') ? 'Détectés' : 'Aucun'}</li>
+                            <li class="list-group-item"><strong>Longueur:</strong> ${url.length} caractères</li>
+                            <li class="list-group-item"><strong>HTTPS:</strong> ${url.startsWith('https') ? 'Oui' : 'Non'}</li>
+                        </ul>
+                    </div>`;
+            }, 2000);
+        }
+        
+        function analyzeUserAgent(userAgent) {
+            const modal = new bootstrap.Modal(document.getElementById('analysisModal'));
+            document.getElementById('analysisModalTitle').textContent = 'Analyse User Agent';
+            document.getElementById('analysisModalContent').innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                    <p>Analyse du navigateur et de l'appareil...</p>
+                </div>`;
+            
+            modal.show();
+            
+            setTimeout(() => {
+                const isMobile = userAgent?.toLowerCase().includes('mobile') ?? false;
+                const browser = userAgent?.match(/(Chrome|Firefox|Safari|Edge|Opera)/)?.[0] ?? 'Inconnu';
+                
+                document.getElementById('analysisModalContent').innerHTML = `
+                    <div>
+                        <h6>Informations du navigateur</h6>
+                        <ul class="list-group">
+                            <li class="list-group-item"><strong>Navigateur:</strong> ${browser}</li>
+                            <li class="list-group-item"><strong>Appareil:</strong> ${isMobile ? 'Mobile' : 'Desktop'}</li>
+                            <li class="list-group-item"><strong>Système:</strong> ${getOSFromUA(userAgent)}</li>
+                        </ul>
+                        <div class="mt-3">
+                            <h6>User Agent complet:</h6>
+                            <code class="bg-light p-2 d-block">${userAgent || 'Non disponible'}</code>
+                        </div>
+                    </div>`;
+            }, 1000);
+        }
+        
+        function getOSFromUA(userAgent) {
+            if (!userAgent) return 'Inconnu';
+            if (userAgent.includes('Windows')) return 'Windows';
+            if (userAgent.includes('Macintosh')) return 'MacOS';
+            if (userAgent.includes('Linux')) return 'Linux';
+            if (userAgent.includes('Android')) return 'Android';
+            if (userAgent.includes('iOS')) return 'iOS';
+            return 'Inconnu';
+        }
+        
+        function lookupUser(username) {
+            const modal = new bootstrap.Modal(document.getElementById('analysisModal'));
+            document.getElementById('analysisModalTitle').textContent = `Profil: ${username}`;
+            document.getElementById('analysisModalContent').innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                    <p>Recherche des informations utilisateur...</p>
+                </div>`;
+            
+            modal.show();
+            
+            setTimeout(() => {
+                document.getElementById('analysisModalContent').innerHTML = `
+                    <div>
+                        <h6>Activités récentes de ${username}</h6>
+                        <div class="activity-timeline">
+                            <div class="timeline-item">
+                                <strong>Connexion</strong> - il y a 2 heures
+                            </div>
+                            <div class="timeline-item">
+                                <strong>Modification de profil</strong> - il y a 3 heures
+                            </div>
+                            <div class="timeline-item suspicious">
+                                <strong>Tentative de connexion échouée</strong> - il y a 4 heures
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-person-lines-fill me-1"></i> Voir le profil complet
+                            </button>
+                        </div>
+                    </div>`;
+            }, 1500);
+        }
+        
+        function flagActivity(id) {
+            if (confirm("Marquer cette activité comme suspecte ?")) {
+                alert("Activité signalée aux administrateurs.");
+                // Ici, vous feriez une requête API pour enregistrer le signalement
+            }
+        }
+        
+        function blockIP(ip) {
+            if (confirm(`Bloquer définitivement l'adresse IP ${ip} ?`)) {
+                alert(`L'IP ${ip} a été ajoutée à la liste de blocage.`);
+                // Ici, vous feriez une requête API pour bloquer l'IP
+            }
+        }
+        
+        function exportActivity(id) {
+            alert(`Export de l'activité ${id} démarré...`);
+            // Ici, vous feriez une requête API pour générer un rapport
+        }
+        
+        // Analyse de menace automatique
+        document.getElementById('threatAnalysisBtn').addEventListener('click', function() {
+            const section = document.getElementById('threatAnalysisSection');
+            const results = document.getElementById('threatAnalysisResults');
+            
+            section.style.display = 'block';
+            results.innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border text-danger" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                    <p>Analyse de menace en cours...</p>
+                </div>`;
+            
+            setTimeout(() => {
+                const isSuspicious = @Json.Serialize(IsSuspiciousActivity(Model.UserActivityLog));
+                const ipRisk = @Json.Serialize(IsSuspiciousIP(Model.UserActivityLog.IpAddress)) ? 'Élevé' : 'Faible';
+                const actionRisk = Model.UserActivityLog.ActionType == "LoginFailed" ? 'Élevé' : 'Modéré';
+                
+                results.innerHTML = `
+                    <div>
+                        <h6><i class="bi bi-shield-exclamation me-2"></i>Résultats de l'analyse</h6>
+                        <div class="alert ${isSuspicious ? 'alert-danger' : 'alert-success'}">
+                            <i class="bi ${isSuspicious ? 'bi-exclamation-octagon' : 'bi-shield-check'} me-2"></i>
+                            ${isSuspicious ? 'Activité suspecte détectée' : 'Aucune menace grave détectée'}
+                        </div>
+                        
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi bi-pc me-2"></i>
+                                    <strong>Risque IP:</strong> ${ipRisk}
+                                </div>
+                                <span class="badge bg-${ipRisk == 'Élevé' ? 'danger' : 'success'}">${ipRisk}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi bi-activity me-2"></i>
+                                    <strong>Risque Action:</strong> ${actionRisk}
+                                </div>
+                                <span class="badge bg-${actionRisk == 'Élevé' ? 'danger' : 'warning'}">${actionRisk}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi bi-clock-history me-2"></i>
+                                    <strong>Heure de l'activité:</strong> 
+                                    ${Model.UserActivityLog.Timestamp.Hour < 8 || Model.UserActivityLog.Timestamp.Hour > 20 ? 'Heure inhabituelle' : 'Heure normale'}
+                                </div>
+                                <span class="badge bg-${(Model.UserActivityLog.Timestamp.Hour < 8 || Model.UserActivityLog.Timestamp.Hour > 20) ? 'warning' : 'success'}">
+                                    ${Model.UserActivityLog.Timestamp.Hour < 8 || Model.UserActivityLog.Timestamp.Hour > 20 ? 'Inhabituel' : 'Normal'}
+                                </span>
+                            </li>
+                        </ul>
+                        
+                        <div class="mt-3">
+                            <h6><i class="bi bi-lightbulb me-2"></i>Recommandations</h6>
+                            <ul>
+                                ${isSuspicious ? '<li>Envisager de bloquer cette IP</li>' : ''}
+                                ${ipRisk == 'Élevé' ? '<li>Vérifier les autres activités depuis cette IP</li>' : ''}
+                                ${actionRisk == 'Élevé' ? '<li>Examiner les tentatives de connexion échouées</li>' : ''}
+                                <li>Surveiller les activités futures de cet utilisateur</li>
+                            </ul>
+                        </div>
+                    </div>`;
+            }, 2500);
+        });
+        
+        // Charger les activités contextuelles
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simuler le chargement des activités précédentes/suivantes
+            setTimeout(() => {
+                document.getElementById('previousActivities').innerHTML = `
+                    <div class="activity-timeline">
+                        <div class="timeline-item">
+                            <strong>Page visitée:</strong> /products/123<br>
+                            <small>${new Date(Date.now() - 3600000).toLocaleTimeString()}</small>
+                        </div>
+                        <div class="timeline-item">
+                            <strong>Connexion réussie</strong><br>
+                            <small>${new Date(Date.now() - 7200000).toLocaleTimeString()}</small>
+                        </div>
+                    </div>`;
+                
+                document.getElementById('nextActivities').innerHTML = `
+                    <div class="activity-timeline">
+                        <div class="timeline-item suspicious">
+                            <strong>Tentative d'accès admin:</strong> /admin/users<br>
+                            <small>${new Date(Date.now() + 3600000).toLocaleTimeString()}</small>
+                        </div>
+                        <div class="timeline-item">
+                            <strong>Déconnexion</strong><br>
+                            <small>${new Date(Date.now() + 7200000).toLocaleTimeString()}</small>
+                        </div>
+                    </div>`;
+            }, 1000);
+        });
+    </script>
+}
+
+@functions {
+    // Fonction helper pour déterminer si une activité est suspecte
+    @using MCBusiness.Models
+    public bool IsSuspiciousActivity(UserActivityLog log) 
+    {
+        // Règles de détection avancées
+        bool isSuspicious = false;
+        
+        // 1. Tentatives multiples de connexion échouées
+        if (log.ActionType == "LoginFailed")
+        {
+            isSuspicious = true;
+        }
+        
+        // 2. Accès à des pages admin par des non-admins
+        if (log.Path.Contains("/admin", StringComparison.OrdinalIgnoreCase) && 
+            !log.UserName.Contains("admin", StringComparison.OrdinalIgnoreCase))
+        {
+            isSuspicious = true;
+        }
+        
+        // 3. Activités depuis des IPs suspectes
+        if (IsSuspiciousIP(log.IpAddress))
+        {
+            isSuspicious = true;
+        }
+        
+        // 4. Heures inhabituelles d'activité (entre 20h et 8h)
+        if (log.Timestamp.Hour < 8 || log.Timestamp.Hour > 20)
+        {
+            isSuspicious = true;
+        }
+        
+        return isSuspicious;
+    }
+    
+    // Fonction helper pour détecter les IPs suspectes
+    public bool IsSuspiciousIP(string ip)
+    {
+        // Liste d'IPs suspectes (à compléter avec une vraie liste)
+        string[] suspiciousIPs = {
+            "185.143.223.",
+            "91.234.116.",
+            "123.456.789."
+        };
+        
+        return suspiciousIPs.Any(sip => ip.StartsWith(sip));
+    }
+    
+    // Fonction helper pour les badges de méthode
+    public string GetMethodBadgeClass(string method)
+    {
+        return method.ToLower() switch
+        {
+            "get" => "badge-get",
+            "post" => "badge-post",
+            "put" => "badge-put",
+            "delete" => "badge-delete",
+            "patch" => "badge-patch",
+            _ => "badge-secondary"
+        };
+    }
+    
+    // Fonction helper pour les badges d'action
+    public string GetActionBadgeClass(string actionType)
+    {
+        return actionType.ToLower() switch
+        {
+            "login" => "badge-login",
+            "logout" => "badge-logout",
+            "loginfailed" => "badge-loginfailed",
+            "addtocart" => "badge-addtocart",
+            _ => "badge-secondary"
+        };
+    }
+    
+    // Fonction helper pour le temps écoulé
+    public string GetTimeAgo(DateTimeOffset timestamp)
+    {
+        TimeSpan timeDiff = DateTimeOffset.UtcNow - timestamp;
+        
+        if (timeDiff.TotalDays > 30)
+        {
+            return $"il y a {(int)(timeDiff.TotalDays / 30)} mois";
+        }
+        else if (timeDiff.TotalDays >= 1)
+        {
+            return $"il y a {(int)timeDiff.TotalDays} jours";
+        }
+        else if (timeDiff.TotalHours >= 1)
+        {
+            return $"il y a {(int)timeDiff.TotalHours} heures";
+        }
+        else if (timeDiff.TotalMinutes >= 1)
+        {
+            return $"il y a {(int)timeDiff.TotalMinutes} minutes";
+        }
+        else
+        {
+            return "à l'instant";
+        }
+    }
+}

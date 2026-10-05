@@ -1,0 +1,297 @@
+﻿@page
+@model PrivacyModel
+@{
+    ViewData["Title"] = "Politique de confidentialité";
+}
+
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-12">
+            <div class="card border-0 shadow-lg overflow-hidden" id="privacyCard">
+                <!-- Card Header -->
+                <div class="card-header bg-primary text-white py-4 position-relative overflow-hidden">
+                    <div class="position-absolute w-100 h-100 top-0 start-0" style="background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%);"></div>
+                    <h2 class="text-center mb-0 position-relative">Politique de Confidentialité - MC Business</h2>
+                </div>
+                
+                <!-- Card Body -->
+                <div class="card-body p-5">
+                    <div class="privacy-content">
+                        <p class="text-muted text-end mb-4">Dernière mise à jour : 04/04/25</p>
+                        
+                        <div class="mb-5">
+                            <p class="lead">
+                                MC Business accorde une grande importance à la confidentialité et à la protection de 
+                                vos données personnelles. Cette politique explique comment nous collectons, 
+                                utilisons, partageons et protégeons vos informations.
+                            </p>
+                        </div>
+
+                        <!-- Section 1 -->
+                        <div class="mb-5">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-light bg-opacity-10 text-primary rounded-circle p-3 me-3">
+                                    <i class="bi bi-building fs-4"></i>
+                                </div>
+                                <h3 class="mb-0">1. Qui sommes-nous ?</h3>
+                            </div>
+                            <p>
+                                MC Business est une plateforme qui connecte les utilisateurs à des entreprises partenaires, leur 
+                                permettant d'accéder à des produits à prix réduits et de bénéficier de commissions via un 
+                                système de parrainage.
+                            </p>
+                        </div>
+
+                        <!-- Section 2 -->
+                        <div class="mb-5">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-light bg-opacity-10 text-primary rounded-circle p-3 me-3">
+                                    <i class="bi bi-database fs-4"></i>
+                                </div>
+                                <h3 class="mb-0">2. Données collectées</h3>
+                            </div>
+                            <p>Nous collectons uniquement les données nécessaires au bon fonctionnement du service :</p>
+                            <ul class="list-unstyled">
+                                <li class="mb-2 d-flex align-items-start">
+                                    <i class="bi bi-check-circle-fill text-primary me-2 mt-1"></i>
+                                    <span><strong>Données personnelles :</strong> nom, prénom, e-mail, numéro de téléphone</span>
+                                </li>
+                                <li class="mb-2 d-flex align-items-start">
+                                    <i class="bi bi-check-circle-fill text-primary me-2 mt-1"></i>
+                                    <span><strong>Données de compte :</strong> identifiant, mot de passe (chiffré)</span>
+                                </li>
+                                <li class="mb-2 d-flex align-items-start">
+                                    <i class="bi bi-check-circle-fill text-primary me-2 mt-1"></i>
+                                    <span><strong>Historique d'activité :</strong> achats, liens de parrainage utilisés, commissions reçues</span>
+                                </li>
+                                <li class="d-flex align-items-start">
+                                    <i class="bi bi-check-circle-fill text-primary me-2 mt-1"></i>
+                                    <span><strong>Données techniques :</strong> adresse IP, type d'appareil, cookies</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Section 3 -->
+                        <div class="mb-5">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-light bg-opacity-10 text-primary rounded-circle p-3 me-3">
+                                    <i class="bi bi-gear fs-4"></i>
+                                </div>
+                                <h3 class="mb-0">3. Utilisation des données</h3>
+                            </div>
+                            <p>Vos données sont utilisées pour :</p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="bg-light p-3 rounded h-100">
+                                        <i class="bi bi-person-check text-primary me-2"></i>
+                                        Créer et gérer votre compte
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="bg-light p-3 rounded h-100">
+                                        <i class="bi bi-cart-check text-primary me-2"></i>
+                                        Faciliter vos achats
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="bg-light p-3 rounded h-100">
+                                        <i class="bi bi-graph-up-arrow text-primary me-2"></i>
+                                        Suivre vos commissions de parrainage
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="bg-light p-3 rounded h-100">
+                                        <i class="bi bi-shield-lock text-primary me-2"></i>
+                                        Sécuriser la plateforme et prévenir les fraudes
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 4 -->
+                        <div class="mb-5">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-light bg-opacity-10 text-primary rounded-circle p-3 me-3">
+                                    <i class="bi bi-share fs-4"></i>
+                                </div>
+                                <h3 class="mb-0">4. Partage des données</h3>
+                            </div>
+                            <p>Vos données peuvent être partagées :</p>
+                            <ul class="list-unstyled">
+                                <li class="mb-2 d-flex align-items-start">
+                                    <i class="bi bi-building text-primary me-2 mt-1"></i>
+                                    <span>Avec les entreprises partenaires uniquement pour exécuter vos commandes</span>
+                                </li>
+                                <li class="mb-2 d-flex align-items-start">
+                                    <i class="bi bi-server text-primary me-2 mt-1"></i>
+                                    <span>Avec nos prestataires techniques (hébergement, sécurité)</span>
+                                </li>
+                                <li class="d-flex align-items-start">
+                                    <i class="bi bi-shield-check text-primary me-2 mt-1"></i>
+                                    <span>Avec les autorités compétentes si la loi l'exige</span>
+                                </li>
+                            </ul>
+                            <div class="alert alert-primary mt-3">
+                                <i class="bi bi-info-circle-fill me-2"></i>
+                                Vos données ne sont <strong>jamais</strong> vendues à des tiers.
+                            </div>
+                        </div>
+
+                        <!-- Section 5 -->
+                        <div class="mb-5">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-light bg-opacity-10 text-primary rounded-circle p-3 me-3">
+                                    <i class="bi bi-lock fs-4"></i>
+                                </div>
+                                <h3 class="mb-0">5. Sécurité</h3>
+                            </div>
+                            <p>MC Business met en œuvre des mesures techniques et organisationnelles strictes :</p>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="text-center p-3">
+                                        <div class="bg-light bg-opacity-10 text-primary rounded-circle p-3 mb-2 mx-auto" style="width: 70px; height: 70px;">
+                                            <i class="bi bi-file-lock2 fs-3"></i>
+                                        </div>
+                                        <p class="mb-0">Chiffrement des données sensibles</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center p-3">
+                                        <div class="bg-light bg-opacity-10 text-primary rounded-circle p-3 mb-2 mx-auto" style="width: 70px; height: 70px;">
+                                            <i class="bi bi-person-check fs-3"></i>
+                                        </div>
+                                        <p class="mb-0">Contrôle d'accès rigoureux</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center p-3">
+                                        <div class="bg-light bg-opacity-10 text-primary rounded-circle p-3 mb-2 mx-auto" style="width: 70px; height: 70px;">
+                                            <i class="bi bi-eye fs-3"></i>
+                                        </div>
+                                        <p class="mb-0">Surveillance continue</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 6 -->
+                        <div class="mb-5">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-light bg-opacity-10 text-primary rounded-circle p-3 me-3">
+                                    <i class="bi bi-person-vcard fs-4"></i>
+                                </div>
+                                <h3 class="mb-0">6. Vos droits</h3>
+                            </div>
+                            <p>Vous pouvez à tout moment :</p>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <div class="bg-light p-3 rounded h-100">
+                                        <i class="bi bi-eye-fill text-primary me-2"></i>
+                                        Accéder à vos données personnelles
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="bg-light p-3 rounded h-100">
+                                        <i class="bi bi-pencil-square text-primary me-2"></i>
+                                        Demander la modification ou la suppression
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="bg-light p-3 rounded h-100">
+                                        <i class="bi bi-slash-circle text-primary me-2"></i>
+                                        Vous opposer à certains traitements
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="bg-light p-3 rounded h-100">
+                                        <i class="bi bi-box-arrow-right text-primary me-2"></i>
+                                        Demander la portabilité de vos données
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="alert alert-info">
+                                <i class="bi bi-envelope-fill me-2"></i>
+                                Pour exercer vos droits, contactez-nous à : <strong>support@mcbusinessht.com</strong>
+                            </div>
+                        </div>
+
+                        <!-- Section 7 -->
+                        <div class="mb-5">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-light bg-opacity-10 text-primary rounded-circle p-3 me-3">
+                                    <i class="bi bi-cookie fs-4"></i>
+                                </div>
+                                <h3 class="mb-0">7. Cookies</h3>
+                            </div>
+                            <p>
+                                Des cookies peuvent être utilisés pour améliorer votre expérience, analyser le trafic ou retenir 
+                                vos préférences. Vous pouvez les désactiver à tout moment via votre navigateur.
+                            </p>
+                        </div>
+
+                        <!-- Section 8 -->
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-light bg-opacity-10 text-primary rounded-circle p-3 me-3">
+                                    <i class="bi bi-megaphone fs-4"></i>
+                                </div>
+                                <h3 class="mb-0">8. Modifications</h3>
+                            </div>
+                            <p>
+                                Nous nous réservons le droit de modifier cette politique. En cas de changement majeur, vous 
+                                serez notifié(e) via la plateforme ou par e-mail.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card Footer -->
+                <div class="card-footer bg-transparent border-0 text-center py-4">
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-info-circle-fill text-primary me-1"></i>
+                        Pour toute question concernant cette politique de confidentialité, veuillez nous contacter.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Custom styles */
+        #privacyCard {
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        #privacyCard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .privacy-content p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            color: #495057;
+        }
+        
+        .privacy-content .lead {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: #212529;
+        }
+        
+        .privacy-content h3 {
+            color: #0d6efd;
+            font-weight: 600;
+        }
+        
+        .privacy-content ul li {
+            margin-bottom: 0.5rem;
+        }
+ 
+    </style>
+}

@@ -1,0 +1,412 @@
+﻿@using MCBusiness.Services;
+@using MCBusiness.Models;
+@using Microsoft.AspNetCore.Identity;
+@inject NoticeService NoticeService;
+@inject UserManager<ApplicationUser> userManager;
+
+@{
+    var ordercount = 0;
+    var userId = userManager.GetUserId(User) ; 
+    var currentUrl = Context.Request.Path.Value ?? string.Empty;
+    var pathComparison = StringComparison.OrdinalIgnoreCase;
+    Func<string, bool> isActive = path =>
+        currentUrl.Equals(path, pathComparison) || currentUrl.StartsWith(path + "/", pathComparison);
+    ordercount = await NoticeService.GetNewCommandeAsync(userId); 
+}
+
+<div class="sidebar">
+    <div class="sidebar-menu">
+        <a asp-page="/Users/Seller/Dashboard" class="sidebar-item @(isActive("/Users/Seller/Dashboard") ? "active" : "")">
+            <i class="bi bi-speedometer2"></i>
+            <span>Tableau de bord</span>
+        </a>
+        <a asp-page="/Users/Seller/Profil/Index" class="sidebar-item @(isActive("/Users/Seller/Profil") ? "active" : "")">
+            <i class="bi bi-person"></i>
+            <span>Profil</span>
+        </a>
+        <div class="sidebar-group @(isActive("/Users/Seller/Products") ? "active" : "")">    
+            <button type="button" class="sidebar-item sidebar-toggle">  
+                <i class="bi bi-box-seam"></i>   
+                <span>Produits</span>
+                <i class="bi bi-chevron-down toggle-icon"></i>
+            </button>
+            <div class="sidebar-submenu">
+                <a asp-page="/Users/Seller/Products/Index" class="sidebar-subitem @(isActive("/Users/Seller/Products/Index") || currentUrl.Equals("/Users/Seller/Products", pathComparison) ? "active" : "")">
+                    <i class="bi bi-list-ul"></i>
+                    <span>Liste des produits</span>
+                </a>
+                <a asp-page="/Users/Seller/Products/Create" class="sidebar-subitem @(isActive("/Users/Seller/Products/Create") ? "active" : "")">
+                    <i class="bi bi-plus-circle"></i>
+                    <span>Créer un produit</span>
+                </a>
+                <a asp-page="/Users/Seller/Products/ProductVariants/Index" class="sidebar-subitem @(isActive("/Users/Seller/Products/ProductVariants") ? "active" : "")">
+                    <i class="bi bi-list-ul"></i>
+                    <span>Liste des variants de produit</span>
+                </a>
+                
+                @* <div class="sidebar sidebar-subgroup @(currentUrl.Contains("/ProductVariants") ? "active" : "")">
+                    <div class="sidebar-subitem">
+                        <i class="bi bi-collection"></i>
+                        <span>Variants</span>
+                        <i class="bi bi-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="sidebar-subsubmenu">
+                        <a asp-page="/Users/Seller/Products/ProductVariants/Index" class="sidebar-subsubitem @(currentUrl.EndsWith("/ProductVariants/Index") ? "active" : "")">
+                            <i class="bi bi-list-ul"></i>
+                            <span>Liste des variants</span>
+                        </a>
+                        <a asp-page="/Users/Seller/Products/ProductVariants/Create" class="sidebar-subsubitem @(currentUrl.EndsWith("/ProductVariants/Create") ? "active" : "")">
+                            <i class="bi bi-plus-circle"></i>
+                            <span>Créer un variant</span>
+                        </a>
+                    </div>
+                </div> *@
+            </div>
+        </div>
+        
+        <div class="sidebar-group @(isActive("/Users/Seller/Orders") ? "active" : "")">
+            <button type="button" class="sidebar-item sidebar-toggle">
+                <i class="bi bi-cart-check"></i>
+                <span>Commandes @if(ordercount >0){<span class="badge bg-danger" > @ordercount</span>}</span>
+                <i class="bi bi-chevron-down toggle-icon"></i>
+            </button>
+            <div class="sidebar-submenu">
+                <a asp-page="/Users/Seller/Orders/Index" class="sidebar-subitem @(isActive("/Users/Seller/Orders") ? "active" : "")">
+                    <i class="bi bi-list-ul"></i>
+                    <span>Liste des commandes</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-group @(isActive("/Users/Seller/Shipments") || isActive("/Users/Seller/DeliveryPersons") ? "active" : "")">
+            <button type="button" class="sidebar-item sidebar-toggle">
+                <i class="bi bi-truck"></i>
+                <span>Livraisons</span>
+                <i class="bi bi-chevron-down toggle-icon"></i>
+            </button>
+            <div class="sidebar-submenu">
+                <a asp-page="/Users/Seller/Shipments/ShippingFees/Index" class="sidebar-subitem @(isActive("/Users/Seller/Shipments/ShippingFees") ? "active" : "")">
+                    <i class="bi bi-wallet"></i>   
+                    <span>Frais de livraison</span>
+                </a>
+                <a asp-page="/Users/Seller/Shipments/Index" class="sidebar-subitem @(isActive("/Users/Seller/Shipments/Index") || currentUrl.Equals("/Users/Seller/Shipments", pathComparison) ? "active" : "")">
+                    <i class="bi bi-list-ul"></i>
+                    <span>Liste des livraisons</span>
+                </a>
+                <a asp-page="/Users/Seller/Orders/Index" class="sidebar-subitem">
+                    <i class="bi bi-plus-circle"></i>
+                    <span>Créer depuis une commande</span>
+                </a>
+                <a asp-page="/Users/Seller/DeliveryPersons/Index" class="sidebar-subitem @(isActive("/Users/Seller/DeliveryPersons/Index") || currentUrl.Equals("/Users/Seller/DeliveryPersons", pathComparison) ? "active" : "")">
+                    <i class="bi bi-list-ul"></i>
+                    <span>Liste des livreurs</span>
+                </a>
+                
+                <a asp-page="/Users/Seller/DeliveryPersons/Create" class="sidebar-subitem @(isActive("/Users/Seller/DeliveryPersons/Create") ? "active" : "")">
+                    <i class="bi bi-plus-circle"></i>
+                    <span>Ajouter un livreur</span>
+                </a>
+            </div>
+        </div>
+        <a asp-page="/Users/Seller/Payments" class="sidebar-item @(isActive("/Users/Seller/Payments") ? "active" : "")">
+            <i class="bi bi-wallet"></i>  
+            <span>Vos paiements</span>
+        </a>
+        @* <div class="sidebar-group @(currentUrl.Contains("/Users/Seller/Payments") ? "active" : "")">
+            <div class="sidebar-item">
+                <i class="bi bi-cash-stack"></i>
+                <span>Paiements</span>
+                <i class="bi bi-chevron-down toggle-icon"></i>
+            </div>
+            <div class="sidebar-submenu">
+                <a asp-page="/Users/Seller/Payments" class="sidebar-subitem @(currentUrl.EndsWith("/Payments") ? "active" : "")">
+                    <i class="bi bi-list-ul"></i>
+                    <span>Vos paiements</span>
+                </a>
+            </div>
+        </div> *@
+        <a asp-page="/Users/User/Notifications" class="sidebar-item @(isActive("/Users/User/Notifications") ? "active" : "")">
+            <i class="bi bi-bell"></i>
+            <span>Liste des notifications</span>
+        </a>
+        @* <div class="sidebar-group @(currentUrl.Contains("/Users/Seller/Notifications") ? "active" : "")">
+            <div class="sidebar-item">
+                <i class="bi bi-bell"></i>
+                <span>Notifications</span>
+                <i class="bi bi-chevron-down toggle-icon"></i>
+            </div>
+            <div class="sidebar-submenu">
+                <a asp-page="/Users/User/Notifications" class="sidebar-subitem @(currentUrl.EndsWith("/Notifications") ? "active" : "")">
+                    <i class="bi bi-list-ul"></i>
+                    <span>Liste des notifications</span>
+                </a>
+            </div>
+        </div> *@
+    </div>
+</div>
+
+<style>
+    .sidebar {
+        background: white;
+        height: 100vh;
+        max-height: calc(100vh - 60px); /* Réserver espace pour footer */
+        overflow-y: auto;
+        overflow-x: hidden;
+        position: sticky;
+        top: 0;
+    }
+    
+    /* Scrollbar personnalisée */
+    .sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .sidebar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .sidebar::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 10px;
+    }
+    
+    .sidebar::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+
+    .sidebar-header {
+        padding: 1.5rem 1.5rem 1rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .sidebar-header h3 {
+        color: var(--primary-color);
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .sidebar-menu {
+        padding: 1rem 0.5rem;
+    }
+
+    .sidebar-item, .sidebar-subitem, .sidebar-subsubitem {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        margin: 0.25rem 0;
+        border-radius: 6px;
+        color: var(--dark-text);
+        text-decoration: none;
+        transition: all 0.2s;
+        cursor: pointer;
+        gap: 0.75rem;
+    }
+
+    .sidebar-item i, .sidebar-subitem i, .sidebar-subsubitem i {
+        font-size: 1.1rem;
+        width: 20px;
+        text-align: center;
+    }
+
+    .sidebar-item {
+        font-weight: 500;
+        position: relative;
+    }
+
+    button.sidebar-item {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        text-align: left;
+        font: inherit;
+    }
+
+    .sidebar-subitem {
+        padding-left: 2.5rem;
+        font-size: 0.9rem;
+    }
+
+    .sidebar-subsubitem {
+        padding-left: 4rem;
+        font-size: 0.85rem;
+    }
+
+    .sidebar-item:hover, .sidebar-subitem:hover, .sidebar-subsubitem:hover {
+        background-color: rgba(31, 72, 117, 0.05);
+        color: var(--primary-color);
+    }
+
+    .sidebar-item.active, .sidebar-subitem.active, .sidebar-subsubitem.active {
+        background-color: rgba(31, 72, 117, 0.1);
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    .sidebar-item.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background-color: var(--primary-color);
+        border-radius: 0 3px 3px 0;
+    }
+
+    /* Dark mode adaptations */
+    [data-theme="dark"] .sidebar {
+        background: #1e2732 !important;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    [data-theme="dark"] .sidebar::-webkit-scrollbar-track {
+        background: #151b23 !important;
+    }
+
+    [data-theme="dark"] .sidebar::-webkit-scrollbar-thumb {
+        background: #1a8cff !important;
+    }
+
+    [data-theme="dark"] .sidebar::-webkit-scrollbar-thumb:hover {
+        background: #0066cc !important;
+    }
+
+    [data-theme="dark"] .sidebar-header {
+        border-bottom-color: rgba(26, 140, 255, 0.15) !important;
+    }
+
+    [data-theme="dark"] .sidebar-item,
+    [data-theme="dark"] .sidebar-subitem,
+    [data-theme="dark"] .sidebar-subsubitem {
+        color: #f0f4f8 !important;
+    }
+
+    [data-theme="dark"] .sidebar-item:hover,
+    [data-theme="dark"] .sidebar-subitem:hover,
+    [data-theme="dark"] .sidebar-subsubitem:hover {
+        background-color: #2a3441 !important;
+        color: #1a8cff !important;
+    }
+
+    [data-theme="dark"] .sidebar-item.active,
+    [data-theme="dark"] .sidebar-subitem.active,
+    [data-theme="dark"] .sidebar-subsubitem.active {
+        background-color: #2a3441 !important;
+        color: #1a8cff !important;
+    }
+
+    .toggle-icon {
+        margin-left: auto;
+        transition: transform 0.2s;
+        font-size: 0.8rem;
+    }
+
+    .sidebar-group.active .toggle-icon {
+        transform: rotate(180deg);
+    }
+
+    .sidebar-submenu, .sidebar-subsubmenu {
+        max-height: 0;
+        overflow: hidden;
+        background-color: #f5f5f5;
+        border-left: 3px solid var(--primary-color);
+        border-radius: 4px;
+        margin-top: 0.25rem;
+        opacity: 0;
+        transition: max-height 0.3s ease, opacity 0.3s ease;
+    }
+
+    [data-theme="dark"] .sidebar-submenu,
+    [data-theme="dark"] .sidebar-subsubmenu {
+        background-color: #151b23 !important;
+    }
+
+    .sidebar-group.active .sidebar-submenu,
+    .sidebar-subgroup.active .sidebar-subsubmenu {
+        max-height: 1000px;
+        opacity: 1;
+    }
+
+    .sidebar-item:focus-visible {
+        outline: 2px solid var(--primary-color);
+        outline-offset: -2px;
+    }
+
+    .sidebar-group {
+        margin-bottom: 0.25rem;
+    }
+
+    /* Offcanvas adaptation */
+    .offcanvas .sidebar {
+        padding: 0;
+    }
+</style>
+<script>
+(function() {
+    'use strict';
+
+    window.MCBusinessSellerSidebar = window.MCBusinessSellerSidebar || {};
+    
+    function setupDropdowns(container) {
+        container = container || document;
+        
+        container.querySelectorAll('.sidebar-group').forEach(group => {
+            const toggleBtn = Array.from(group.children).find(child => child.classList && child.classList.contains('sidebar-item'));
+            if (!toggleBtn) return;
+            if (toggleBtn.dataset.sidebarBound === 'true') return;
+
+            toggleBtn.dataset.sidebarBound = 'true';
+            
+            toggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const isCurrentGroupActive = group.classList.contains('active');
+                
+                container.querySelectorAll('.sidebar-group.active').forEach(otherGroup => {
+                    if (otherGroup !== group) {
+                        otherGroup.classList.remove('active');
+                    }
+                });
+                
+                if (isCurrentGroupActive) {
+                    group.classList.remove('active');
+                } else {
+                    group.classList.add('active');
+                }
+            });
+        });
+        
+        container.querySelectorAll('.sidebar-group').forEach(group => {
+            const hasActive = group.querySelector('.active');
+            if (hasActive) {
+                group.classList.add('active');
+            }
+        });
+    }
+
+    window.MCBusinessSellerSidebar.setupDropdowns = setupDropdowns;
+    
+    if (window.MCBusinessSellerSidebar.initialized) {
+        setupDropdowns();
+        return;
+    }
+
+    window.MCBusinessSellerSidebar.initialized = true;
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => setupDropdowns());
+    } else {
+        setupDropdowns();
+    }
+    
+    document.addEventListener('shown.bs.offcanvas', function(e) {
+        const sidebar = e.target.querySelector('.sidebar');
+        if (sidebar) {
+            setupDropdowns(e.target);
+        }
+    });
+})();
+</script>

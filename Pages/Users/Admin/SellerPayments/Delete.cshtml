@@ -1,0 +1,283 @@
+﻿@page
+@model MCBusiness.Pages_Users_Admin_SellerPayments.DeleteModel
+@using MCBusiness.Models
+@using Microsoft.AspNetCore.Authorization
+@using System.Globalization
+@attribute [Authorize(Roles = "Admin")]
+
+@{
+    ViewData["Title"] = "Supprimer un paiement fournisseur";
+    var culture = new CultureInfo("fr-FR");
+    var totalAmount = Model.SellerPayment.ProductTotal + Model.SellerPayment.DeliveryFee - Model.SellerPayment.SalesCommission;
+}
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <partial name="_AdminSidebarPartial" />
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-danger text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-exclamation-triangle me-2"></i>@ViewData["Title"]
+                        </h4>
+                        <a asp-page="Index" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left me-1"></i> Annuler
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="alert alert-danger" role="alert">
+                        <h5 class="alert-heading">
+                            <i class="bi bi-exclamation-octagon-fill me-2"></i>Attention : Action irréversible !
+                        </h5>
+                        <p>
+                            Vous êtes sur le point de supprimer définitivement ce paiement fournisseur. 
+                            Cette action ne peut pas être annulée et toutes les données associées seront perdues.
+                        </p>
+                    </div>
+
+                    <div class="row">
+                        <!-- Carte Informations principales -->
+                        <div class="col-md-6">
+                            <div class="card mb-4 border-danger">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-info-circle me-2"></i>Informations principales
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6 class="text-muted mb-1">
+                                            <i class="bi bi-building me-1"></i> Fournisseur
+                                        </h6>
+                                        <p class="fw-bold">
+                                            @Model.SellerPayment.Company?.Name
+                                            <small class="text-muted d-block">@Model.SellerPayment.Company?.Address</small>
+                                        </p>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <h6 class="text-muted mb-1">
+                                            <i class="bi bi-cart me-1"></i> Commande
+                                        </h6>
+                                        <p class="fw-bold">
+                                            <span class="badge bg-primary">#@Model.SellerPayment.Order?.Id</span>
+                                        </p>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <h6 class="text-muted mb-1">
+                                            <i class="bi bi-calendar me-1"></i> Date de paiement
+                                        </h6>
+                                        <p class="fw-bold">
+                                            @LocalTime.Format(Model.SellerPayment.PaymentDate, "dd/MM/yyyy")
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Carte Détails financiers -->
+                        <div class="col-md-6">
+                            <div class="card mb-4 border-danger">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-cash-stack me-2"></i>Détails financiers
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6 class="text-muted mb-1">
+                                            <i class="bi bi-currency-exchange me-1"></i> Montant total
+                                        </h6>
+                                        <p class="fs-4 fw-bold text-danger">
+                                            @totalAmount
+                                            <small class="text-muted d-block">
+                                                @Model.SellerPayment.Order?.Currency?.CurrencyBase
+                                            </small>
+                                        </p>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <h6 class="text-muted mb-1">
+                                                    <i class="bi bi-box-seam me-1"></i> Produits
+                                                </h6>
+                                                <p class="fw-bold">
+                                                    @Model.SellerPayment.ProductTotal @Model.SellerPayment.Order?.Currency?.CurrencyBase
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <h6 class="text-muted mb-1">
+                                                    <i class="bi bi-truck me-1"></i> Livraison
+                                                </h6>
+                                                <p class="fw-bold">
+                                                    @Model.SellerPayment.DeliveryFee @Model.SellerPayment.Order?.Currency?.CurrencyBase
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <h6 class="text-muted mb-1">
+                                                    <i class="bi bi-percent me-1"></i> Commission
+                                                </h6>
+                                                <p class="fw-bold">
+                                                    -@Model.SellerPayment.SalesCommission @Model.SellerPayment.Order?.Currency?.CurrencyBase
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Carte Statut de paiement -->
+                        <div class="col-md-6">
+                            <div class="card mb-4 border-danger">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-credit-card me-2"></i>Statut de paiement
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6 class="text-muted mb-1">
+                                            <i class="bi bi-info-circle me-1"></i> Statut
+                                        </h6>
+                                        @{
+                                            var statusClass = Model.SellerPayment.Status switch
+                                            {
+                                                PaymentStatus.Completed => "bg-success",
+                                                PaymentStatus.Failed => "bg-danger",
+                                                _ => "bg-warning text-dark"
+                                            };
+                                        }
+                                        <p>
+                                            <span class="badge @statusClass">@Model.SellerPayment.Status</span>
+                                        </p>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <h6 class="text-muted mb-1">
+                                            <i class="bi bi-credit-card me-1"></i> Méthode
+                                        </h6>
+                                        <p class="fw-bold">
+                                            @Model.SellerPayment.PaymentMethod
+                                        </p>
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(Model.SellerPayment.ExternalTransactionId))
+                                    {
+                                        <div class="mb-3">
+                                            <h6 class="text-muted mb-1">
+                                                <i class="bi bi-receipt me-1"></i> Référence
+                                            </h6>
+                                            <p class="fw-bold">
+                                                @Model.SellerPayment.ExternalTransactionId
+                                            </p>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Carte Métadonnées -->
+                        <div class="col-md-6">
+                            <div class="card border-danger">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-gear me-2"></i>Métadonnées
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6 class="text-muted mb-1">
+                                            <i class="bi bi-calendar-plus me-1"></i> Date de création
+                                        </h6>
+                                        <p class="fw-bold">
+                                            @LocalTime.Format(Model.SellerPayment.CreatedAt, "dd/MM/yyyy HH:mm")
+                                        </p>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <h6 class="text-muted mb-1">
+                                            <i class="bi bi-clock-history me-1"></i> Dernière modification
+                                        </h6>
+                                        <p class="fw-bold">
+                                            @(Model.SellerPayment.ModifiedAt != default(DateTimeOffset) ? LocalTime.Format(Model.SellerPayment.ModifiedAt, "dd/MM/yyyy HH:mm") : "Non modifié")
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" class="mt-4">
+                        <input type="hidden" asp-for="SellerPayment.Id" />
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-page="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Retour à la liste
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash3 me-1"></i> Confirmer la suppression
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer bg-light">
+                    <div class="small text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        ID Paiement: @Model.SellerPayment.Id | 
+                        Consulté le: @LocalTime.Format(DateTimeOffset.UtcNow, "dd/MM/yyyy HH:mm")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 0.5rem;
+        }
+        
+        .border-danger {
+            border-left: 4px solid #dc3545 !important;
+        }
+        
+        .btn {
+            border-radius: 0.25rem;
+        }
+        
+        .badge {
+            font-size: 0.9em;
+            padding: 0.35em 0.65em;
+        }
+        
+        .bg-success {
+            background-color: #198754 !important;
+        }
+        
+        .bg-danger {
+            background-color: #dc3545 !important;
+        }
+        
+        .bg-warning {
+            background-color: #ffc107 !important;
+        }
+        
+        .alert-danger {
+            border-left: 4px solid #dc3545;
+        }
+    </style>
+}

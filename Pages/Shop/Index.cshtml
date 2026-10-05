@@ -1,0 +1,404 @@
+@page
+@model MCBusiness.Pages.Shop.IndexModel
+@{
+    ViewData["Title"] = "Boutique - MCBusiness";
+}
+
+<section class="shop-hero">
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <nav aria-label="breadcrumb" class="shop-breadcrumb">
+                    <a asp-page="/Index">Accueil</a>
+                    <span>/</span>
+                    <span>Boutique</span>
+                </nav>
+                <h1>Achetez auprès de vendeurs vérifiés</h1>
+                <p>Explorez les catégories, comparez les produits disponibles et accédez rapidement aux meilleures offres de la marketplace.</p>
+                <form method="get" action="/Search" class="shop-search">
+                    <i class="bi bi-search"></i>
+                    <input type="search" name="query" class="form-control" placeholder="Rechercher un produit, une boutique ou une catégorie">
+                    <button class="btn btn-warning" type="submit">Rechercher</button>
+                </form>
+            </div>
+            <div class="col-lg-5">
+                <div class="shop-stats">
+                    <div>
+                        <strong>@Model.Categories.Count</strong>
+                        <span>catégories actives</span>
+                    </div>
+                    <div>
+                        <strong>@Model.TotalSubCategories</strong>
+                        <span>rayons disponibles</span>
+                    </div>
+                    <div>
+                        <strong>@Model.TotalProducts</strong>
+                        <span>produits visibles</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@if (!Model.Categories.Any())
+{
+    <div class="container py-5">
+        <div class="shop-empty">
+            <i class="bi bi-bag-x"></i>
+            <h2>Aucun produit disponible</h2>
+            <p>La boutique sera enrichie dès que les vendeurs publieront leurs produits.</p>
+            <a asp-page="/Index" class="btn btn-primary">Retour à l'accueil</a>
+        </div>
+    </div>
+}
+else
+{
+    <main class="container shop-content">
+        @foreach (var category in Model.Categories)
+        {
+            <section class="shop-category-band">
+                <div class="category-heading">
+                    <div>
+                        <span class="section-kicker">Catégorie</span>
+                        <h2>@category.Name</h2>
+                    </div>
+                    <a asp-page="/Shop/Categories/Index" asp-route-id="@category.Id" class="btn btn-outline-primary">
+                        Voir la catégorie <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+
+                <div class="subcategory-grid">
+                    @foreach (var subcategory in (category.SubCategories ?? Enumerable.Empty<MCBusiness.Models.Category>()).Take(6))
+                    {
+                        var products = (subcategory.Products ?? Enumerable.Empty<MCBusiness.Models.Product>())
+                            .Where(p => !p.IsDeleted && p.Variants?.Any(v => v.IsAvailable && !v.IsDeleted) == true)
+                            .Take(4)
+                            .ToList();
+
+                        if (!products.Any())
+                        {
+                            continue;
+                        }
+
+                        <article class="subcategory-panel">
+                            <div class="subcategory-head">
+                                <div>
+                                    <h3>@subcategory.Name</h3>
+                                    <span>@products.Count produit(s) aperçu</span>
+                                </div>
+                                <a asp-page="/Shop/Categories/Products/Index"
+                                   asp-route-id="@subcategory.Id"
+                                   class="icon-link"
+                                   aria-label="Voir les produits de @subcategory.Name">
+                                    <i class="bi bi-arrow-up-right"></i>
+                                </a>
+                            </div>
+
+                            <div class="mini-products">
+                                @foreach (var product in products)
+                                {
+                                    var variant = product.Variants.FirstOrDefault(v => v.IsAvailable && !v.IsDeleted);
+                                    if (variant == null)
+                                    {
+                                        continue;
+                                    }
+
+                                    var image = Model.Images.FirstOrDefault(i => i.ProductVariantId == variant.Id);
+
+                                    <a asp-page="/Shop/Categories/Products/Details/Index"
+                                       asp-route-id="@product.Id"
+                                       class="mini-product">
+                                        <img src="@(image?.Url ?? "/image/NoPicture.jpg")" alt="@product.Name" loading="lazy">
+                                        <span class="mini-product-name">@product.Name</span>
+                                        <strong>@variant.Price.ToString("N0") @(variant.Currency?.Symbol ?? "HTG")</strong>
+                                    </a>
+                                }
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
+    </main>
+}
+
+<style>
+    .shop-hero {
+        background: linear-gradient(135deg, #005fac 0%, #004f91 55%, #16365c 100%);
+        color: #fff;
+        padding: 3.5rem 0;
+        margin-bottom: 2rem;
+    }
+
+    .shop-breadcrumb {
+        display: flex;
+        gap: .5rem;
+        align-items: center;
+        margin-bottom: 1rem;
+        color: rgba(255, 255, 255, .78);
+        font-size: .95rem;
+    }
+
+    .shop-breadcrumb a {
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .shop-hero h1 {
+        font-size: clamp(2rem, 4vw, 3.5rem);
+        font-weight: 800;
+        margin-bottom: 1rem;
+        letter-spacing: 0;
+    }
+
+    .shop-hero p {
+        max-width: 680px;
+        color: rgba(255,255,255,.86);
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .shop-search {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: .5rem;
+        align-items: center;
+        background: #fff;
+        border-radius: 8px;
+        padding: .45rem;
+        max-width: 720px;
+    }
+
+    .shop-search i {
+        color: #6c757d;
+        padding-left: .75rem;
+    }
+
+    .shop-search .form-control {
+        border: 0;
+        box-shadow: none;
+    }
+
+    .shop-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: .75rem;
+    }
+
+    .shop-stats div {
+        background: rgba(255,255,255,.12);
+        border: 1px solid rgba(255,255,255,.18);
+        border-radius: 8px;
+        padding: 1rem;
+        min-height: 110px;
+    }
+
+    .shop-stats strong {
+        display: block;
+        font-size: 2rem;
+        line-height: 1;
+    }
+
+    .shop-stats span {
+        display: block;
+        color: rgba(255,255,255,.78);
+        margin-top: .5rem;
+    }
+
+    .shop-content {
+        padding-bottom: 3rem;
+    }
+
+    .shop-category-band {
+        padding: 2rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .category-heading {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .section-kicker {
+        color: #005fac;
+        font-size: .8rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+    }
+
+    .category-heading h2 {
+        margin: .15rem 0 0;
+        font-size: 1.8rem;
+        font-weight: 800;
+    }
+
+    .subcategory-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+
+    .subcategory-panel {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        background: #fff;
+        padding: 1rem;
+    }
+
+    .subcategory-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: start;
+        margin-bottom: 1rem;
+    }
+
+    .subcategory-head h3 {
+        font-size: 1.05rem;
+        margin: 0;
+        font-weight: 800;
+    }
+
+    .subcategory-head span {
+        color: #6c757d;
+        font-size: .9rem;
+    }
+
+    .icon-link {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #f1f5ff;
+        color: #005fac;
+        text-decoration: none;
+    }
+
+    .mini-products {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .75rem;
+    }
+
+    .mini-product {
+        color: inherit;
+        text-decoration: none;
+        min-width: 0;
+    }
+
+    .mini-product img {
+        width: 100%;
+        aspect-ratio: 1 / .82;
+        object-fit: contain;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #eef0f2;
+        padding: .35rem;
+        margin-bottom: .5rem;
+    }
+
+    .mini-product-name {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: .92rem;
+    }
+
+    .mini-product strong {
+        color: #005fac;
+        font-size: .95rem;
+    }
+
+    .shop-empty {
+        text-align: center;
+        padding: 4rem 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .shop-empty i {
+        font-size: 3rem;
+        color: #005fac;
+    }
+
+    @@media (max-width: 767.98px) {
+        .shop-hero {
+            padding: 2rem 0 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .shop-hero h1 {
+            font-size: 1.85rem;
+            line-height: 1.12;
+        }
+
+        .shop-hero p {
+            font-size: .98rem;
+            margin-bottom: 1rem;
+        }
+
+        .shop-search {
+            grid-template-columns: auto 1fr;
+            padding: .4rem;
+        }
+
+        .shop-search button {
+            grid-column: 1 / -1;
+            min-height: 44px;
+        }
+
+        .shop-stats {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: .5rem;
+        }
+
+        .shop-stats div {
+            min-height: auto;
+            padding: .75rem .55rem;
+        }
+
+        .shop-stats strong {
+            font-size: 1.35rem;
+        }
+
+        .shop-stats span {
+            font-size: .78rem;
+        }
+
+        .category-heading {
+            align-items: start;
+            flex-direction: column;
+        }
+
+        .category-heading .btn {
+            width: 100%;
+        }
+
+        .shop-category-band {
+            padding: 1.35rem 0;
+        }
+
+        .subcategory-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .mini-products {
+            gap: .65rem;
+        }
+    }
+
+    @@media (max-width: 380px) {
+        .shop-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

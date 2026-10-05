@@ -1,0 +1,324 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   STYLES POUR LA GESTION D'ACCÈS AMBASSADOR
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   CAS 1: AVEC SUBSCRIPTION ACTIVE
+   Affichage normal, aucune restriction
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.ambassador-feature {
+    /* Par défaut: visible et interactif */
+    opacity: 1;
+    pointer-events: auto;
+    transition: all 0.3s ease;
+}
+
+.ambassador-feature:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   CAS 2: SANS SUBSCRIPTION ACTIVE
+   Sections verrouillées avec teaser
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.locked-section {
+    position: relative;
+    opacity: 0.75;
+    border: 2px dashed #dee2e6;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.locked-section:hover {
+    opacity: 0.85;
+    border-color: #adb5bd;
+    background-color: #f1f3f5;
+}
+
+.locked-section .card {
+    background: white;
+    border: none;
+    border-top: 3px solid #ffc107;
+}
+
+.locked-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 193, 7, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    z-index: 10;
+    pointer-events: auto;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TEASER CARD - Élément d'appel à l'action
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.teaser-card {
+    text-align: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border: 2px dashed #dee2e6;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.teaser-card:hover {
+    border-color: #ffc107;
+    background: linear-gradient(135deg, #fffbf0 0%, #ffffff 100%);
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.15);
+}
+
+.teaser-card .teaser-icon {
+    font-size: 3.5rem;
+    color: #adb5bd;
+    margin-bottom: 1rem;
+}
+
+.teaser-card h5 {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.teaser-card .teaser-description {
+    color: #6c757d;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ICÔNE VERROUILLE
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.lock-icon {
+    display: inline-block;
+    font-size: 3rem;
+    color: #adb5bd;
+    margin-bottom: 1rem;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   BOUTON D'ACTION
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.btn-subscribe {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
+    transition: all 0.3s ease;
+}
+
+.btn-subscribe:hover {
+    background: linear-gradient(135deg, #ffb300 0%, #f57c00 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+}
+
+.btn-subscribe:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   BLURRED CONTENT (pour les sections qui doivent être floues)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.blurred-content {
+    filter: blur(4px);
+    pointer-events: none;
+    user-select: none;
+}
+
+.blurred-content::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.3);
+    z-index: 5;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   BADGE DÉVERROUILLÉ / VERROUILLÉ
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.badge-unlocked {
+    background-color: #198754;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-locked {
+    background-color: #ffc107;
+    color: #000;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION TEASERS GROUPE
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.teasers-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .teasers-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   MESSAGE INFORMATIF
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.alert-locked {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-left: 4px solid #ffc107;
+    color: #856404;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+}
+
+.alert-locked strong {
+    color: #ff9800;
+}
+
+.alert-locked i {
+    margin-right: 0.5rem;
+    color: #ff9800;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ANIMATION DE DÉVERROUILLAGE
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@keyframes unlock-pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.unlocking-feature {
+    animation: unlock-pulse 0.6s ease-in-out;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION AVANCÉE (Affichage complet pour subscription active)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.feature-section {
+    transition: all 0.3s ease;
+}
+
+.feature-section.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.feature-section.disabled .btn,
+.feature-section.disabled a {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   RESPONSIVE
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 576px) {
+    .teaser-card {
+        padding: 1.5rem 1rem;
+    }
+
+    .teaser-card .teaser-icon {
+        font-size: 2.5rem;
+    }
+
+    .lock-icon {
+        font-size: 2rem;
+    }
+
+    .btn-subscribe {
+        width: 100%;
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DARK MODE (optionnel)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+    .locked-section {
+        background-color: #2d3748;
+        border-color: #4a5568;
+    }
+
+    .teaser-card {
+        background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+        border-color: #4a5568;
+    }
+
+    .teaser-card:hover {
+        background: linear-gradient(135deg, #4a3628 0%, #2d2416 100%);
+    }
+
+    .teaser-card h5 {
+        color: #e2e8f0;
+    }
+
+    .teaser-card .teaser-description {
+        color: #cbd5e0;
+    }
+
+    .teaser-card .teaser-icon {
+        color: #718096;
+    }
+
+    .lock-icon {
+        color: #718096;
+    }
+
+    .alert-locked {
+        background-color: #4a3728;
+        border-color: #ff9800;
+        color: #ffc107;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════ */

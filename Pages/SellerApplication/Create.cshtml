@@ -1,0 +1,142 @@
+@page
+@model MCBusiness.Pages.SellerApplication.CreateModel
+@{
+    ViewData["Title"] = "Devenir Vendeur - MCBusiness";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="bi bi-shop me-2"></i>Candidature Vendeur</h3>
+                </div>
+                <div class="card-body p-4">
+                    <p class="lead mb-4">
+                        Rejoignez notre marketplace et vendez vos produits à des milliers de clients !
+                    </p>
+
+                    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle me-2"></i>@Model.SuccessMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>@Model.ErrorMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form method="post" asp-page-handler="Submit">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <h5 class="mb-3">Informations Personnelles</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Input.FullName" class="form-label">Nom Complet *</label>
+                                <input asp-for="Input.FullName" class="form-control" placeholder="Jean Dupont" required />
+                                <span asp-validation-for="Input.FullName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Input.Email" class="form-label">Email *</label>
+                                <input asp-for="Input.Email" type="email" class="form-control" placeholder="email@example.com" required />
+                                <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.PhoneNumber" class="form-label">Téléphone *</label>
+                            <input asp-for="Input.PhoneNumber" type="tel" class="form-control" placeholder="+509 1234 5678" required />
+                            <span asp-validation-for="Input.PhoneNumber" class="text-danger small"></span>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <h5 class="mb-3">Informations sur l'Entreprise</h5>
+                        <div class="mb-3">
+                            <label asp-for="Input.BusinessName" class="form-label">Nom de l'Entreprise *</label>
+                            <input asp-for="Input.BusinessName" class="form-control" placeholder="Mon Commerce SARL" required />
+                            <span asp-validation-for="Input.BusinessName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.BusinessType" class="form-label">Type d'Entreprise *</label>
+                            <select asp-for="Input.BusinessType" class="form-select" required>
+                                <option value="">-- Sélectionnez --</option>
+                                <option value="Retail">Commerce de détail</option>
+                                <option value="Wholesale">Commerce de gros</option>
+                                <option value="Manufacturing">Fabrication</option>
+                                <option value="Services">Services</option>
+                                <option value="Other">Autre</option>
+                            </select>
+                            <span asp-validation-for="Input.BusinessType" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Description" class="form-label">Description de votre activité</label>
+                            <textarea asp-for="Input.Description" class="form-control" rows="4" placeholder="Décrivez brièvement vos produits et services..."></textarea>
+                            <span asp-validation-for="Input.Description" class="text-danger small"></span>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <h5 class="mb-3">Adresse</h5>
+                        <div class="mb-3">
+                            <label asp-for="Input.Address" class="form-label">Adresse Complète *</label>
+                            <input asp-for="Input.Address" class="form-control" placeholder="123 Rue Example" required />
+                            <span asp-validation-for="Input.Address" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Input.City" class="form-label">Ville *</label>
+                                <input asp-for="Input.City" class="form-control" placeholder="Port-au-Prince" required />
+                                <span asp-validation-for="Input.City" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Input.Country" class="form-label">Pays *</label>
+                                <input asp-for="Input.Country" class="form-control" value="Haïti" required />
+                                <span asp-validation-for="Input.Country" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Input.IdentityDocumentUrl" class="form-label">Document d'Identité (URL)</label>
+                            <input asp-for="Input.IdentityDocumentUrl" type="url" class="form-control" placeholder="https://..." />
+                            <span asp-validation-for="Input.IdentityDocumentUrl" class="text-danger small"></span>
+                            <small class="text-muted">Optionnel: Lien vers votre document d'identité (CIN, Passeport, etc.)</small>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-send me-2"></i>Soumettre ma Candidature
+                            </button>
+                            <a asp-page="/Index" class="btn btn-outline-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4 border-info">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-info-circle me-2"></i>Informations Importantes</h5>
+                    <ul class="mb-0">
+                        <li>Votre candidature sera examinée par notre équipe sous 48-72 heures</li>
+                        <li>Vous recevrez un email de confirmation une fois votre compte approuvé</li>
+                        <li>Assurez-vous que toutes les informations fournies sont exactes</li>
+                        <li>Pour toute question, contactez-nous à: support@mcbusiness.ht</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
